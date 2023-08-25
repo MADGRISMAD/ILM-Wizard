@@ -1,194 +1,235 @@
 
-const catalogo = [
+const entidades = [
   {
-    id: 1,
-    name: "Compañía 1",
-    region: "Región 1",
-    descripcion: "Descripción de la compañía 1",
-    icon: "Icono 1",
-    isEnable: true,
-    createdAt: "2021-01-01T00:00:00.000Z",
-    updatedAt: "2021-01-01T00:00:00.000Z",
-    createdBy: "Usuario que creó",
-    updatedBy: "Usuario que actualizó",
-    deletedBy: "Usuario que eliminó",
-    deletedAt: "2021-01-01T00:00:00.000Z",
+    "identifier": "MX",
+    "companyName": "Company Name 1",
+    "description": "Description 1",
+    "isEnabled": true,
+    "flag": "Flag 1"
+  },
+  {
+    "identifier": "US",
+    "companyName": "Company Name 2",
+    "description": "Description 2",
+    "isEnabled": true,
+    "flag": "Flag 2"
+  },
+  // ... otras entidades
+];
+
+const companies = [
+  {
+    "identifier": "imx",
+    "Company": "Company 1",
+    "Hostname prefix": "mxr",
+    "Region or client code": "Region 1",
+    "Delivery": "Delivery 1",
+    "VDC": "VDC 1",
+    "CMDB company": "CMDB Company 1",
+    "isEnabled": true,
+    "select": "di",
+    "short_name": "BSMX",
+    "nicName": "nic",
+    "region": "mx"
+  },
+  {
+    "identifier": "us",
+    "Company": "Company 2",
+    "Hostname prefix": "usb",
+    "Region or client code": "Region 2",
+    "Delivery": "Delivery 2",
+    "VDC": "VDC 2",
+    "CMDB company": "CMDB Company 2",
+    "isEnabled": true,
+    "select": "usa",
+    "short_name": "BSUS",
+    "nicName": "nicus",
+    "region": "us"
   },
   // ... otras compañías
 ];
-const entidades = [
+
+
+const environments = [
   {
-    id: 1,
-    name: "Nombre de la entidad",
-    unitName: "Nombre de la unidad",
-      fullName: "Nombre completo de la entidad",
-      nickname: "Alias de la entidad",
-      region: "Región de la entidad",
-      companyDelivery: "Empresa de entrega de la entidad",
-      vdc: "VDC de la entidad",
-      isEnable: true,
-      createdAt: "2021-01-01T00:00:00.000Z",
-      updatedAt: "2021-01-01T00:00:00.000Z",
-      createdBy: "Usuario que creó",
-      updatedBy: "Usuario que actualizó",
-      deletedBy: "Usuario que eliminó",
-      deletedAt: "2021-01-01T00:00:00.000Z",
-  }
-
-];
-
-
-
-const infraestructura = [
-  {
-    id: 1,
-    name: "mexico",
-    company: "Compañía 1",
-
-    types: [
-      {
-        name: "type1",
-        infraestructuras: [
-          {
-            name: "name",
-            value: "openstack",
-            itsEnable: true,
-            envs: [
-              {
-                name: "pre",
-                identifiers: ["id1", "id2"],
-                itsEnable: true,
-              },
-              {
-                name: "dev",
-                identifiers: ["id3"],
-                itsEnable: true,
-              },
-              {
-                name: "pro",
-                identifiers: ["id4", "id5"],
-                itsEnable: true,
-              },
-              {
-                name: "dmz",
-                identifiers: ["id6"],
-                itsEnable: true,
-              },
-            ],
-          },
-          {
-            name: "mware",
-            value: "OHC",
-            itsEnable: false,
-            envs: [
-              {
-                name: "pre",
-                identifiers: ["id1", "id2"],
-                itsEnable: true,
-              },
-              {
-                name: "dev",
-                identifiers: ["id3"],
-                itsEnable: true,
-              },
-              {
-                name: "pro",
-                identifiers: ["id4", "id5"],
-                itsEnable: true,
-              },
-              {
-                name: "dmz",
-                identifiers: ["id6"],
-                itsEnable: true,
-              },
-            ],
-          },
-          {
-            name: "VMware",
-            value: "Infraestructura 3",
-            itsEnable: true,
-            envs: [
-              {
-                name: "pre",
-                identifiers: ["id1", "id2"],
-                itsEnable: true,
-              },
-              {
-                name: "dev",
-                identifiers: ["id3"],
-                itsEnable: true,
-              },
-              {
-                name: "pro",
-                identifiers: ["id4", "id5"],
-                itsEnable: true,
-              },
-              {
-                name: "dmz",
-                identifiers: ["id6"],
-                itsEnable: true,
-              },
-            ],
-          },
-        ],
-      }
-    ],
-  }
-];
-
-const logChanges = [
-  {
-    id: 1,
-    timestamp: "2023-08-17T12:00:00.000Z",
-    action: "Creación",
-    entityType: "Compañía",
-    entityId: 1,
-    oldValue: null,
-    newValue: {
-      id: 1,
-      name: "Compañía 1",
-      region: "Región 1",
-      descripcion: "Descripción de la compañía 1",
-      icon: "Icono 1",
-      entidad: {
-        id: 1,
-        name: "Nombre de la entidad",
-        unitName: "Nombre de la unidad",
-        fullName: "Nombre completo de la entidad",
-        nickname: "Alias de la entidad",
-        region: "Región de la entidad",
-        companyDelivery: "Empresa de entrega de la entidad",
-        vdc: "VDC de la entidad",
-        isEnable: true,
-        createdAt: "2021-01-01T00:00:00.000Z",
-        updatedAt: "2021-01-01T00:00:00.000Z",
-        createdBy: "Usuario que creó",
-        updatedBy: "Usuario que actualizó",
-        deletedBy: "Usuario que eliminó",
-        deletedAt: "2021-01-01T00:00:00.000Z",
-      },
-      isEnable: true,
-      createdAt: "2021-01-01T00:00:00.000Z",
-      updatedAt: "2021-01-01T00:00:00.000Z",
-      createdBy: "Usuario que creó",
-      updatedBy: "Usuario que actualizó",
-      deletedBy: "Usuario que eliminó",
-      deletedAt: "2021-01-01T00:00:00.000Z",
-    },
-    user: "Usuario que realizó la acción",
+    "identifier": "dev",
+    "EnvName": "Development",
+    "isEnabled": true
   },
-  // ... otros cambios
+  {
+    "identifier": "pre",
+    "EnvName": "Preproduction",
+    "isEnabled": true
+  },
+
+  // ... otros entornos
+];
+const environmentsEntity = [
+  {
+    "EnviromentId":"dasdsa",
+    "EntityId":"dasdsa",
+    "isEnabled": true
+  }
+]
+
+
+const infraTypes = [
+  {
+    "identifier": "ohe",
+    "infraName": "OHE",
+    "isEnabled": true
+  },
+  {
+    "identifier": "vmware",
+    "infraName": "VMware",
+    "isEnabled": true
+  },
+  // ... otros tipos de infraestructura
+];
+
+const availabilityZones = [
+  {
+    "identifier": "ohe",
+    "name": "OHE",
+    "isEnabled": true
+  },
+  {
+    "identifier": "vmware",
+    "name": "VMware",
+    "isEnabled": true
+  },
+  // ... otras zonas de disponibilidad
+];
+
+const haList = [
+  {
+    "identifier": "ohe",
+    "name": "OHE",
+    "isEnabled": true,
+    "skuSoftware": "SKU 1"
+  },
+  {
+    "identifier": "vmware",
+    "name": "VMware",
+    "isEnabled": true,
+    "skuSoftware": "SKU 2"
+  },
+  // ... otras HA
+];
+
+const metalByTenantList = [
+  {
+    "identifier": "Bronze",
+    "name": "Bronze",
+    "isEnabled": true,
+    "skuSoftware": "SKU 3"
+  },
+  {
+    "identifier": "Silver",
+    "name": "Silver",
+    "isEnabled": true,
+    "skuSoftware": "SKU 4"
+  },
+  // ... otros metales por inquilino
+];
+
+const clusterTypes = [
+  {
+    "identifier": "Multicluster",
+    "name": "Multicluster",
+    "isEnabled": true
+  },
+  {
+    "identifier": "Stretched",
+    "name": "Stretched",
+    "isEnabled": true
+  },
+  // ... otros tipos de clúster
+];
+
+const networkRegions = [
+  {
+    "identifier": "TIER 1",
+    "name": "TIER1",
+    "isEnabled": true
+  },
+  {
+    "identifier": "TIER 2",
+    "name": "TIER2",
+    "isEnabled": true
+  },
+  // ... otras regiones de red
+];
+
+const disabledProducts = [
+  "product1",
+  "product2",
+  // ... otros productos deshabilitados
+];
+
+const otherSoftwareProducts = [
+  "software_product1",
+  "software_product2",
+  // ... otros productos de software
+];
+
+const activeDirectories = [
+  {
+    "domain": "domain1",
+    "hidden - environment": "env1",
+    "companlyAlias": "alias1"
+  },
+  {
+    "domain": "domain2",
+    "hidden - environment": "env2",
+    "companlyAlias": "alias2"
+  },
+  // ... otros directorios activos
+];
+
+const nasList = [
+  {
+    "name": "NAS 1",
+    "ip": "192.168.1.1",
+    "isEnabled": true
+  },
+  {
+    "name": "NAS 2",
+    "ip": "192.168.1.2",
+    "isEnabled": true
+  },
+  // ... otras NAS
+];
+
+const clusterClasses = [
+  {
+    "identifier": "Class 1",
+    "name": "Cluster Class 1",
+    "isEnabled": true
+  },
+  {
+    "identifier": "Class 2",
+    "name": "Cluster Class 2",
+    "isEnabled": true
+  },
+  // ... otras clases de clúster
+];
+
+const businessTypes = [
+  {
+    "identifier": "Type 1",
+    "name": "Business Type 1",
+    "isEnabled": true
+  },
+  {
+    "identifier": "Type 2",
+    "name": "Business Type 2",
+    "isEnabled": true
+  },
+  // ... otros tipos de negocio
 ];
 
 
-
-function obtenerCatalogo() {
-  return catalogo;
-}
-
-function obtenerInfraestructura() {
-  return infraestructura;
-}
 function obtenerEntidades(req, res) {
 
   res.status(200).json({code: "OK", object: entidades, message: ""});
@@ -196,10 +237,24 @@ function obtenerEntidades(req, res) {
 }
 
 module.exports = {
-  obtenerCatalogo,
-  obtenerInfraestructura,
-  logChanges,
-  obtenerEntidades
+
+  obtenerEntidades,
+  entidades,
+  companies,
+  environments,
+  infraTypes,
+  availabilityZones,
+  haList,
+  metalByTenantList,
+  clusterTypes,
+  networkRegions,
+  disabledProducts,
+  otherSoftwareProducts,
+  activeDirectories,
+  nasList,
+  clusterClasses,
+  businessTypes,
+  environmentsEntity
 };
 // "use strict"
 // const ejemplo = ((req, res) => {

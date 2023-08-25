@@ -2,13 +2,16 @@ const express = require('express');
 const app = express();
 const port = 3000;
 const http = require('http').createServer(app);
-const newEntitiesRoutes= require('./routes/new-entities.routes');
+const newEntitiesRoutes = require('./routes/new-entities.routes');
+
 const cockieParser = require('cookie-parser');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
 //crea la ruta inciia y conectala a un html
-
+app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/public/assets'));
+app.use(express.static(__dirname + '/public/js'));
 const path = require('path');
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '/public/index.html'));
@@ -26,8 +29,6 @@ app.use(bodyParser.urlencoded({
   limit: '50mb'
 
 }));
-
-
 
 
 app.use(bodyParser.json({

@@ -1,0 +1,93 @@
+*{
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+body{
+      background-color: #EEEEEE
+}
+.card-img-top{
+  border-radius: 50px;
+  padding: 20px;
+}
+.card{
+  border-radius: 30px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
+}
+.card-body{
+  padding: 25px;
+  margin-top: -15px;
+}
+.btn-primary{
+  border-radius: 50px;
+  width: 120px;
+  background-color: #F06166;
+  border-color: #F06166;
+}
+.btn-primary:hover{
+  background-color: rgb(88, 0, 0);
+  border: none;
+}
+h3,h5{
+  color: #F06166;
+}
+.text-start .
+{
+  color: #FF0000;
+}
+
+.wrapper-progressBar {
+  width: 100%
+}
+
+.progressBar {
+}
+
+.progressBar li {
+  list-style-type: none;
+  float: left;
+  width: 33%;
+  position: relative;
+  text-align: center;
+}
+
+.progressBar li:before {
+  content: " ";
+  line-height: 30px;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #ddd;
+  display: block;
+  text-align: center;
+  margin: 0 auto 10px;
+  background-color: white
+}
+
+.progressBar li:after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  background-color: #ddd;
+  top: 15px;
+  left: -50%;
+  z-index: -1;
+}
+
+.progressBar li:first-child:after {
+  content: none;
+}
+
+.progressBar li.active {
+  color: #F06166;
+}
+
+.progressBar li.active:before {
+  border-color: #F06166;
+  background-color: #F06166
+}
+
+.progressBar .active:after {
+  background-color: #F06166;
+}
