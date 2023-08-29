@@ -232,9 +232,21 @@ const businessTypes = [
 
 function obtenerEntidades(req, res) {
 
-  res.status(200).json({code: "OK", object: entidades, message: ""});
+
+  if(req.body.idRegion) {
+
+    //TODO flujo normal
+    res.status(200).json({code: "OK", object: entidades, message: ""});
+  } else {
+    res.status(201).json({code: "ERROR" , object: null, message: "Region ID empty"})
+  }
+
+
+
 
 }
+
+
 
 module.exports = {
 
@@ -268,3 +280,4 @@ module.exports = {
 
 // module.exports = {
 //   ejemplo
+
