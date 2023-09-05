@@ -233,24 +233,151 @@ const businessTypes = [
 function obtenerEntidades(req, res) {
 
 
-  if(req.body.idRegion) {
+  if(req.body.entidades) {
 
     //TODO flujo normal
     res.status(200).json({code: "OK", object: entidades, message: ""});
   } else {
-    res.status(201).json({code: "ERROR" , object: null, message: "Region ID empty"})
+    res.status(201).json({code: "ERROR" , object: null, message: "entidades ID empty"})
   }
-
-
-
-
 }
+
+function obtenerCompanies(req, res) {
+  if(req.body.companies) {
+    res.status(200).json({code: "OK", object: companies, message: ""});
+  } else {
+    res.status(201).json({code: "ERROR" , object: null, message: "companies ID empty"})
+  }
+}
+
+function obtenerEnvironments(req, res) {
+  if(req.body.environments) {
+    res.status(200).json({code: "OK", object: environments, message: ""});
+  } else {
+    res.status(201).json({code: "ERROR" , object: null, message: "environments ID empty"})
+  }
+}
+
+function obtenerInfraTypes(req, res) {
+  if(req.body.infraTypes) {
+    res.status(200).json({code: "OK", object: infraTypes, message: ""});
+  } else {
+    res.status(201).json({code: "ERROR" , object: null, message: "infraTypes ID empty"})
+  }
+}
+
+function obtenerAvailabilityZones(req, res) {
+  if(req.body.availabilityZones) {
+    res.status(200).json({code: "OK", object: availabilityZones, message: ""});
+  } else {
+    res.status(201).json({code: "ERROR" , object: null, message: "availabilityZones ID empty"})
+  }
+}
+
+function obtenerHaList(req, res) {
+  if(req.body.haList) {
+    res.status(200).json({code: "OK", object: haList, message: ""});
+  } else {
+    res.status(201).json({code: "ERROR" , object: null, message: "haList ID empty"})
+  }
+}
+
+function obtenerMetalByTenantList(req, res) {
+  if(req.body.metalByTenantList) {
+    res.status(200).json({code: "OK", object: metalByTenantList, message: ""});
+  } else {
+    res.status(201).json({code: "ERROR" , object: null, message: "metalByTenantList ID empty"})
+  }
+}
+
+function obtenerClusterTypes(req, res) {
+  if(req.body.clusterTypes) {
+    res.status(200).json({code: "OK", object: clusterTypes, message: ""});
+  } else {
+    res.status(201).json({code: "ERROR" , object: null, message: "clusterTypes ID empty"})
+  }
+}
+
+function obtenerNetworkRegions(req, res) {
+  if(req.body.networkRegions) {
+    res.status(200).json({code: "OK", object: networkRegions, message: ""});
+  } else {
+    res.status(201).json({code: "ERROR" , object: null, message: "networkRegions ID empty"})
+  }
+}
+
+function obtenerDisabledProducts(req, res) {
+  if(req.body.disabledProducts) {
+    res.status(200).json({code: "OK", object: disabledProducts, message: ""});
+  } else {
+    res.status(201).json({code: "ERROR" , object: null, message: "disabledProducts ID empty"})
+  }
+}
+
+function obtenerOtherSoftwareProducts(req, res) {
+  if(req.body.otherSoftwareProducts) {
+    res.status(200).json({code: "OK", object: otherSoftwareProducts, message: ""});
+  } else {
+    res.status(201).json({code: "ERROR" , object: null, message: "otherSoftwareProducts ID empty"})
+  }
+}
+
+function obtenerActiveDirectories(req, res) {
+  if(req.body.activeDirectories) {
+    res.status(200).json({code: "OK", object: activeDirectories, message: ""});
+  } else {
+    res.status(201).json({code: "ERROR" , object: null, message: "activeDirectories ID empty"})
+  }
+}
+
+function obtenerNasList(req, res) {
+  if(req.body.nasList) {
+    res.status(200).json({code: "OK", object: nasList, message: ""});
+  } else {
+    res.status(201).json({code: "ERROR" , object: null, message: "nasList ID empty"})
+  }
+}
+
+function obtenerClusterClasses(req, res) {
+  if(req.body.clusterClasses) {
+    res.status(200).json({code: "OK", object: clusterClasses, message: ""});
+  } else {
+    res.status(201).json({code: "ERROR" , object: null, message: "clusterClasses ID empty"})
+  }
+}
+
+function obtenerBusinessTypes(req, res) {
+  if(req.body.businessTypes) {
+    res.status(200).json({code: "OK", object: businessTypes, message: ""});
+  } else {
+    res.status(201).json({code: "ERROR" , object: null, message: "businessTypes ID empty"})
+  }
+}
+
+
+
+
+
 
 
 
 module.exports = {
 
   obtenerEntidades,
+  obtenerCompanies,
+  obtenerEnvironments,
+  obtenerInfraTypes,
+  obtenerAvailabilityZones,
+  obtenerHaList,
+  obtenerMetalByTenantList,
+  obtenerClusterTypes,
+  obtenerNetworkRegions,
+  obtenerDisabledProducts,
+  obtenerOtherSoftwareProducts,
+  obtenerActiveDirectories,
+  obtenerNasList,
+  obtenerClusterClasses,
+  obtenerBusinessTypes,
   entidades,
   companies,
   environments,

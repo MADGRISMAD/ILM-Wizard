@@ -1,26 +1,28 @@
 NewEntities.getEntitites().then(function (data) {
-  //TODO evaluar respuesta seg;un el code
-  if (data.code === "OK") {
-    console.log(data.object);
-    //realizar validaciones de los datos, si viene vacio, si viene con datos, etc
-    //si viene vacio, mostrar mensaje de error
-    //si viene con datos, mostrar datos
-    //si viene con error, mostrar mensaje de error
-    //si es igual a 0 mostrar mensaje de error
+  //validar que entidades no sea null
+  if (data.code == "OK") {
+    console.log(data);
+    var entidades = data.object;
 
-    if (data.object.length === 0) {
-      console.error("No hay datos");
+    var _loop = function _loop(i) {
+      var entidad = entidades[i];
+      const option = document.createElement("p");
+      const father = document.querySelector(".list-group");
+      father.appendChild(option);
+      option.innerHTML = entidad.name;
+      option.addEventListener("click", function () {
+
+      });
+    };
+
+    for (var i = 0; i < entidades.length; i++) {
+      _loop(i);
     }
-    else {
-
+  } else {
+    console.log("error");
   }
-  else {
-    console.error(data.message);
-      }
-
-
-}).catch(function (error) {
-
-  console.error(error);
-
 });
+
+
+
+
