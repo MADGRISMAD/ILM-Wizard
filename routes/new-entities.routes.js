@@ -8,6 +8,11 @@ const routes = express.Router()
 
 routes.get("/obtenerEntidades" , newEntititesController.obtenerEntidades)
 
+routes.post("/guardarEntidades" , newEntititesController.guardarEntidades)
+
+routes.get("/obtenerCompanies" , newEntititesController.obtenerCompanies)
+
+
 
 
 

@@ -1,15 +1,21 @@
-
 const entidades = [
   {
     "identifier": "MX",
-    "companyName": "Company Name 1",
+    "companyName": "Company 1",
     "description": "Description 1",
     "isEnabled": true,
     "flag": "Flag 1"
   },
   {
     "identifier": "US",
-    "companyName": "Company Name 2",
+    "companyName": "Company 2",
+    "description": "Description 2",
+    "isEnabled": true,
+    "flag": "Flag 2"
+  },
+  {
+    "identifier": "US",
+    "companyName": "Company 2",
     "description": "Description 2",
     "isEnabled": true,
     "flag": "Flag 2"
@@ -17,10 +23,41 @@ const entidades = [
   // ... otras entidades
 ];
 
+
+
+
 const companies = [
   {
     "identifier": "imx",
     "Company": "Company 1",
+    "Hostname prefix": "mxr",
+    "Region or client code": "Region 1",
+    "Delivery": "Delivery 1",
+    "VDC": "VDC 1",
+    "CMDB company": "CMDB Company 1",
+    "isEnabled": true,
+    "select": "di",
+    "short_name": "BSMX",
+    "nicName": "nic",
+    "region": "mx"
+  },
+  {
+    "identifier": "imx",
+    "Company": "Company 1",
+    "Hostname prefix": "mxr",
+    "Region or client code": "Region 1",
+    "Delivery": "Delivery 1",
+    "VDC": "VDC 1",
+    "CMDB company": "CMDB Company 1",
+    "isEnabled": true,
+    "select": "di",
+    "short_name": "BSMX",
+    "nicName": "nic",
+    "region": "mx"
+  },
+  {
+    "identifier": "us",
+    "Company": "Company 2",
     "Hostname prefix": "mxr",
     "Region or client code": "Region 1",
     "Delivery": "Delivery 1",
@@ -232,23 +269,25 @@ const businessTypes = [
 
 function obtenerEntidades(req, res) {
 
-
-  if(req.body.entidades) {
-
-    //TODO flujo normal
     res.status(200).json({code: "OK", object: entidades, message: ""});
-  } else {
-    res.status(201).json({code: "ERROR" , object: null, message: "entidades ID empty"})
-  }
+
 }
+
+function guardarEntidades(req, res) {
+
+   entidades.push(req.body);
+   res.status(200).json({code: "OK", object: entidades, message: ""});
+
+}
+
+
 
 function obtenerCompanies(req, res) {
-  if(req.body.companies) {
+
     res.status(200).json({code: "OK", object: companies, message: ""});
-  } else {
-    res.status(201).json({code: "ERROR" , object: null, message: "companies ID empty"})
-  }
+
 }
+
 
 function obtenerEnvironments(req, res) {
   if(req.body.environments) {
@@ -378,6 +417,7 @@ module.exports = {
   obtenerNasList,
   obtenerClusterClasses,
   obtenerBusinessTypes,
+  guardarEntidades,
   entidades,
   companies,
   environments,
@@ -407,4 +447,14 @@ module.exports = {
 
 // module.exports = {
 //   ejemplo
+
+// En el controlador en "controller"
+
+
+
+
+
+
+
+
 

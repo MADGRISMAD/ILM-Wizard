@@ -6,23 +6,33 @@
 body{
       background-color: #EEEEEE
 }
-.card-img-top{
-  border-radius: 50px;
-  padding: 20px;
+.card {
+  width: 15rem; /* Ancho de la tarjeta */
+  margin: 1rem; /* Espacio entre las tarjetas */
+  border-radius: 30px; /* Mantén el borde redondeado */
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px; /* Mantén la sombra */
 }
-.card{
-  border-radius: 30px;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
+
+.card-img-top {
+  width: 100%; /* Hace que la imagen cubra horizontalmente el contenedor */
+  height: auto; /* Mantiene la relación de aspecto original vertical */
+  border-radius: 50px; /* Mantén el borde redondeado */
+  padding: 20px; /* Mantén el relleno */
 }
+
 .card-body{
   padding: 25px;
   margin-top: -15px;
 }
 .btn-primary{
   border-radius: 50px;
-  width: 120px;
+  width: auto;
   background-color: #F06166;
   border-color: #F06166;
+
+
+
+
 }
 .btn-primary:hover{
   background-color: rgb(88, 0, 0);
@@ -46,7 +56,7 @@ h3,h5{
 .progressBar li {
   list-style-type: none;
   float: left;
-  width: 33%;
+  width: 20%;
   position: relative;
   text-align: center;
 }
@@ -85,9 +95,47 @@ h3,h5{
 
 .progressBar li.active:before {
   border-color: #F06166;
-  background-color: #F06166
+  background-color: #F06166;
 }
 
 .progressBar .active:after {
   background-color: #F06166;
+}
+
+.progressBar {
+  display: flex;
+  justify-content: space-between;
+}
+
+.progressBar .nav-item {
+  flex-grow: 1;
+  text-align: center;
+  padding: 0;
+}
+
+.progressBar .nav-link {
+  border: none;
+  background-color: transparent;
+  color: #333;
+  font-weight: bold;
+  border-radius: 0;
+  transition: background-color 0.3s;
+  padding: 10px 20px;
+}
+
+.progressBar .nav-link.active {
+  background-color: #F06166;
+  color: #fff;
+}
+
+.card.selected {
+  background-color: #FFB3B0; /* Cambia el color de fondo al rojo */
+  color: white; /* Cambia el color de texto a blanco */
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 0px 10px; /* Agrega sombra */
+  border: 2px solid #FFB3B0; /* Agrega borde */
+
+}
+
+h3 .card.selected{
+  color: white;
 }
