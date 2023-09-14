@@ -10,6 +10,8 @@ routes.get("/obtenerEntidades" , newEntititesController.obtenerEntidades)
 
 routes.post("/guardarEntidades" , newEntititesController.guardarEntidades)
 
+routes.delete("/eliminarUltimaEntidad", newEntititesController.eliminarUltimaEntidad);
+
 routes.get("/obtenerCompanies" , newEntititesController.obtenerCompanies)
 
 

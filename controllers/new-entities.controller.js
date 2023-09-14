@@ -1,25 +1,19 @@
 const entidades = [
   {
     "identifier": "MX",
-    "companyName": "Company 1",
+    "companyName": "MX",
     "description": "Description 1",
     "isEnabled": true,
-    "flag": "Flag 1"
+    "flag": "assets/img/MEXICO.jpg"
   },
   {
     "identifier": "US",
-    "companyName": "Company 2",
+    "companyName": "US",
     "description": "Description 2",
     "isEnabled": true,
-    "flag": "Flag 2"
+    "flag": "assets/img/Usa.jpg"
   },
-  {
-    "identifier": "US",
-    "companyName": "Company 2",
-    "description": "Description 2",
-    "isEnabled": true,
-    "flag": "Flag 2"
-  },
+
   // ... otras entidades
 ];
 
@@ -29,7 +23,7 @@ const entidades = [
 const companies = [
   {
     "identifier": "imx",
-    "Company": "Company 1",
+    "Company": "MX",
     "Hostname prefix": "mxr",
     "Region or client code": "Region 1",
     "Delivery": "Delivery 1",
@@ -43,7 +37,7 @@ const companies = [
   },
   {
     "identifier": "imx",
-    "Company": "Company 1",
+    "Company": "MX",
     "Hostname prefix": "mxr",
     "Region or client code": "Region 1",
     "Delivery": "Delivery 1",
@@ -57,7 +51,7 @@ const companies = [
   },
   {
     "identifier": "us",
-    "Company": "Company 2",
+    "Company": "US",
     "Hostname prefix": "mxr",
     "Region or client code": "Region 1",
     "Delivery": "Delivery 1",
@@ -71,7 +65,7 @@ const companies = [
   },
   {
     "identifier": "us",
-    "Company": "Company 2",
+    "Company": "US",
     "Hostname prefix": "usb",
     "Region or client code": "Region 2",
     "Delivery": "Delivery 2",
@@ -273,11 +267,23 @@ function obtenerEntidades(req, res) {
 
 }
 
+
 function guardarEntidades(req, res) {
 
    entidades.push(req.body);
    res.status(200).json({code: "OK", object: entidades, message: ""});
 
+}
+
+function eliminarUltimaEntidad(req, res) {
+  if (entidades.length === 0) {
+    return res.status(400).json({ code: "ERROR", message: "No hay entidades para eliminar." });
+  }
+
+  // Elimina la última entidad del arreglo
+  const entidadEliminada = entidades.pop();
+
+  res.status(200).json({ code: "OK", message: `Entidad "${entidadEliminada.companyName}" eliminada.` });
 }
 
 
@@ -418,6 +424,8 @@ module.exports = {
   obtenerClusterClasses,
   obtenerBusinessTypes,
   guardarEntidades,
+  eliminarUltimaEntidad,
+
   entidades,
   companies,
   environments,
