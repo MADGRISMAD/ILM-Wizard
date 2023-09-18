@@ -82,18 +82,30 @@
                </ol>
             </nav>
             <!-- Botón para abrir el modal -->
-            <button type="button" class="btn btn-primary" id="agregarEntidad">Agregar Nueva Entidad</button>
-            <!-- Botón para abrir el modal de editar -->
-            <!-- <button type="button" class="btn btn-warning" id="editarEntidad">Editar Entidad</button> -->
+            <button type="button" class="btn btn-primary" id="agregarCompania>Agregar Nueva Compania</button>
+            <!-- Botón para abrir el modal de editar  -->
+           <button type="button" class="btn btn-warning" id="editarCompania">Editar Compania</button>
             <!-- Botón para eliminar compañía -->
-            <button type="button" class="btn btn-danger" id="eliminarEntidad">Eliminar Compañía</button>
+            <button type="button" class="btn btn-danger" id="eliminarCompania">Eliminar Compañía</button>
+
+            <!-- Modal para agregar nueva compañía -->
+            <div class="modal" id="modalAgregarCompania">
+            <!-- ... estructura del modal, incluyendo el formulario para agregar una compañía ... -->
+            </div>
+
+            <!-- Modal para editar compañía -->
+            <div class="modal" id="modalEditarCompania">
+  <!-- ... estructura del modal, incluyendo el formulario para editar una compañía ... -->
+            </div>
+
+
             <!-- =============  tarjetas ============= -->
             <div class="container py-5">
                <div class="row row-cols-1 row-cols-md-2 g-4 py-2">
                   <div class="col">
                      <div class="card" style="width: 25rem;">
                         <!-- La imagen inicial se va a cambiar mediante JavaScript -->
-                        <img src="" class="card-img-top" alt="Imagen de compañía">
+                        <img src="" class="card-img-top current-company" alt="Imagen de compañía">
                         <div class="card-body">
                            <!-- El título inicial se va a cambiar mediante JavaScript -->
                            <h3 class="card-title text-center" id="country1"></h3>
