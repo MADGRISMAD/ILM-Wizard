@@ -81,22 +81,18 @@
                   <li class="breadcrumb-item active" aria-current="page">region Selector</li>
                </ol>
             </nav>
-            <!-- Botón para abrir el modal -->
-            <button type="button" class="btn btn-primary" id="agregarCompania>Agregar Nueva Compania</button>
-            <!-- Botón para abrir el modal de editar  -->
-           <button type="button" class="btn btn-warning" id="editarCompania">Editar Compania</button>
-            <!-- Botón para eliminar compañía -->
-            <button type="button" class="btn btn-danger" id="eliminarCompania">Eliminar Compañía</button>
 
-            <!-- Modal para agregar nueva compañía -->
-            <div class="modal" id="modalAgregarCompania">
-            <!-- ... estructura del modal, incluyendo el formulario para agregar una compañía ... -->
-            </div>
 
-            <!-- Modal para editar compañía -->
-            <div class="modal" id="modalEditarCompania">
-  <!-- ... estructura del modal, incluyendo el formulario para editar una compañía ... -->
-            </div>
+           <!-- Botón para abrir el modal -->
+<button type="button" class="btn btn-primary" id="agregarCompania">Agregar Compañía</button>
+
+<!-- Modal para agregar la compañía -->
+<div class="modal fade" id="companyModal" tabindex="-1" role="dialog" aria-labelledby="companyModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <!-- El contenido del modal se generará dinámicamente con JavaScript/jQuery -->
+        <div class="modal-content"></div>
+    </div>
+</div>
 
 
             <!-- =============  tarjetas ============= -->
@@ -164,34 +160,73 @@
                   <li class="breadcrumb-item active" aria-current="page">Entity</li>
                </ol>
             </nav>
-            <div class="container py-5 ">
-               <div class="row row-cols-1 row-cols-md-2 g-4 py-2 ">
-                  <!-- Utilizamos 'justify-content-center' para centrar horizontalmente y 'align-items-center' para centrar verticalmente -->
-                  <div class="col">
-                     <div class="card" style="width: 25rem;">
-                        <img src="assets/img/MEXICO.jpg" class="card-img-top" alt="...">
-                        <div class="card-body">
-                           <h3 class="card-title text-center" id="country1">MEXICO</h3>
-                        </div>
-                        <div class="mb-5 d-flex justify-content-around">
-                        </div>
-                     </div>
+            <!-- Modal para selección de item -->
+<div class="modal fade" id="itemSelectionModal" tabindex="-1" role="dialog" aria-labelledby="itemSelectionModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content"></div>
+  </div>
+</div>
+
+<!-- Modal para ambiente -->
+<div class="modal fade" id="environmentModal" tabindex="-1" role="dialog" aria-labelledby="environmentModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content"></div>
+  </div>
+</div>
+
+<!-- Modal para infraestructura -->
+<div class="modal fade" id="infrastructureModal" tabindex="-1" role="dialog" aria-labelledby="infrastructureModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content"></div>
+  </div>
+</div>
+
+<!-- Botón para abrir el modal de selección de items -->
+<button id="agregarNuevoItem" class="btn btn-primary">Agregar Nuevo Item</button>
+<button id="editarEntidad" class="btn btn-outline-info">Editar Entidad Seleccionada</button>
+
+
+
+            <!-- tarjetas -->
+            <div class="container py-5">
+              <!-- ... Tu código anterior ... -->
+
+              <!-- Nueva sección con 3 columnas -->
+              <div class="row py-5">
+                  <!-- Tarjeta de la entidad seleccionada -->
+                  <div class="col-md-4">
+                      <div class="card">
+                          <img src="" class="card-img-top selected-entity" alt="Imagen de entidad">
+                          <div class="card-body">
+                              <h3 class="card-title text-center" id="selectedEntityName"></h3>
+                          </div>
+                      </div>
                   </div>
-                  <div class="col">
-                     <div class="card" style="width: 25rem;">
-                        <img src="assets/img/MEXICO.jpg" class="card-img-top" alt="...">
-                        <div class="card-body">
-                           <h3 class="card-title text-center" id="country1">MEXICO</h3>
-                        </div>
-                        <div class="mb-5 d-flex justify-content-around">
-                        </div>
-                     </div>
+
+                  <!-- Lista de environments -->
+                  <div class="col-md-4">
+                      <div class="card">
+                          <h5 class="card-title text-center">Select Environment</h5>
+                          <ul class="list-group" id="environment-list">
+                              <!-- Aquí se agregarán dinámicamente los elementos de la lista -->
+                          </ul>
+                      </div>
                   </div>
-               </div>
-            </div>
-            <div class="mb-5 d-flex justify-content-center">
-               <button class="btn btn-primary">Select</button>
-            </div>
+
+                  <!-- Lista de tipos de infraestructura -->
+                  <div class="col-md-4">
+                      <div class="card">
+                          <h5 class="card-title text-center">Select Infrastructure Type</h5>
+                          <ul class="list-group" id="infrastructure-list">
+                              <!-- Aquí se agregarán dinámicamente los elementos de la lista -->
+                          </ul>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+
+
             <!-- //stepper -->
             <div class="row">
                <div class="col text-center block border">
@@ -236,5 +271,6 @@
    <script src="js/entities-managment.js"></script>
    <script src="js/companies-manegment.js"></script>
    <script src="js/new-companies.js"></script>
+   <script src="js/env&infra-management.js"> </script>
    </body>
 </html>

@@ -13,6 +13,8 @@ const NewEntities = {
 
      return $.ajax({url: "http://localhost:3000/newentities/obtenerEntidades"}).done(function(data, status) {});
   }
+
+
 }
 
 

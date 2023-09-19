@@ -294,21 +294,36 @@ function obtenerCompanies(req, res) {
 
 }
 
+function guardarCompanies(req, res) {
 
-function obtenerEnvironments(req, res) {
-  if(req.body.environments) {
-    res.status(200).json({code: "OK", object: environments, message: ""});
-  } else {
-    res.status(201).json({code: "ERROR" , object: null, message: "environments ID empty"})
-  }
+  companies.push(req.body);
+  res.status(200).json({code: "OK", object: companies, message: ""});
+
 }
 
-function obtenerInfraTypes(req, res) {
-  if(req.body.infraTypes) {
-    res.status(200).json({code: "OK", object: infraTypes, message: ""});
-  } else {
-    res.status(201).json({code: "ERROR" , object: null, message: "infraTypes ID empty"})
-  }
+function obtenerEnvironments(req, res) {
+  res.status(200).json({code: "OK", object: environments, message: ""});
+
+
+}
+
+function guardarEnvironments(req, res) {
+
+  environments.push(req.body);
+  res.status(200).json({code: "OK", object: environments, message: ""});
+
+
+}
+
+function obtenerInfraestructuras(req, res) {
+  res.status(200).json({code: "OK", object: infraTypes, message: ""});
+}
+
+function guardarInfraestructuras(req, res) {
+
+  infraTypes.push(req.body);
+  res.status(200).json({code: "OK", object: infraTypes, message: ""});
+
 }
 
 function obtenerAvailabilityZones(req, res) {
@@ -411,7 +426,7 @@ module.exports = {
   obtenerEntidades,
   obtenerCompanies,
   obtenerEnvironments,
-  obtenerInfraTypes,
+  obtenerInfraestructuras,
   obtenerAvailabilityZones,
   obtenerHaList,
   obtenerMetalByTenantList,
@@ -425,6 +440,9 @@ module.exports = {
   obtenerBusinessTypes,
   guardarEntidades,
   eliminarUltimaEntidad,
+  guardarCompanies,
+  guardarEnvironments,
+  guardarInfraestructuras,
 
   entidades,
   companies,

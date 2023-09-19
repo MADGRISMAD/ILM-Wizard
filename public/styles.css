@@ -139,3 +139,24 @@ h3,h5{
 h3 .card.selected{
   color: white;
 }
+.list-group-item:hover {
+  background-color: #F06166;  /* Cambia el color de fondo a rojo cuando el ratón pasa por encima */
+  cursor: pointer;  /* Cambia el cursor a una mano para indicar que el elemento es interactivo */
+  color: white; /* Cambia el color de texto a blanco */
+}
+
+/* Estilos para los elementos desactivados */
+.disabled-item {
+  background-color: rgb(207, 206, 206) !important;
+  cursor: not-allowed;
+}
+.vertical-divider {
+  height: 80%;
+  width: 1px;
+  background-color: #29619a; /* Color de borde predeterminado de Bootstrap */
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.error-input {
+  border: 1px solid red !important;
+}

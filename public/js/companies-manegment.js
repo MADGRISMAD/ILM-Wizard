@@ -115,62 +115,168 @@ $(document).ready(function () {
 
 $(document).ready(function () {
 
-  // Función para crear el modal de agregar compañía
-  function crearModalAgregarCompania() {
-      // Estructura básica del modal
-      let modalHTML = `
-          <div class="modal fade" id="modalAgregarCompania" tabindex="-1" aria-labelledby="modalAgregarCompaniaLabel" aria-hidden="true">
-              <div class="modal-dialog">
-                  <div class="modal-content">
-                      <div class="modal-header">
-                          <h5 class="modal-title" id="modalAgregarCompaniaLabel">Agregar Nueva Compañía</h5>
-                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                      </div>
-                      <div class="modal-body">
-                          <form id="formAgregarCompania">
-                              <div class="mb-3">
-                                  <label for="companyName" class="form-label">Nombre de la Compañía</label>
-                                  <input type="text" class="form-control" id="companyName" required>
-                              </div>
-                          </form>
-                      </div>
-                      <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                          <button type="submit" form="formAgregarCompania" class="btn btn-primary">Guardar</button>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      `;
+    // Agregar evento de clic al botón
+    $("#agregarCompania").click(function () {
 
-      // Agregamos el modal al cuerpo del documento
-      $('body').append(modalHTML);
+      // Genera los campos de entrada dinámicamente en el modal
+      const modalContent = `
+        <div class="modal-header">
+            <h5 class="modal-title">Agregar Nueva Compañía</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="companiaForm">
+                <div class="row">
+                    <div class="col-md-6"> <!-- Primera columna -->
+                        <div class="form-group">
+                            <label for="identifierInput">Identificador:</label>
+                            <input type="text" class="form-control" id="identifierInput" placeholder="Ingrese identificador" value="imx">
+                        </div>
+                        <div class="form-group">
+                            <label for="companyInput">Compañía:</label>
+                            <input type="text" class="form-control" id="companyInput" placeholder="Ingrese nombre de la compañía" value="MX">
+                        </div>
+                        <div class="form-group">
+                            <label for="hostnamePrefixInput">Hostname prefix:</label>
+                            <input type="text" class="form-control" id="hostnamePrefixInput" placeholder="Ingrese hostname prefix" value="mxr">
+                        </div>
+                        <div class="form-group">
+                            <label for="regionClientCodeInput">Region or client code:</label>
+                            <input type="text" class="form-control" id="regionClientCodeInput" value="Region 1">
+                        </div>
+                        <div class="form-group">
+                            <label for="deliveryInput">Delivery:</label>
+                            <input type="text" class="form-control" id="deliveryInput" value="Delivery 1">
+                        </div>
+                        <div class="form-group">
+                            <label for="vdcInput">VDC:</label>
+                            <input type="text" class="form-control" id="vdcInput" value="VDC 1">
+                        </div>
+                    </div>
+                    <div class="col-md-6"> <!-- Segunda columna -->
+                        <div class="form-group">
+                            <label for="cmdbCompanyInput">CMDB company:</label>
+                            <input type="text" class="form-control" id="cmdbCompanyInput" value="CMDB Company 1">
+                        </div>
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="isEnabledInput" checked>
+                            <label class="custom-control-label" for="isEnabledInput">Habilitado</label>
+                        </div>
+                        <div class="form-group">
+                            <label for="selectInput">Select:</label>
+                            <input type="text" class="form-control" id="selectInput" value="di">
+                        </div>
+                        <div class="form-group">
+                            <label for="shortNameInput">Short name:</label>
+                            <input type="text" class="form-control" id="shortNameInput" value="BSMX">
+                        </div>
+                        <div class="form-group">
+                            <label for="nicNameInput">Nic Name:</label>
+                            <input type="text" class="form-control" id="nicNameInput" value="nic">
+                        </div>
+                        <div class="form-group">
+                            <label for="regionInput">Region:</label>
+                            <input type="text" class="form-control" id="regionInput" value="mx">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-outline-primary" id="guardarCompania">Aceptar</button>
+        </div>
+    `;
 
-      // Evento cuando se envía el formulario del modal
-      $('#formAgregarCompania').on('submit', function (e) {
-          e.preventDefault();
+      // Agrega el contenido al modal
+      $("#companyModal .modal-content").html(modalContent);
 
-          // Aquí puedes agregar el código para manejar la información del formulario,
-          // por ejemplo, hacer una solicitud AJAX al servidor para guardar la nueva compañía
+        // Abre el modal
+        $("#companyModal").modal("show");
+    });
 
-          const companyName = $('#companyName').val();
-          console.log('Nombre de la compañía a guardar:', companyName);
+    // Agregar evento de clic al botón "Aceptar" dentro del modal
+    $("#companyModal").on("click", "#guardarCompania", function () {
+        // Recopila los datos del formulario dentro del modal
+        const identifier = $("#identifierInput").val();
+        const company = $("#companyInput").val();
+        const hostnamePrefix = $("#hostnamePrefixInput").val();
+        const regionClientCode = $("#regionClientCodeInput").val();
+        const delivery = $("#deliveryInput").val();
+        const vdc = $("#vdcInput").val();
+        const cmdbCompany = $("#cmdbCompanyInput").val();
+        const isEnabled = $("#isEnabledInput").prop("checked");
+        const select = $("#selectInput").val();
+        const shortName = $("#shortNameInput").val();
+        const nicName = $("#nicNameInput").val();
+        const region = $("#regionInput").val();
 
-          // Después de manejar el formulario, cierra el modal
-          var modalAgregarCompania = new bootstrap.Modal(document.getElementById('modalAgregarCompania'));
-          modalAgregarCompania.hide();
-      });
-  }
+        // Verifica que los campos no estén vacíos
+        if (identifier && company && hostnamePrefix && regionClientCode && delivery && vdc && cmdbCompany && select && shortName && nicName && region) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "Se agregará la nueva compañía con los datos proporcionados.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, agregar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Crea un objeto de compañía con los datos
+                    const nuevaCompania = {
+                        identifier,
+                        company,
+                        hostnamePrefix,
+                        regionClientCode,
+                        delivery,
+                        vdc,
+                        cmdbCompany,
+                        isEnabled,
+                        select,
+                        shortName,
+                        nicName,
+                        region
+                    };
 
-  // Invocamos la función para crear el modal
-  crearModalAgregarCompania();
+                    // Envía los datos al controlador mediante una solicitud AJAX
+                    $.ajax({
+                        url: "/newentities/guardarCompanies",  // Asegúrate de adaptar esta URL
+                        type: "POST",
+                        dataType: "json",
+                        data: nuevaCompania,
+                        success: function (response) {
+                            console.log("Datos enviados con éxito al controlador", response);
 
-  // Evento para abrir el modal cuando se haga clic en el botón de "Agregar Nueva Compañía"
-  $('#agregarCompania').click(function () {
-      var modalAgregarCompania = new bootstrap.Modal(document.getElementById('modalAgregarCompania'));
-      modalAgregarCompania.show();
-  });
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Éxito',
+                                text: 'Los datos de la compañía se han guardado con éxito',
+                            });
 
-  // Aquí puedes continuar con el resto del código que maneja las empresas...
-  // Por ejemplo, el código que maneja obtenerYMostrarCompanies...
+                            // Cierra el modal
+                            $("#companyModal").modal("hide");
+
+
+                        },
+                        error: function (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'Error al enviar datos de la compañía al controlador.',
+                            });
+                        },
+
+                    });
+                }
+            });
+        } else {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Campos Incompletos',
+                text: 'Por favor, completa todos los campos.',
+            });
+        }
+    });
 });
