@@ -79,7 +79,7 @@ h3,h5{
   position: absolute;
   width: 100%;
   height: 4px;
-  background-color: #ddd;
+  background-color: #dddddd;
   top: 15px;
   left: -50%;
   z-index: -1;
@@ -123,9 +123,17 @@ h3,h5{
   padding: 10px 20px;
 }
 
-.progressBar .nav-link.active {
-  background-color: #F06166;
+/* .progressBar .nav-link.active.actual{
+  background-color: #000000;
   color: #fff;
+} */
+
+.progressBar .nav-item.active.actual .nav-link {
+  background-color: #000000;
+  color: #fff;
+}
+.progressBar .nav-link:focus {
+  outline: none;
 }
 
 .card.selected {
@@ -160,3 +168,12 @@ h3 .card.selected{
 .error-input {
   border: 1px solid red !important;
 }
+.bottom-sticky {
+  position: fixed; /* Posicionamiento fijo respecto a la ventana del navegador */
+  bottom: 0;       /* Alineado al fondo de la ventana del navegador */
+  left: 0;         /* Alineado a la izquierda */
+  right: 0;        /* Alineado a la derecha, garantiza que se extienda a lo ancho de la ventana */
+  z-index: 1000;   /* z-index alto para asegurarnos de que aparezca por encima de otros elementos */
+}
+/* Estilo para los enlaces de las pestañas que están activos y seleccionados */
+

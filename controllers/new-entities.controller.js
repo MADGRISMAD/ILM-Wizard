@@ -79,6 +79,19 @@ const companies = [
   },
   // ... otras compañías
 ];
+const regions = [
+  {
+    "identifier": "Region 1",
+    "Region": "Region 1",
+    "isEnabled": true
+  },
+  {
+    "identifier": "Region 2",
+    "Region": "Region 2",
+    "isEnabled": true
+  },
+  // ... otras regiones
+];
 
 
 const environments = [
@@ -260,33 +273,64 @@ const businessTypes = [
   // ... otros tipos de negocio
 ];
 
-
+//entity------------------------------------------------------------------------------------------------------------------------------
 function obtenerEntidades(req, res) {
 
     res.status(200).json({code: "OK", object: entidades, message: ""});
-
 }
 
 
-function guardarEntidades(req, res) {
+// function guardarEntidades(req, res) {
 
-   entidades.push(req.body);
-   res.status(200).json({code: "OK", object: entidades, message: ""});
+//    entidades.push(req.body);
+//    res.status(200).json({code: "OK", object: entidades, message: ""});
+
+// }
+function guardarEntidades(req, res) {
+  // Verificar si ya existe una entidad con el mismo identificador o nombre de compañía
+  const entidadExistente = entidades.find(entity =>
+      entity.identifier === req.body.identifier || entity.companyName === req.body.companyName
+  );
+
+  // Si la entidad ya existe
+  if (entidadExistente) {
+      return res.status(409).json({code: "DUPLICATE", message: "La entidad con ese identificador o nombre de compañía ya existe."});
+  }
+
+  // Convertir isEnabled a booleano (por si acaso)
+  req.body.isEnabled = (req.body.isEnabled === 'true' || req.body.isEnabled === true);
+
+  // Si la entidad no existe, la añade
+  entidades.push(req.body);
+  res.status(200).json({code: "OK", object: entidades, message: "Entidad agregada con éxito."});
+}
+
+
+
+
+
+function editarEntidades(req, res) {
+  //TODO: validad que el los datos esten completos
+
+    res.status(200).json({code: "OK", object: {
+    "identifier": "MX",
+    "companyName": "MX",
+    "description": "Description 1",
+    "isEnabled": true,
+    "flag": "assets/img/MEXICO.jpg"}, message: ""});
+
 
 }
 
 function eliminarUltimaEntidad(req, res) {
-  if (entidades.length === 0) {
-    return res.status(400).json({ code: "ERROR", message: "No hay entidades para eliminar." });
-  }
 
-  // Elimina la última entidad del arreglo
-  const entidadEliminada = entidades.pop();
-
-  res.status(200).json({ code: "OK", message: `Entidad "${entidadEliminada.companyName}" eliminada.` });
 }
 
+function obtenerRegions(req, res) {
 
+  res.status(200).json({code: "OK", object: regions, message: ""});
+
+}
 
 function obtenerCompanies(req, res) {
 
@@ -414,6 +458,14 @@ function obtenerBusinessTypes(req, res) {
   }
 }
 
+function obtenerRegions(req, res) {
+  if(req.body.regions) {
+    res.status(200).json({code: "OK", object: regions, message: ""});
+  } else {
+    res.status(201).json({code: "ERROR" , object: null, message: "regions ID empty"})
+  }
+}
+
 
 
 
@@ -443,6 +495,9 @@ module.exports = {
   guardarCompanies,
   guardarEnvironments,
   guardarInfraestructuras,
+  obtenerRegions,
+  editarEntidades,
+
 
   entidades,
   companies,
@@ -459,7 +514,8 @@ module.exports = {
   nasList,
   clusterClasses,
   businessTypes,
-  environmentsEntity
+  environmentsEntity,
+  regions
 };
 // "use strict"
 // const ejemplo = ((req, res) => {

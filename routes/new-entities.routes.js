@@ -10,6 +10,12 @@ routes.get("/obtenerEntidades" , newEntititesController.obtenerEntidades)
 
 routes.get("/obtenerCompanies" , newEntititesController.obtenerCompanies)
 
+routes.get("/obtenerEnvironments" , newEntititesController.obtenerEnvironments)
+
+routes.get("/obtenerInfraestructuras" , newEntititesController.obtenerInfraestructuras)
+
+routes.get("/obtenerRegions" , newEntititesController.obtenerRegions)
+
 routes.post("/guardarEntidades" , newEntititesController.guardarEntidades)
 
 routes.post("/guardarCompanies" , newEntititesController.guardarCompanies)
@@ -26,6 +32,8 @@ routes.delete("/eliminarUltimaEntidad", newEntititesController.eliminarUltimaEnt
 routes.get("/obtenerEnvironments", newEntititesController.obtenerEnvironments);
 
 routes.get("/obtenerInfraestructuras", newEntititesController.obtenerInfraestructuras);
+
+routes.put("/editarEntidades", newEntititesController.editarEntidades);
 
 
 
