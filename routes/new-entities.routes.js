@@ -16,6 +16,9 @@ routes.get("/obtenerInfraestructuras" , newEntititesController.obtenerInfraestru
 
 routes.get("/obtenerRegions" , newEntititesController.obtenerRegions)
 
+routes.get("/obtenerCompanyPorId", newEntititesController.obtenerCompanyPorId);
+
+
 routes.post("/guardarEntidades" , newEntititesController.guardarEntidades)
 
 routes.post("/guardarCompanies" , newEntititesController.guardarCompanies)
@@ -27,13 +30,14 @@ routes.post("/guardarInfraestructuras", newEntititesController.guardarInfraestru
 
 
 
-routes.delete("/eliminarUltimaEntidad", newEntititesController.eliminarUltimaEntidad);
+routes.delete("/eliminarEntidad", newEntititesController.eliminarEntidad);
 
 routes.get("/obtenerEnvironments", newEntititesController.obtenerEnvironments);
 
 routes.get("/obtenerInfraestructuras", newEntititesController.obtenerInfraestructuras);
 
 routes.put("/editarEntidades", newEntititesController.editarEntidades);
+routes.put("/editarCompanies", newEntititesController.editarCompanies);
 
 
 

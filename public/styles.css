@@ -128,19 +128,19 @@ h3,h5{
   color: #fff;
 } */
 
-.progressBar .nav-item.active.actual .nav-link {
+/* .progressBar .nav-item.active.actual .nav-link {
   background-color: #000000;
   color: #fff;
-}
+} */
 .progressBar .nav-link:focus {
   outline: none;
 }
 
 .card.selected {
-  background-color: #FFB3B0; /* Cambia el color de fondo al rojo */
+  background-color: #eaeaea; /* Cambia el color de fondo al rojo */
   color: white; /* Cambia el color de texto a blanco */
   box-shadow: rgba(0, 0, 0, 0.5) 0px 0px 10px; /* Agrega sombra */
-  border: 2px solid #FFB3B0; /* Agrega borde */
+  border: 2px solid #eaeaea; /* Agrega borde */
 
 }
 

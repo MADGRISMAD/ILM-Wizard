@@ -1,5 +1,6 @@
 const entidades = [
   {
+    "_id": "5f8f1d5f8f1d5f8f1d5f8f1d",
     "identifier": "MX",
     "companyName": "MX",
     "description": "Description 1",
@@ -22,22 +23,10 @@ const entidades = [
 
 const companies = [
   {
+
     "identifier": "imx",
     "Company": "MX",
-    "Hostname prefix": "mxr",
-    "Region or client code": "Region 1",
-    "Delivery": "Delivery 1",
-    "VDC": "VDC 1",
-    "CMDB company": "CMDB Company 1",
-    "isEnabled": true,
-    "select": "di",
-    "short_name": "BSMX",
-    "nicName": "nic",
-    "region": "mx"
-  },
-  {
-    "identifier": "imx",
-    "Company": "MX",
+    "entity_id": "5f8f1d5f8f1d5f8f1d5f8f1d",
     "Hostname prefix": "mxr",
     "Region or client code": "Region 1",
     "Delivery": "Delivery 1",
@@ -62,20 +51,6 @@ const companies = [
     "short_name": "BSMX",
     "nicName": "nic",
     "region": "mx"
-  },
-  {
-    "identifier": "us",
-    "Company": "US",
-    "Hostname prefix": "usb",
-    "Region or client code": "Region 2",
-    "Delivery": "Delivery 2",
-    "VDC": "VDC 2",
-    "CMDB company": "CMDB Company 2",
-    "isEnabled": true,
-    "select": "usa",
-    "short_name": "BSUS",
-    "nicName": "nicus",
-    "region": "us"
   },
   // ... otras compañías
 ];
@@ -279,17 +254,11 @@ function obtenerEntidades(req, res) {
     res.status(200).json({code: "OK", object: entidades, message: ""});
 }
 
-
-// function guardarEntidades(req, res) {
-
-//    entidades.push(req.body);
-//    res.status(200).json({code: "OK", object: entidades, message: ""});
-
-// }
 function guardarEntidades(req, res) {
   // Verificar si ya existe una entidad con el mismo identificador o nombre de compañía
   const entidadExistente = entidades.find(entity =>
-      entity.identifier === req.body.identifier || entity.companyName === req.body.companyName
+      (entity.identifier && entity.identifier.toLowerCase() === req.body.identifier.toLowerCase()) ||
+      (entity.companyName && entity.companyName.toLowerCase() === req.body.companyName.toLowerCase())
   );
 
   // Si la entidad ya existe
@@ -305,26 +274,46 @@ function guardarEntidades(req, res) {
   res.status(200).json({code: "OK", object: entidades, message: "Entidad agregada con éxito."});
 }
 
-
-
-
-
 function editarEntidades(req, res) {
-  //TODO: validad que el los datos esten completos
 
-    res.status(200).json({code: "OK", object: {
-    "identifier": "MX",
-    "companyName": "MX",
-    "description": "Description 1",
-    "isEnabled": true,
-    "flag": "assets/img/MEXICO.jpg"}, message: ""});
+  // Obtener el índice de la entidad a editar con matchEntity
+  const matchedEntityIndex = entidades.findIndex(entity => entity.identifier === req.body.identifier);
 
+  // Si no existe la entidad
+  if (matchedEntityIndex === -1) {
+      return res.status(404).json({ code: "NOT_FOUND", message: "La entidad no existe." });
+  }
+
+
+// Convertir la propiedad isEnabled a booleano si es un string
+if (typeof req.body.isEnabled === 'string') {
+  req.body.isEnabled = req.body.isEnabled.toLowerCase() === "true";
+}
+
+  // Si existe la entidad
+  entidades[matchedEntityIndex] = req.body;
+  res.status(200).json({ code: "OK", object: entidades, message: "Entidad editada con éxito." });
+}
+
+function eliminarEntidad(req, res) {
+
+  // Obtener el índice de la entidad a eliminar con matchEntity
+  const matchedEntityIndex = entidades.findIndex(entity => entity.identifier === req.body.identifier);
+
+  // Si no existe la entidad
+  if (matchedEntityIndex === -1) {
+      return res.status(404).json({ code: "NOT_FOUND", message: "La entidad no existe." });
+  }
+
+  // Si existe la entidad, la elimina
+  entidades.splice(matchedEntityIndex, 1);
+  res.status(200).json({ code: "OK", object: entidades, message: "Entidad eliminada con éxito." });
 
 }
 
-function eliminarUltimaEntidad(req, res) {
 
-}
+
+
 
 function obtenerRegions(req, res) {
 
@@ -338,12 +327,61 @@ function obtenerCompanies(req, res) {
 
 }
 
-function guardarCompanies(req, res) {
+function obtenerCompanyPorId(req, res) {
+  const companyId = req.query.identifier; // Asume que el identificador se envía como un parámetro de consulta
 
-  companies.push(req.body);
-  res.status(200).json({code: "OK", object: companies, message: ""});
+  // Busca la compañía por su identificador
+  const company = companies.find(c => c.identifier === companyId);
 
+  if (company) {
+      // Si se encuentra la compañía, devuelve un estado 200 y la compañía
+      res.status(200).json({ code: "OK", object: company, message: "" });
+  } else {
+      // Si no se encuentra, devuelve un estado 404 y un mensaje de error
+      res.status(404).json({ code: "NOT_FOUND", message: "Compañía no encontrada" });
+  }
 }
+
+
+function guardarCompanies(req, res) {
+  // Verificar si ya existe una compañía con el mismo identificador
+  const companyExistente = companies.find(company =>
+      company.identifier && company.identifier.toLowerCase() === req.body.identifier.toLowerCase()
+  );
+
+  // Si la compañía con ese identificador ya existe
+  if (companyExistente) {
+      return res.status(409).json({code: "DUPLICATE", message: "La compañía con ese identificador ya existe."});
+  }
+
+  // Convertir isEnabled a booleano (por si acaso)
+  req.body.isEnabled = (req.body.isEnabled === 'true' || req.body.isEnabled === true);
+
+  // Si la compañía no existe, la añade
+  companies.push(req.body);
+  res.status(200).json({code: "OK", object: companies, message: "Compañía agregada con éxito."});
+}
+
+function editarCompanies(req, res) {
+  // Obtener el índice de la compañía a editar con matchedCompany
+  const matchedCompanyIndex = companies.findIndex(company => company.identifier === req.body.identifier);
+
+  // Si no existe la compañía
+  if (matchedCompanyIndex === -1) {
+      return res.status(404).json({ code: "NOT_FOUND", message: "La compañía no existe." });
+  }
+
+  // Convertir la propiedad isEnabled a booleano si es un string
+  if (typeof req.body.isEnabled === 'string') {
+      req.body.isEnabled = req.body.isEnabled.toLowerCase() === "true";
+  }
+
+  // Si existe la compañía
+  companies[matchedCompanyIndex] = req.body;
+  res.status(200).json({ code: "OK", object: companies, message: "Compañía editada con éxito." });
+}
+
+
 
 function obtenerEnvironments(req, res) {
   res.status(200).json({code: "OK", object: environments, message: ""});
@@ -491,12 +529,14 @@ module.exports = {
   obtenerClusterClasses,
   obtenerBusinessTypes,
   guardarEntidades,
-  eliminarUltimaEntidad,
+  eliminarEntidad,
   guardarCompanies,
   guardarEnvironments,
   guardarInfraestructuras,
   obtenerRegions,
   editarEntidades,
+  obtenerCompanyPorId,
+  editarCompanies,
 
 
   entidades,

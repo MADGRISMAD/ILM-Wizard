@@ -11,6 +11,34 @@
       <link href="styles.css" rel="stylesheet">
    </head>
    <body>
+    <div class="row bottom-sticky">
+      <div class="col text-center block border">
+         <ul class="progressBar nav nav-tabs">
+            <li class="nav-item">
+               <a class="nav-link " id="entity-tab" data-toggle="tab" href="#entity"  role="tab" aria-controls="entity"
+                  aria-selected="true">entity</a>
+            </li>
+            <li class="nav-item">
+               <a class="nav-link" id="company-tab" data-toggle="tab" href="#company" role="tab" aria-controls="company"
+                  aria-selected="false">company</a>
+            </li>
+            <li class="nav-item">
+               <a class="nav-link" id="region-tab" data-toggle="tab" href="#region" role="tab" aria-controls="region"
+                  aria-selected="false">region</a>
+            </li>
+            <li class="nav-item">
+               <a class="nav-link" id="env-and-infra-tab" data-toggle="tab" href="#env-and-infra" role="tab" aria-controls="env-and-infra"
+                  aria-selected="false">env-and-infra</a>
+            </li>
+         </ul>
+      </div>
+   </div>
+
+
+
+
+
+
       <div class="tab-content" id="myTabContent">
       <!-- ------------entity------------------ -->
       <div class="tab-pane fade show active" id="entity" role="tabpanel" aria-labelledby="entity-tab">
@@ -24,10 +52,10 @@
          <!-- Botón para abrir el modal -->
          <button type="button" class="btn btn-primary" id="agregarEntidad">Agregar Nueva Entidad</button>
          <!-- Botón para abrir el modal de editar -->
-         <!-- <button type="button" class="btn btn-warning" id="editarEntidad">Editar Entidad</button> -->
-         <!-- Botón para eliminar compañía -->
-         <button type="button" class="btn btn-danger" id="eliminarEntidad">Eliminar Compañía</button>
          <button id="editarEntidad" class="btn btn-secondary">Editar Entidad</button>
+          <!-- Botón para  eliminar -->
+         <button type="button" class="btn btn-danger" id="eliminarEntidad">Eliminar Entidad</button>
+
 
 <!-- Modal para Agregar/Editar Entidad -->
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -54,28 +82,7 @@
             <button type="button" class="btn btn-primary" id="confirmarSeleccion">Confirmar Selección</button>
          </div>
          <!-- //stepper -->
-         <div class="row bottom-sticky">
-            <div class="col text-center block border">
-               <ul class="progressBar nav nav-tabs">
-                  <li class="nav-item active actual">
-                     <a class="nav-link " id="entity" data-toggle="tab" href="#entity"  role="tab" aria-controls="entity"
-                        aria-selected="active">entity</a>
-                  </li>
-                  <li class="nav-item">
-                     <a class="nav-link" id="-tab" data-toggle="tab" href="#company" role="tab" aria-controls="company"
-                        aria-selected="false">company</a>
-                  </li>
-                  <li class="nav-item">
-                     <a class="nav-link" id="region-tab" data-toggle="tab" href="#region" role="tab" aria-controls="region"
-                        aria-selected="false">region</a>
-                  </li>
-                  <li class="nav-item">
-                     <a class="nav-link" id="env-and-infra-tab" data-toggle="tab" href="#env-and-infra" role="tab" aria-controls="env-and-infra"
-                        aria-selected="false">env-and-infra</a>
-                  </li>
-               </ul>
-            </div>
-         </div>
+
       </div>
 
 
@@ -94,6 +101,11 @@
          </nav>
          <!-- Botón para abrir el modal -->
          <button type="button" class="btn btn-primary" id="agregarCompania">Agregar Compañía</button>
+         <!-- Botón para abrir el modal de editar -->
+         <button id="editarCompany" class="btn btn-secondary">Editar Entidad</button>
+          <!-- Botón para  eliminar -->
+         <button type="button" class="btn btn-danger" id="eliminarCompany">Eliminar Entidad</button>
+
          <!-- Modal para agregar la compañía -->
          <div class="modal fade" id="companyModal" tabindex="-1" role="dialog" aria-labelledby="companyModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -101,6 +113,7 @@
                <div class="modal-content"></div>
             </div>
          </div>
+
          <!-- =============  tarjetas ============= -->
          <div class="container py-5">
             <div class="row row-cols-1 row-cols-md-2 g-4 py-2">
@@ -110,7 +123,7 @@
                      <img src="" class="card-img-top current-company" alt="Imagen de compañía">
                      <div class="card-body">
                         <!-- El título inicial se va a cambiar mediante JavaScript -->
-                        <h3 class="card-title text-center" id="country1"></h3>
+                        <h3 class="card-title text-center" id="company-name"></h3>
                      </div>
                      <div class="mb-5 d-flex justify-content-around"></div>
                   </div>
@@ -129,29 +142,7 @@
                <button class="btn btn-primary">Select</button>
             </div>
          </div>
-         <!-- //stepper -->
-         <div class="row bottom-sticky">
-            <div class="col text-center block border">
-               <ul class="progressBar nav nav-tabs">
-                  <li class="nav-item active">
-                     <a class="nav-link " id="entity" data-toggle="tab" href="#entity"  role="tab" aria-controls="entity"
-                        aria-selected="false">entity</a>
-                  </li>
-                  <li class="nav-item active actual">
-                     <a class="nav-link" id="-tab" data-toggle="tab" href="#company" role="tab" aria-controls="company"
-                        aria-selected="active">company</a>
-                  </li>
-                  <li class="nav-item">
-                     <a class="nav-link" id="region-tab" data-toggle="tab" href="#region" role="tab" aria-controls="region"
-                        aria-selected="false">region</a>
-                  </li>
-                  <li class="nav-item">
-                     <a class="nav-link" id="env-and-infra-tab" data-toggle="tab" href="#env-and-infra" role="tab" aria-controls="env-and-infra"
-                        aria-selected="false">env-and-infra</a>
-                  </li>
-               </ul>
-            </div>
-         </div>
+
       </div>
       <!-- ------------region------------------ -->
       <div class="tab-pane fade" id="region" role="tabpanel" aria-labelledby="region-tab">
@@ -203,29 +194,7 @@
 
 
 
-         <!-- //stepper -->
-         <div class="row bottom-sticky" >
-            <div class="col text-center block border">
-               <ul class="progressBar nav nav-tabs">
-                  <li class="nav-item active">
-                     <a class="nav-link " id="entity" data-toggle="tab" href="#entity" role="tab" aria-controls="entity"
-                        aria-selected="false">entity</a>
-                  </li>
-                  <li class="nav-item active">
-                     <a class="nav-link" id="-tab" data-toggle="tab" href="#company" role="tab" aria-controls="company"
-                        aria-selected="false">company</a>
-                  </li>
-                  <li class="nav-item active actual">
-                     <a class="nav-link" id="region-tab" data-toggle="tab" href="#region" role="tab" aria-controls="region"
-                        aria-selected="active">region</a>
-                  </li>
-                  <li class="nav-item ">
-                     <a class="nav-link" id="env-and-infra-tab" data-toggle="tab" href="#env-and-infra" role="tab" aria-controls="env-and-infra"
-                        aria-selected="false">env-and-infra</a>
-                  </li>
-               </ul>
-            </div>
-         </div>
+
       </div>
       <!-- ------------env and infra------------------ -->
 
@@ -275,28 +244,7 @@
          </div>
 
             <!-- //stepper -->
-            <div class="row bottom-sticky">
-               <div class="col text-center block border">
-                  <ul class="progressBar nav nav-tabs ">
-                     <li class="nav-item active">
-                        <a class="nav-link " id="entity" data-toggle="tab" href="#entity" role="tab" aria-controls="entity"
-                           aria-selected="false">entity</a>
-                     </li>
-                     <li class="nav-item active">
-                        <a class="nav-link" id="-tab" data-toggle="tab" href="#company" role="tab" aria-controls="company"
-                           aria-selected="false">company</a>
-                     </li>
-                     <li class="nav-item active">
-                        <a class="nav-link" id="region-tab" data-toggle="tab" href="#region" role="tab" aria-controls="region"
-                           aria-selected="false">region</a>
-                     </li>
-                     <li class="nav-item active actual">
-                        <a class="nav-link" id="env-and-infra-tab" data-toggle="tab" href="#env-and-infra" role="tab" aria-controls="env-and-infra"
-                           aria-selected="active">env-and-infra</a>
-                     </li>
-                  </ul>
-               </div>
-            </div>
+
          </div>
    </body>
    <script src="/jquery-3.3.1.min.js"></script>

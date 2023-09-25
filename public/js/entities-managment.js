@@ -2,53 +2,50 @@ var entidades = [];
 let matchedEntity = null;
 
 $(document).ready(function() {
-    NewEntities.getEntitites().done(function(data) {
-        var cardRow = document.querySelector("#card-container .row");
+  NewEntities.getEntitites().done(function(data) {
+      var cardRow = document.querySelector("#card-container .row");
 
-        if (data.code == "OK") {
-            entidades = data.object;
+      if (data.code == "OK") {
+          entidades = data.object;
 
-            // Filtramos las entidades que tienen isEnabled en true
-            var entidadesHabilitadas = entidades.filter(function(entidad) {
-                return entidad.isEnabled;
-            });
+          if (entidades.length === 0) {
+              var jumbotronDiv = document.createElement("div");
+              jumbotronDiv.className = "jumbotron";
+              jumbotronDiv.innerHTML = `
+                <h1 class="display-4">No hay entidades disponibles</h1>
+                <p class="lead">Por favor, agrega nuevas entidades para visualizarlas aquí.</p>
+            `;
 
+              cardRow.appendChild(jumbotronDiv);
+          } else {
+              for (var i = 0; i < entidades.length; i++) {
+                  var entidad = entidades[i];
+                  var style = entidad.isEnabled ? "" : "filter: grayscale(100%);";  // Si está desactivado, aplicar filtro gris
+                  var notaDesactivado = entidad.isEnabled ? "" : "<p class='text-center text-muted'>Desactivado</p>";
 
-            if (entidadesHabilitadas.length === 0) {
-                var jumbotronDiv = document.createElement("div");
-                jumbotronDiv.className = "jumbotron";
-                jumbotronDiv.innerHTML = `
-                  <h1 class="display-4">No hay entidades disponibles</h1>
-                  <p class="lead">Por favor, agrega nuevas entidades para visualizarlas aquí.</p>
-              `;
+                  var cardDiv = document.createElement("div");
+                  cardDiv.className = "col-2 mx-auto";
+                  cardDiv.innerHTML = `
+                    <div id="card-${entidad.identifier}" class="card" style="width: 100%;" onclick="test('${entidad.identifier}')">
+                        <img src="${entidad.flag}" class="card-img-top img-fluid" style="${style}" alt="...">
+                        <div class="card-body py-2">
+                            <h3 class="card-title text-center mb-2" id="country${i}">${entidad.companyName}</h3>
+                            ${notaDesactivado}
+                        </div>
+                    </div>
+                `;
 
-                cardRow.appendChild(jumbotronDiv);
-            } else {
-                for (var i = 0; i < entidadesHabilitadas.length; i++) {
-                    var entidad = entidadesHabilitadas[i];
-
-                    var cardDiv = document.createElement("div");
-                    cardDiv.className = "col-2 mx-auto";
-                    cardDiv.innerHTML = `
-                      <div id="card-${entidad.identifier}" class="card" style="width: 100%;" onclick="test('${entidad.identifier}')">
-                          <img src="${entidad.flag}" class="card-img-top img-fluid" alt="...">
-                          <div class="card-body py-2">
-                              <h3 class="card-title text-center mb-2" id="country${i}">${entidad.companyName}</h3>
-                          </div>
-                      </div>
-                  `;
-
-                    cardRow.appendChild(cardDiv);
-                }
-            }
-        } else {
-            // Aquí puedes manejar el caso en el que data.code no sea "OK", por ejemplo, mostrando un mensaje de error.
-        }
-    });
+                  cardRow.appendChild(cardDiv);
+              }
+          }
+      } else {
+          // Aquí puedes manejar el caso en el que data.code no sea "OK", por ejemplo, mostrando un mensaje de error.
+      }
+  });
 });
 
 
-
+//agregar entidad
 
 $(document).ready(function() {
 
@@ -230,141 +227,52 @@ function test(tagId) {
 
 }
 
+//----confirm entity----------------
+$(document).ready(function () {
+  // ... (tu código existente para la selección de tarjetas)
 
-// $(document).ready(function () {
-//   function selectCard(card) {
-//     $('.card').removeClass('selected');
-//     card.addClass('selected');
+  // Agregar un evento de clic al botón de confirmación
+  $("#confirmarSeleccion").click(function() {
+      if (matchedEntity) {
+          // Preguntar si realmente desea confirmar la selección
+          Swal.fire({
+              title: '¿Estás seguro?',
+              text: `Estás a punto de confirmar la selección de ${matchedEntity.companyName}. ¿Deseas continuar?`,
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Sí, confirmar',
+              cancelButtonText: 'Cancelar'
+          }).then((result) => {
+              if (result.isConfirmed) {
+                  // Si confirma, muestra un mensaje de éxito y navega a la pestaña "company"
+                  Swal.fire({
+                      icon: 'success',
+                      title: 'Selección Confirmada',
+                      text: `Has confirmado la selección de ${matchedEntity.companyName}.`
+                  }).then(() => {
+                      // Navegar a la pestaña "company"
+                      $('#company-tab').tab('show');
+                  });
+              } else {
+                  // Otras acciones que desees realizar si el usuario cancela la confirmación (opcional)
+              }
+          });
 
+          // Otras acciones que desees realizar después de confirmar la selección
 
-//     $('h3 .card.selected').css('color', 'white');
-//   }
-
-//   // $('#card-container').on('click', '.card', function () {
-//   //   selectCard($(this));
-//   // });
-
-
-
-
-// $('#confirmarSeleccion').click(function () {
-//   const tarjetaSeleccionada = $('.card.selected');
-//   if (tarjetaSeleccionada.length === 0) {
-//     Swal.fire({
-//       icon: 'error',
-//       title: 'Oops...',
-//       text: 'Por favor, selecciona una tarjeta antes de continuar.',
-//     });
-//     return;
-//   }
-
-//   const companyName = tarjetaSeleccionada.find('.card-title').text();  //crear un filter de las companias para traer las que pertenecen al identificador seleccionado
-
-//   // Guarda el companyName seleccionado en el almacenamiento local
-//   localStorage.setItem('selectedCompanyName', companyName);
-
-//   // Activa la siguiente pestaña "company"
-//   $('a[aria-controls="company"]').tab('show');
-
-
-// });
-//       $('a[aria-controls="current-tab-name"]').on('hide.bs.tab', function (e) {
-//         localStorage.removeItem('selectedCompanyName');
-//       });
-
-
-
-//   function obtenerCompanies(companyName) {
-//     return companies.filter(function (company) {
-//       return company.Company === companyName;
-//     });
-//   }
-
-//   function mostrarCompaniesConNombre(companiesConNombre) {
-//     $('#company-list').empty();
-//     for (const company of companiesConNombre) {
-//       const listItem = $('<li>').text(company.Company);
-//       $('#company-list').append(listItem);
-//     }
-//   }
-// });
-
-
-//----------------delete entity------------------
-// function selectCard(card) {
-//     card.addClass('selected');
-//     card.find('h3').css('color', 'white');
-
-//     // Habilitar o deshabilitar el botón "Eliminar Compañía"
-//     if (card.hasClass('selected')) {
-//         $('#eliminarEntidad').prop('disabled', false);
-//     } else {
-//         $('#eliminarEntidad').prop('disabled', true);
-//     }
-// }
-
-$(document).ready(function() {
-
-    $('#eliminarEntidad').click(function() {
-        if (!matchedEntity) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Por favor, selecciona una tarjeta antes de continuar.',
-            });
-            return;
-        }
-
-        Swal.fire({
-            title: '¿Estás seguro?',
-            text: "¡No podrás revertir esto!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, eliminarlo'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                        url: `/newentities/eliminarUltimaEntidad`,
-                        type: 'DELETE',
-                    })
-                    .done(function(response) {
-                        if (response && response.code === "OK") {
-                            // Elimina la tarjeta seleccionada en el cliente
-                            $(`#card-${matchedEntity.identifier}`).remove();
-                            $('#eliminarEntidad').prop('disabled', true);
-
-
-                            entidades = entidades.filter(entity => entity.identifier !== matchedEntity.identifier);
-
-                            Swal.fire({
-                                position: 'top-end',
-                                icon: 'success',
-                                title: 'Tu compañía ha sido eliminada.',
-                                showConfirmButton: false,
-                                timer: 1500
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: response.message || 'Hubo un error al eliminar la compañía.',
-                            });
-                        }
-                    })
-                    .fail(function(jqXHR, textStatus, errorThrown) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: 'Error al enviar datos al controlador.',
-                        });
-                        console.error("Error en la solicitud:", textStatus, errorThrown);
-                    });
-            }
-        });
-    });
+      } else {
+          // Mostrar un mensaje si no hay ninguna tarjeta seleccionada
+          Swal.fire({
+              icon: 'warning',
+              title: 'Sin Selección',
+              text: 'Por favor, selecciona una tarjeta antes de confirmar.'
+          });
+      }
+  });
 });
+
+
+
 
 //----edit entity----------------
 $(document).ready(function() {
@@ -373,31 +281,31 @@ $(document).ready(function() {
         const isEditing = editEntity !== undefined;
         const modalContent = `
           <div class="modal-header">
-              <h5 class="modal-title" id="entityModalLabel">${isEditing ? 'Editar Entidad' : 'Agregar Nueva Entidad'}</h5>
+              <h5 class="modal-title" id="entityModalLabel">${isEditing ? 'Editar Entidad ' + matchedEntity.identifier: 'Agregar Nueva Entidad'}</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <i class="fas fa-times"></i>
               </button>
           </div>
           <div class="modal-body">
               <form id="entidadForm">
-                  <div class="form-group">
-                      <label for="identifier">Identificador:</label>
-                      <input type="text" class="form-control" id="identifierInput" placeholder="Ingrese identificador" value="${isEditing ? editEntity.identifier : ''}">
-                  </div>
-                  <div class="form-group">
-                      <label for="companyName">Nombre de la Compañía:</label>
-                      <input type="text" class="form-control" id="companyNameInput" placeholder="Ingrese nombre de la compañía" value="${isEditing ? editEntity.companyName : ''}">
-                  </div>
+              <div class="form-group">
+              <label for="identifier">Identificador:</label>
+              <input type="text" class="form-control" id="identifierInput" placeholder="Ingrese identificador" value="${isEditing ? editEntity.identifier : ''}" ${isEditing ? 'disabled' : ''}>
+          </div>
+          <div class="form-group">
+              <label for="companyName">Nombre de la Compañía:</label>
+              <input type="text" class="form-control" id="companyNameInput" placeholder="Ingrese nombre de la compañía" value="${isEditing ? editEntity.companyName : ''}" ${isEditing ? 'disabled' : ''}>
+          </div>
                   <div class="form-group">
                       <label for="description">Descripción:</label>
                       <input type="text" class="form-control" id="descriptionInput" placeholder="Ingrese descripción" value="${isEditing ? editEntity.description : ''}">
                   </div>
                   <div class="form-group">
                       <label for="flag">Bandera:</label>
-                      <select class="form-control" id="flagInput" value="${isEditing ? editEntity.flag : ''}">
-                          <option value="assets/img/MEXICO.jpg">MX</option>
-                          <option value="assets/img/Usa.jpg">USA</option>
-                      </select>
+                      <select class="form-control" id="flagInput">
+            <option value="assets/img/MEXICO.jpg" ${isEditing && editEntity.flag === "assets/img/MEXICO.jpg" ? 'selected' : ''}>MX</option>
+            <option value="assets/img/Usa.jpg" ${isEditing && editEntity.flag === "assets/img/Usa.jpg" ? 'selected' : ''}>USA</option>
+        </select>
                   </div>
                   <div class="custom-control custom-checkbox">
                       <input type="checkbox" class="custom-control-input" id="isEnabledInput" ${isEditing && editEntity.isEnabled ? 'checked' : ''}>
@@ -427,6 +335,13 @@ $(document).ready(function() {
         showModalContent(matchedEntity); // Mostrar modal para editar
     });
 
+    function hasChanges(editedEntity, originalEntity) {
+      return editedEntity.description !== originalEntity.description ||
+             editedEntity.flag !== originalEntity.flag ||
+             editedEntity.isEnabled !== originalEntity.isEnabled;
+
+  }
+
     $("#entityModal").on("click", "#guardarEntidad", function() {
         const identifier = $("#identifierInput").val().trim();
         const companyName = $("#companyNameInput").val().trim();
@@ -450,8 +365,25 @@ $(document).ready(function() {
             isEnabled,
             flag,
         };
-
-        $.ajax({
+        if (hasChanges(entidadActualizada, matchedEntity)) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "Se actualizará la entidad con los datos proporcionados.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, actualizar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+              updateEntity(entidadActualizada);
+            }
+        });
+      } else {
+        updateEntity(entidadActualizada);
+      }
+    });
+    function updateEntity(entidadActualizada) {
+          $.ajax({
             url: `/newentities/editarEntidades`,
             type: "PUT",
             dataType: "json",
@@ -484,6 +416,83 @@ $(document).ready(function() {
                 });
             },
         });
+
+        };
     });
 
+
+//----delete entity----------------
+
+$(document).ready(function() {
+  $("#eliminarEntidad").click(function() {
+      if (!matchedEntity) {
+          Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Por favor, selecciona una tarjeta antes de continuar.',
+          });
+          return;
+      }
+
+      Swal.fire({
+          title: '¿Estás seguro?',
+          text: "¿Realmente deseas eliminar esta entidad?",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, eliminar',
+          cancelButtonText: 'Cancelar'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              removeEntity(matchedEntity);
+          }
+      });
+  });
+
+  function removeEntity(entity) {
+      // Encuentra el índice de la entidad en el arreglo de entidades
+      const index = entidades.findIndex(e => e.identifier === entity.identifier);
+
+      // Si se encuentra, elimina del arreglo
+      if (index !== -1) {
+          entidades.splice(index, 1);
+
+          $.ajax({
+              url: `/newentities/eliminarEntidad`,
+              type: "DELETE",
+              dataType: "json",
+              data: entity,
+              success: function(response) {
+                  if (response && response.code === "OK") {
+                      Swal.fire({
+                          icon: 'success',
+                          title: 'Éxito',
+                          text: 'La entidad ha sido eliminada con éxito',
+                      });
+
+                      // Opcional: actualiza la interfaz para reflejar la eliminación
+                      location.reload();
+                  } else {
+                      Swal.fire({
+                          icon: 'error',
+                          title: 'Error',
+                          text: response.message || 'Error al eliminar la entidad.',
+                      });
+                  }
+              },
+              error: function() {
+                  Swal.fire({
+                      icon: 'error',
+                      title: 'Oops...',
+                      text: 'Hubo un error al eliminar la entidad.',
+                  });
+              }
+          });
+      } else {
+          Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'No se pudo encontrar la entidad.',
+          });
+      }
+  }
 });
