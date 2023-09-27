@@ -25,7 +25,6 @@ body{
   margin-top: -15px;
 }
 .btn-primary{
-  border-radius: 50px;
   width: auto;
   background-color: #F06166;
   border-color: #F06166;
@@ -56,7 +55,7 @@ h3,h5{
 .progressBar li {
   list-style-type: none;
   float: left;
-  width: 20%;
+  width: 15%;
   position: relative;
   text-align: center;
 }
@@ -177,3 +176,12 @@ h3 .card.selected{
 }
 /* Estilo para los enlaces de las pestañas que están activos y seleccionados */
 
+.selected {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.separator {
+  margin-left: 5px;
+  margin-right: 10px;
+}

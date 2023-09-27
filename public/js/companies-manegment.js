@@ -32,8 +32,15 @@ $(document).ready(function () {
             listItem.id = "company" + company.identifier;
             listItem.textContent = company.identifier;
 
+            // Si la compañía tiene isEnabled en false, sombrear en gris y agregar "DISABLE"
+            if (!company.isEnabled) {
+                listItem.style.backgroundColor = "#d3d3d3"; // gris claro
+                listItem.textContent += "(disabled)";
+            }
+
             companyList.appendChild(listItem);
-          }
+        }
+
         }
       },
       error: function () {
@@ -50,6 +57,8 @@ $(document).ready(function () {
 });
 
 
+
+// Select a company from the list
 function selectCompany(tagId) {
   // 1. Remove 'selected' class from all list items
   $('#company-list li').removeClass('selected');
@@ -147,12 +156,40 @@ $(document).ready(function () {
 
 
 
-
-//modal para agregar compañia
+//modal to add new company
 
 $(document).ready(function () {
 
+  function isValidInput(value, id) {
+    const allowSpacesInMiddle = ["regionClientCode", "cmdbCompany", "company", "delivery", "identifier", "nicName", "shortName", "vdc"];
+
+    // Si el valor tiene espacios al principio o al final, es inválido.
+    if (value.trim() !== value) {
+        return false;
+    }
+
+    // Si el ID no está en la lista que permite espacios en medio pero tiene espacios en medio, es inválido.
+    if (!allowSpacesInMiddle.includes(id) && value.includes(" ")) {
+        return false;
+    }
+
+    return true;
+}
+
+function validarCampo(campoId) {
+    const valor = $(campoId).val();
+
+    if (valor === "" || !isValidInput(valor, campoId.replace("#", ""))) {
+        $(campoId).addClass('is-invalid'); // Marca el campo como inválido
+        return false;
+    } else {
+        $(campoId).removeClass('is-invalid'); // Si es válido, quita la marca de inválido
+        return valor;
+    }
+}
+
   $("#agregarCompania").click(function () {
+    const defaultValueForCompany = matchedEntity ? matchedEntity.companyName : '';
     const modalContent = `
             <div class="modal-header">
                 <h5 class="modal-title">Agregar Nueva Compañía</h5>
@@ -170,7 +207,7 @@ $(document).ready(function () {
                             </div>
                             <div class="form-group">
                                 <label for="companyInput">Compañía:</label>
-                                <input type="text" class="form-control" id="companyInput" placeholder="Ingrese nombre de la compañía">
+                                <input type="text" class="form-control" id="companyInput" placeholder="Ingrese nombre de la compañía" value="${defaultValueForCompany}">
                             </div>
                             <div class="form-group">
                                 <label for="hostnamePrefixInput">Hostname prefix:</label>
@@ -232,18 +269,6 @@ $(document).ready(function () {
   });
 
   $("#companyModal").on("click", "#guardarCompania", function () {
-    // Una función para validar campos de entrada
-    function validarCampo(campoId) {
-        const valor = $(campoId).val().trim();
-        if (valor === "") {
-            $(campoId).addClass('is-invalid'); // Marca el campo como inválido
-            return false;
-        } else {
-            $(campoId).removeClass('is-invalid'); // Si es válido, quita la marca de inválido
-            return valor;
-        }
-    }
-
     const identifier = validarCampo("#identifierInput");
     const company = validarCampo("#companyInput");
     const hostnamePrefix = validarCampo("#hostnamePrefixInput");
@@ -305,7 +330,11 @@ $(document).ready(function () {
                         $("#companyModal").modal("hide");
                         // location.reload();
                         $('#company-tab').tab('show');
-                        obtenerCompanies();
+                        //recarga la tabla para que se vea la nueva compañia
+                        $('#company-tab').DataTable().ajax.reload();
+
+
+
                     } else {
                         console.log("Respuesta inesperada del servidor:", response);
                     }
@@ -352,19 +381,20 @@ $(document).ready(function() {
                   <div class="col-md-6"> <!-- Primera columna -->
                       <div class="form-group">
                           <label for="identifierInput">Identificador:</label>
-                          <input type="text" class="form-control" id="identifierInput" placeholder="Ingrese identificador" value="${isEditing ? editCompany.identifier : ''}">
+                          <input type="text" class="form-control" id="identifierInput" placeholder="Ingrese identificador" value="${isEditing ? editCompany.identifier : ''}" ${isEditing ? 'readonly' : ''}>
+
                       </div>
                       <div class="form-group">
                           <label for="companyInput">Compañía:</label>
-                          <input type="text" class="form-control" id="companyInput" placeholder="Ingrese nombre de la compañía" value="${isEditing ? editCompany.company : ''}">
+                          <input type="text" class="form-control" id="companyInput" placeholder="Ingrese nombre de la compañía" value="${isEditing ? editCompany.Company : ''}">
                       </div>
                       <div class="form-group">
                           <label for="hostnamePrefixInput">Hostname prefix:</label>
-                          <input type="text" class="form-control" id="hostnamePrefixInput" placeholder="Ingrese hostname prefix" value="${isEditing ? editCompany.hostnamePrefix : ''}">
+                          <input type="text" class="form-control" id="hostnamePrefixInput" placeholder="Ingrese hostname prefix" value="${isEditing ? editCompany["Hostname prefix"] : ''}">
                       </div>
                       <div class="form-group">
                           <label for="regionClientCodeInput">Region or client code:</label>
-                          <input type="text" class="form-control" id="regionClientCodeInput" placeholder="Ingrese region or client code" value="${isEditing ? editCompany.regionClientCode : ''}">
+                          <input type="text" class="form-control" id="regionClientCodeInput" placeholder="Ingrese region or client code" value="${isEditing ? editCompany["Region or client code"] : ''}">
                       </div>
                       <div class="form-group">
                           <label for="deliveryInput">Delivery:</label>
@@ -378,7 +408,7 @@ $(document).ready(function() {
                   <div class="col-md-6"> <!-- Segunda columna -->
                       <div class="form-group">
                           <label for="cmdbCompanyInput">CMDB company:</label>
-                          <input type="text" class="form-control" id="cmdbCompanyInput" placeholder="Ingrese CMDB company" value="${isEditing ? editCompany.cmdbCompany : ''}">
+                          <input type="text" class="form-control" id="cmdbCompanyInput" placeholder="Ingrese CMDB company" value="${isEditing ? editCompany["CMDB company"] : ''}">
                       </div>
                       <div class="custom-control custom-checkbox">
                           <input type="checkbox" class="custom-control-input" id="isEnabledInput" ${isEditing && editCompany.isEnabled ? 'checked' : ''}>
@@ -390,7 +420,7 @@ $(document).ready(function() {
                       </div>
                       <div class="form-group">
                           <label for="shortNameInput">Short name:</label>
-                          <input type="text" class="form-control" id="shortNameInput" placeholder="Ingrese short name" value="${isEditing ? editCompany.shortName : ''}">
+                          <input type="text" class="form-control" id="shortNameInput" placeholder="Ingrese short name" value="${isEditing ? editCompany.short_name : ''}">
                       </div>
                       <div class="form-group">
                           <label for="nicNameInput">Nic Name:</label>
@@ -406,27 +436,42 @@ $(document).ready(function() {
       </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
-            <button type="button" class="btn btn-outline-primary" id="guardarCompania">${isEditing ? 'Actualizar' : 'Aceptar'}</button>
+            <button type="button" class="btn btn-outline-primary" id="editedCompania">${isEditing ? 'Actualizar' : 'Aceptar'}</button>
         </div>
       `;
 
-      $("#companyModal .modal-content").html(modalContent);
-      $("#companyModal").modal("show");
+      $("#companyEdit .modal-content").html(modalContent);
+      $("#companyEdit").modal("show");
   }
-
   $("#editarCompany").click(function() {
-      if (!matchedCompany) {
-          Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              text: 'Por favor, selecciona una compañía antes de continuar.',
-          });
-          return;
-      }
-      showCompanyModalContent(matchedCompany); // Mostrar modal para editar
-  });
+    if (!matchedCompany) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Por favor, selecciona una compañía antes de continuar.',
+        });
+        return;
+    }
+    showCompanyModalContent(matchedCompany);
+});
 
-  $("#companyModal").on("click", "#guardarCompania", function() {
+function hasChanges(editedCompany, originalCompany) {
+    return editedCompany.companyName !== originalCompany.Company ||
+           editedCompany["Hostname prefix"] !== originalCompany["Hostname prefix"] ||
+           editedCompany["Region or client code"] !== originalCompany["Region or client code"] ||
+           editedCompany.Delivery !== originalCompany.Delivery ||
+           editedCompany.VDC !== originalCompany.VDC ||
+           editedCompany["CMDB company"] !== originalCompany["CMDB company"] ||
+           editedCompany.isEnabled !== originalCompany.isEnabled ||
+           editedCompany.select !== originalCompany.select ||
+           editedCompany.short_name !== originalCompany.short_name ||
+           editedCompany.nicName !== originalCompany.nicName ||
+           editedCompany.region !== originalCompany.region;
+}
+
+
+
+  $("#companyEdit").on("click", "#editedCompania", function() {
 
 
       const identifier = $("#identifierInput").val().trim();
@@ -444,25 +489,56 @@ $(document).ready(function() {
 
 
 
+      if (!matchedCompany) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Por favor, selecciona una tarjeta antes de continuar.',
+        });
+        return;
+    }
 
-      const companyActualizada = {
-        identifier,
-        Company: companyName,
-        "Hostname prefix": hostnamePrefix,
+    const companyActualizada = {
+        "identifier": identifier,
+        "Company": companyName,
+        "Hostname Prefix": hostnamePrefix,
         "Region or client code": regionClientCode,
-        Delivery: delivery,
-        VDC: vdc,
+        "Delivery": delivery,
+        "VDC": vdc,
         "CMDB company": cmdbCompany,
-        isEnabled: isEnabled,
-        Select: select,
+        "isEnabled": isEnabled,
+        "select": select,
         "short_name": shortName,
-        nicName: nicName,
-        region: region
-      };
+        "nicName": nicName,
+        "region": region
 
-      $.ajax({
-        url: '/newentities/editarCompanies', // Debes cambiar esto por la ruta correspondiente
-        type: 'POST',
+    };
+
+
+
+
+      if (hasChanges(companyActualizada, matchedCompany)) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "Se actualizará la compañía con los datos proporcionados.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, actualizar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+              updateCompany(companyActualizada);
+            }
+        });
+      } else {
+        updateCompany(companyActualizada);
+      }
+  });
+
+  function updateCompany(companyActualizada) {
+    $.ajax({
+        url: '/newentities/editar-companies',
+        type: 'PUT',
         data: companyActualizada,
         success: function(response) {
             if (response.code === "OK") {
@@ -472,7 +548,9 @@ $(document).ready(function() {
                     showConfirmButton: false,
                     timer: 1500
                 });
-                $("#companyModal").modal("hide");
+                $("#companyEdit").modal("hide");
+                //recarga la pesta;a para que se vea la compañia actualizada
+                location.reload();
             } else {
                 Swal.fire({
                     icon: 'error',
@@ -489,10 +567,112 @@ $(document).ready(function() {
             });
         }
     });
+}
+});
 
 
+//delete company
+$(document).ready(function() {
+  $("#eliminarCompany").click(function() {
+      if (!matchedCompany) {
+          Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Por favor, selecciona una compañía antes de continuar.',
+          });
+          return;
+      }
+
+      Swal.fire({
+          title: '¿Estás seguro?',
+          text: "¿Realmente deseas eliminar esta compañía?",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, eliminar',
+          cancelButtonText: 'Cancelar'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              deleteCompany(matchedCompany.identifier);
+          }
+      });
   });
 
+  function deleteCompany(identifier) {
+      $.ajax({
+          url: `/newentities/eliminarCompany/${identifier}`,  // Suponiendo que envías el identificador en la URL
+          type: 'DELETE',
+          success: function(response) {
+              if (response.code === "OK") {
+                  Swal.fire({
+                      icon: 'success',
+                      title: 'Eliminado con éxito',
+                      text: 'La compañía ha sido eliminada con éxito',
+                      showConfirmButton: false,
+                      timer: 1500
+                  });
+                  // Opcional: actualiza la interfaz para reflejar la eliminación
+                  location.reload();
+              } else {
+                  Swal.fire({
+                      icon: 'error',
+                      title: 'Error al eliminar',
+                      text: response.message
+                  });
+              }
+          },
+          error: function() {
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Error de servidor',
+                  text: 'No se pudo eliminar la compañía. Inténtalo de nuevo más tarde.'
+              });
+          }
+      });
+  }
+});
 
 
+
+//confirm and go to next tab
+
+$(document).ready(function () {
+
+  // Agregar un evento de clic al botón de confirmación
+  $("#confirmCompany").click(function() {
+      if (matchedCompany) {
+          if (!matchedCompany.isEnabled) {
+              // Si el matchedCompany tiene isEnabled en false, mostrar un mensaje de error y no continuar.
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Acción Prohibida',
+                  text: 'La compañía seleccionada está deshabilitada y no puede ser confirmada.'
+              });
+              return; // Esto termina la función aquí y no ejecutará el código que sigue.
+          }
+
+          // Preguntar si realmente desea confirmar la selección
+          Swal.fire({
+              title: '¿Estás seguro?',
+              text: `Estás a punto de confirmar la selección de ${matchedCompany.companyName}. ¿Deseas continuar?`,
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Sí, confirmar',
+              cancelButtonText: 'Cancelar'
+          }).then((result) => {
+              if (result.isConfirmed) {
+                  $('#region-tab').tab('show');
+              }
+          });
+
+          // Otras acciones que desees realizar después de confirmar la selección
+
+      } else {
+          // Mostrar un mensaje si no hay ninguna compañía seleccionada
+          Swal.fire({
+              icon: 'warning',
+              title: 'Sin Selección',
+              text: 'Por favor, selecciona una compañía antes de confirmar.'
+          });
+      }
+  });
 });

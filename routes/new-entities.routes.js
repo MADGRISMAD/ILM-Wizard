@@ -18,6 +18,14 @@ routes.get("/obtenerRegions" , newEntititesController.obtenerRegions)
 
 routes.get("/obtenerCompanyPorId", newEntititesController.obtenerCompanyPorId);
 
+routes.get("/obtenerRegionPorId", newEntititesController.obtenerRegionPorId);
+
+routes.get("/obtenerEnvironments", newEntititesController.obtenerEnvironments);
+
+routes.get("/obtenerInfraestructuras", newEntititesController.obtenerInfraestructuras);
+
+
+
 
 routes.post("/guardarEntidades" , newEntititesController.guardarEntidades)
 
@@ -32,12 +40,19 @@ routes.post("/guardarInfraestructuras", newEntititesController.guardarInfraestru
 
 routes.delete("/eliminarEntidad", newEntititesController.eliminarEntidad);
 
-routes.get("/obtenerEnvironments", newEntititesController.obtenerEnvironments);
+routes.delete("/eliminarCompany/:identifier", newEntititesController.eliminarCompany);
 
-routes.get("/obtenerInfraestructuras", newEntititesController.obtenerInfraestructuras);
+
+
+
 
 routes.put("/editarEntidades", newEntititesController.editarEntidades);
-routes.put("/editarCompanies", newEntititesController.editarCompanies);
+
+routes.put("/editar-companies", newEntititesController.editarCompanies);
+
+
+
+
 
 
 

@@ -33,19 +33,23 @@ $(document).ready(function() {
 
   // Obtiene y muestra la lista de environments
   function getAndDisplayEnvironments() {
-      $.ajax({
-          url: "/newentities/obtenerEnvironments",
-          type: "GET",
-          dataType: "json",
-          success: function(data) {
-              if (data.code === "OK") {
-                  let environments = data.object;
-                  for (let environment of environments) {
-                      $("#environment-list").append(`
-                          <li class="list-group-item">
-                              <input type="checkbox" checked class="toggle-environment"> ${environment.identifier}
-                          </li>`);
-                  }
+    $.ajax({
+      url: "/newentities/obtenerEnvironments",
+      type: "GET",
+      dataType: "json",
+      success: function(data) {
+        if (data.code === "OK") {
+          let environments = data.object;
+          for (let environment of environments) {
+              $("#environment-list").append(`
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                      ${environment.identifier}
+                      <div>
+                          <span class="separator">|</span>
+                          <input type="checkbox" checked class="toggle-environment">
+                      </div>
+                  </li>`);
+          }
               } else {
                   // Puedes manejar los errores aquí si es necesario
               }

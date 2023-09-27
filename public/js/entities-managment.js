@@ -234,6 +234,16 @@ $(document).ready(function () {
   // Agregar un evento de clic al botón de confirmación
   $("#confirmarSeleccion").click(function() {
       if (matchedEntity) {
+          if (!matchedEntity.isEnabled) {
+              // Si el matchedEntity tiene isEnabled en false, mostrar un mensaje de error y no continuar.
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Acción Prohibida',
+                  text: 'La entidad seleccionada está deshabilitada y no puede ser confirmada.'
+              });
+              return; // Esto termina la función aquí y no ejecutará el código que sigue.
+          }
+
           // Preguntar si realmente desea confirmar la selección
           Swal.fire({
               title: '¿Estás seguro?',
@@ -243,19 +253,7 @@ $(document).ready(function () {
               confirmButtonText: 'Sí, confirmar',
               cancelButtonText: 'Cancelar'
           }).then((result) => {
-              if (result.isConfirmed) {
-                  // Si confirma, muestra un mensaje de éxito y navega a la pestaña "company"
-                  Swal.fire({
-                      icon: 'success',
-                      title: 'Selección Confirmada',
-                      text: `Has confirmado la selección de ${matchedEntity.companyName}.`
-                  }).then(() => {
-                      // Navegar a la pestaña "company"
-                      $('#company-tab').tab('show');
-                  });
-              } else {
-                  // Otras acciones que desees realizar si el usuario cancela la confirmación (opcional)
-              }
+            $('#company-tab').tab('show');
           });
 
           // Otras acciones que desees realizar después de confirmar la selección
@@ -270,6 +268,7 @@ $(document).ready(function () {
       }
   });
 });
+
 
 
 
@@ -419,6 +418,8 @@ $(document).ready(function() {
 
         };
     });
+
+
 
 
 //----delete entity----------------

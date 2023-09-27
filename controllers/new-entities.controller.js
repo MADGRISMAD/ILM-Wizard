@@ -26,7 +26,7 @@ const companies = [
 
     "identifier": "imx",
     "Company": "MX",
-    "entity_id": "5f8f1d5f8f1d5f8f1d5f8f1d",
+    "entity_id": "MX",
     "Hostname prefix": "mxr",
     "Region or client code": "Region 1",
     "Delivery": "Delivery 1",
@@ -41,6 +41,7 @@ const companies = [
   {
     "identifier": "us",
     "Company": "US",
+    "entity_id": "US",
     "Hostname prefix": "mxr",
     "Region or client code": "Region 1",
     "Delivery": "Delivery 1",
@@ -54,15 +55,30 @@ const companies = [
   },
   // ... otras compañías
 ];
+
 const regions = [
   {
+    "entity_id": "MX",
     "identifier": "Region 1",
     "Region": "Region 1",
     "isEnabled": true
   },
   {
+    "entity_id": "US",
     "identifier": "Region 2",
     "Region": "Region 2",
+    "isEnabled": true
+  },
+  {
+    "entity_id": "MX",
+    "identifier": "Region 3",
+    "Region": "Region 3",
+    "isEnabled": true
+  },
+  {
+    "entity_id": "US",
+    "identifier": "Region 4",
+    "Region": "Region 4",
     "isEnabled": true
   },
   // ... otras regiones
@@ -316,10 +332,33 @@ function eliminarEntidad(req, res) {
 
 
 function obtenerRegions(req, res) {
+  const entityId = req.query.entity_id; // Obteniendo entity_id desde la consulta
 
-  res.status(200).json({code: "OK", object: regions, message: ""});
+  if (!entityId) {
+      return res.status(400).json({code: "ERROR", message: "Falta el parámetro entity_id."});
+  }
 
+  const filteredRegions = regions.filter(region => region.entity_id === entityId);
+
+  res.status(200).json({code: "OK", object: filteredRegions, message: ""});
 }
+
+
+function obtenerRegionPorId(req, res) {
+  const regionId = req.query.identifier; // Asume que el identificador se envía como un parámetro de consulta
+
+  // Busca la región por su identificador
+  const region = regions.find(r => r.identifier === regionId);
+
+  if (region) {
+      // Si se encuentra la región, devuelve un estado 200 y la región
+      res.status(200).json({ code: "OK", object: region, message: "" });
+  } else {
+      // Si no se encuentra, devuelve un estado 404 y un mensaje de error
+      res.status(404).json({ code: "NOT_FOUND", message: "Región no encontrada" });
+  }
+}
+
 
 function obtenerCompanies(req, res) {
 
@@ -344,14 +383,15 @@ function obtenerCompanyPorId(req, res) {
 
 
 function guardarCompanies(req, res) {
-  // Verificar si ya existe una compañía con el mismo identificador
+  // Verificar si ya existe una compañía con el mismo identificador o nombre de compañía
   const companyExistente = companies.find(company =>
-      company.identifier && company.identifier.toLowerCase() === req.body.identifier.toLowerCase()
+      (company.identifier && company.identifier.toLowerCase() === req.body.identifier.toLowerCase()) ||
+      (company.company && company.company.toLowerCase() === req.body.company.toLowerCase())
   );
 
-  // Si la compañía con ese identificador ya existe
+  // Si la compañía con ese identificador o nombre ya existe
   if (companyExistente) {
-      return res.status(409).json({code: "DUPLICATE", message: "La compañía con ese identificador ya existe."});
+      return res.status(409).json({code: "DUPLICATE", message: "La compañía con ese identificador o nombre ya existe."});
   }
 
   // Convertir isEnabled a booleano (por si acaso)
@@ -362,7 +402,10 @@ function guardarCompanies(req, res) {
   res.status(200).json({code: "OK", object: companies, message: "Compañía agregada con éxito."});
 }
 
+
+
 function editarCompanies(req, res) {
+
   // Obtener el índice de la compañía a editar con matchedCompany
   const matchedCompanyIndex = companies.findIndex(company => company.identifier === req.body.identifier);
 
@@ -380,6 +423,28 @@ function editarCompanies(req, res) {
   companies[matchedCompanyIndex] = req.body;
   res.status(200).json({ code: "OK", object: companies, message: "Compañía editada con éxito." });
 }
+
+function eliminarCompany(req, res) {
+
+  // Obtener el identificador de la compañía desde el parámetro de ruta
+  const companyIdentifier = req.params.identifier;
+
+  // Obtener el índice de la compañía a eliminar usando el identificador
+  const matchedCompanyIndex = companies.findIndex(company => company.identifier === companyIdentifier);
+
+  // Si no existe la compañía
+  if (matchedCompanyIndex === -1) {
+      return res.status(404).json({ code: "NOT_FOUND", message: "La compañía no existe." });
+  }
+
+  // Si existe la compañía, la elimina
+  companies.splice(matchedCompanyIndex, 1);
+  res.status(200).json({ code: "OK", object: companies, message: "Compañía eliminada con éxito." });
+}
+
+
+
+
 
 
 
@@ -496,13 +561,6 @@ function obtenerBusinessTypes(req, res) {
   }
 }
 
-function obtenerRegions(req, res) {
-  if(req.body.regions) {
-    res.status(200).json({code: "OK", object: regions, message: ""});
-  } else {
-    res.status(201).json({code: "ERROR" , object: null, message: "regions ID empty"})
-  }
-}
 
 
 
@@ -537,6 +595,9 @@ module.exports = {
   editarEntidades,
   obtenerCompanyPorId,
   editarCompanies,
+  eliminarCompany,
+  obtenerRegionPorId,
+
 
 
   entidades,
