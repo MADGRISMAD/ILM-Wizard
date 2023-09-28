@@ -270,7 +270,7 @@ function obtenerEntidades(req, res) {
     res.status(200).json({code: "OK", object: entidades, message: ""});
 }
 
-function guardarEntidades(req, res) {
+function saveEntities(req, res) {
   // Verificar si ya existe una entidad con el mismo identificador o nombre de compañía
   const entidadExistente = entidades.find(entity =>
       (entity.identifier && entity.identifier.toLowerCase() === req.body.identifier.toLowerCase()) ||
@@ -290,7 +290,7 @@ function guardarEntidades(req, res) {
   res.status(200).json({code: "OK", object: entidades, message: "Entidad agregada con éxito."});
 }
 
-function editarEntidades(req, res) {
+function editEntities(req, res) {
 
   // Obtener el índice de la entidad a editar con matchEntity
   const matchedEntityIndex = entidades.findIndex(entity => entity.identifier === req.body.identifier);
@@ -311,7 +311,7 @@ if (typeof req.body.isEnabled === 'string') {
   res.status(200).json({ code: "OK", object: entidades, message: "Entidad editada con éxito." });
 }
 
-function eliminarEntidad(req, res) {
+function deleteEntity(req, res) {
 
   // Obtener el índice de la entidad a eliminar con matchEntity
   const matchedEntityIndex = entidades.findIndex(entity => entity.identifier === req.body.identifier);
@@ -331,7 +331,7 @@ function eliminarEntidad(req, res) {
 
 
 
-function obtenerRegions(req, res) {
+function fetchRegions(req, res) {
   const entityId = req.query.entity_id; // Obteniendo entity_id desde la consulta
 
   if (!entityId) {
@@ -344,7 +344,7 @@ function obtenerRegions(req, res) {
 }
 
 
-function obtenerRegionPorId(req, res) {
+function fetchRegionById(req, res) {
   const regionId = req.query.identifier; // Asume que el identificador se envía como un parámetro de consulta
 
   // Busca la región por su identificador
@@ -359,7 +359,7 @@ function obtenerRegionPorId(req, res) {
   }
 }
 
-function guardarRegions(req, res) {
+function saveRegions(req, res) {
 
   // Verificar si ya existe una región con el mismo identificador
   const regionExistente = regions.find(region =>
@@ -379,7 +379,7 @@ function guardarRegions(req, res) {
   res.status(200).json({code: "OK", object: regions, message: "Región agregada con éxito."});
 }
 
-function editarRegions(req, res) {
+function editRegions(req, res) {
 
   const matchedRegionIndex = regions.findIndex(region => region.identifier === req.body.identifier);
 
@@ -398,7 +398,7 @@ function editarRegions(req, res) {
   res.status(200).json({ code: "OK", object: regions, message: "Región editada con éxito." });
 }
 
-function eliminarRegion(req, res) {
+function deleteRegion(req, res) {
 
   // Obtener el identificador de la región desde el parámetro de ruta
   const regionIdentifier = req.params.identifier;
@@ -421,13 +421,13 @@ function eliminarRegion(req, res) {
 
 
 
-function obtenerCompanies(req, res) {
+function getCompanies(req, res) {
 
     res.status(200).json({code: "OK", object: companies, message: ""});
 
 }
 
-function obtenerCompanyPorId(req, res) {
+function getCompanyById(req, res) {
   const companyId = req.query.identifier; // Asume que el identificador se envía como un parámetro de consulta
 
   // Busca la compañía por su identificador
@@ -443,7 +443,7 @@ function obtenerCompanyPorId(req, res) {
 }
 
 
-function guardarCompanies(req, res) {
+function saveCompanies(req, res) {
   // Verificar si ya existe una compañía con el mismo identificador o nombre de compañía
   const companyExistente = companies.find(company =>
       (company.identifier && company.identifier.toLowerCase() === req.body.identifier.toLowerCase()) ||
@@ -465,7 +465,7 @@ function guardarCompanies(req, res) {
 
 
 
-function editarCompanies(req, res) {
+function editCompanies(req, res) {
 
   // Obtener el índice de la compañía a editar con matchedCompany
   const matchedCompanyIndex = companies.findIndex(company => company.identifier === req.body.identifier);
@@ -635,7 +635,7 @@ function obtenerBusinessTypes(req, res) {
 module.exports = {
 
   obtenerEntidades,
-  obtenerCompanies,
+  getCompanies,
   obtenerEnvironments,
   obtenerInfraestructuras,
   obtenerAvailabilityZones,
@@ -649,20 +649,20 @@ module.exports = {
   obtenerNasList,
   obtenerClusterClasses,
   obtenerBusinessTypes,
-  guardarEntidades,
-  eliminarEntidad,
-  guardarCompanies,
+  saveEntities,
+  deleteEntity,
+  saveCompanies,
   guardarEnvironments,
   guardarInfraestructuras,
-  obtenerRegions,
-  editarEntidades,
-  obtenerCompanyPorId,
-  editarCompanies,
+  fetchRegions,
+  editEntities,
+  getCompanyById,
+  editCompanies,
   eliminarCompany,
-  obtenerRegionPorId,
-  guardarRegions,
-  editarRegions,
-  eliminarRegion,
+  fetchRegionById,
+  saveRegions,
+  editRegions,
+  deleteRegion,
 
 
 

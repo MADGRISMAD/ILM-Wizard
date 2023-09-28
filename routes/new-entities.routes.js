@@ -8,17 +8,17 @@ const routes = express.Router()
 
 routes.get("/obtenerEntidades" , newEntititesController.obtenerEntidades)
 
-routes.get("/obtenerCompanies" , newEntititesController.obtenerCompanies)
+routes.get("/getCompanies" , newEntititesController.getCompanies)
 
 routes.get("/obtenerEnvironments" , newEntititesController.obtenerEnvironments)
 
 routes.get("/obtenerInfraestructuras" , newEntititesController.obtenerInfraestructuras)
 
-routes.get("/obtenerRegions" , newEntititesController.obtenerRegions)
+routes.get("/fetchRegions" , newEntititesController.fetchRegions)
 
-routes.get("/obtenerCompanyPorId", newEntititesController.obtenerCompanyPorId);
+routes.get("/getCompanyById", newEntititesController.getCompanyById);
 
-routes.get("/obtenerRegionPorId", newEntititesController.obtenerRegionPorId);
+routes.get("/fetchRegionById", newEntititesController.fetchRegionById);
 
 routes.get("/obtenerEnvironments", newEntititesController.obtenerEnvironments);
 
@@ -27,11 +27,11 @@ routes.get("/obtenerInfraestructuras", newEntititesController.obtenerInfraestruc
 
 
 
-routes.post("/guardarEntidades" , newEntititesController.guardarEntidades)
+routes.post("/saveEntities" , newEntititesController.saveEntities)
 
-routes.post("/guardarCompanies" , newEntititesController.guardarCompanies)
+routes.post("/saveCompanies" , newEntititesController.saveCompanies)
 
-routes.post("/guardarRegions", newEntititesController.guardarRegions);
+routes.post("/saveRegions", newEntititesController.saveRegions);
 
 routes.post("/guardarEnvironments", newEntititesController.guardarEnvironments);
 
@@ -40,20 +40,20 @@ routes.post("/guardarInfraestructuras", newEntititesController.guardarInfraestru
 
 
 
-routes.delete("/eliminarEntidad", newEntititesController.eliminarEntidad);
+routes.delete("/deleteEntity", newEntititesController.deleteEntity);
 
 routes.delete("/eliminarCompany/:identifier", newEntititesController.eliminarCompany);
 
-routes.delete("/eliminarRegion/:identifier", newEntititesController.eliminarRegion);
+routes.delete("/deleteRegion/:identifier", newEntititesController.deleteRegion);
 
 
 
 
 
-routes.put("/editarEntidades", newEntititesController.editarEntidades);
+routes.put("/editEntities", newEntititesController.editEntities);
 
-routes.put("/editar-companies", newEntititesController.editarCompanies);
-routes.put("/editar-regions", newEntititesController.editarRegions);
+routes.put("/edit-companies", newEntititesController.editCompanies);
+routes.put("/edit-regions", newEntititesController.editRegions);
 
 
 

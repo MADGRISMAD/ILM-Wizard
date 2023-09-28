@@ -31,62 +31,64 @@
                      aria-controls="env-and-infra" aria-selected="false">env-and-infra</a>
                </li>
                <!-- New Tabs: Config and Summary -->
-<li class="nav-item">
-  <a class="nav-link" id="config-tab" data-toggle="tab" href="#config" role="tab"
-      aria-controls="config" aria-selected="false">Config</a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" id="summary-tab" data-toggle="tab" href="#summary" role="tab"
-      aria-controls="summary" aria-selected="false">Summary</a>
-</li>
-
+               <li class="nav-item">
+                  <a class="nav-link" id="config-tab" data-toggle="tab" href="#config" role="tab"
+                     aria-controls="config" aria-selected="false">Config</a>
+               </li>
+               <li class="nav-item">
+                  <a class="nav-link" id="summary-tab" data-toggle="tab" href="#summary" role="tab"
+                     aria-controls="summary" aria-selected="false">Summary</a>
+               </li>
             </ul>
          </div>
       </div>
       <div class="tab-content" id="myTabContent">
       <!-- ------------entity------------------ -->
-      <div class="tab-pane fade show active" id="entity" role="tabpanel" aria-labelledby="entity-tab">
-         <h3 class="text-start">Entity Selector</h3>
-         <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-            <ol class="breadcrumb">
-               <li class="breadcrumb-item"><a href="#entity">Entity</a></li>
-               <li class="breadcrumb-item active" aria-current="page">Entity Selector</li>
-            </ol>
-         </nav>
-         <!-- Botón para agregar entidad con icono -->
-         <button type="button" class="btn btn-primary" id="agregarEntidad"><i class="fas fa-plus-circle"></i></button>
-         <!-- Botón para editar entidad con icono -->
-         <button id="editarEntidad" class="btn btn-secondary"><i class="fas fa-edit"></i></button>
-         <!-- Botón para eliminar entidad con icono -->
-         <button type="button" class="btn btn-danger" id="eliminarEntidad"><i class="fas fa-trash-alt"></i></button>
-         <!-- Modal para Agregar/Editar Entidad -->
-         <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog" role="document">
-               <div class="modal-content">
-                  <!-- El contenido del modal se llenará dinámicamente con jQuery -->
-               </div>
-            </div>
-         </div>
-         <!-- Modal  -->
-         <div class="modal fade" id="entityModal" tabindex="-1" role="dialog" aria-labelledby="entityModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog" role="document">
-               <div class="modal-content">
-                  <!-- El contenido del modal se generará dinámicamente desde el código JavaScript -->
-               </div>
-            </div>
-         </div>
-         <!-- tarjetas -->
-         <div class="container" id="card-container">
-            <div class="row justify-content-center text-center">
-            </div>
-         </div>
-         <div style="display: flex; justify-content: center; align-items: center; height: 10vh;">
-            <button type="button" class="btn btn-primary" id="confirmarSeleccion">Confirmar Selección</button>
-         </div>
-         <!-- //stepper -->
+<div class="tab-pane fade show active" id="entity" role="tabpanel" aria-labelledby="entity-tab">
+  <h3 class="text-start">Entity Selector</h3>
+  <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+      <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#entity">Entity</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Entity Selector</li>
+      </ol>
+  </nav>
+  <!-- button to add entity with icon -->
+  <button type="button" class="btn btn-primary" id="addEntity"><i class="fas fa-plus-circle"></i> Add Entity</button>
+  <!-- Button to edit entity with icon -->
+  <button id="editEntity" class="btn btn-secondary"><i class="fas fa-edit"></i> Edit Entity</button>
+  <!-- Button to delete entity with icon -->
+  <button type="button" class="btn btn-danger" id="deleteEntity"><i class="fas fa-trash-alt"></i> Delete Entity</button>
+
+  <!-- Modal for Add/Edit Entity -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+          <div class="modal-content">
+              <!-- The content of the modal will be filled dynamically with jQuery -->
+          </div>
       </div>
+  </div>
+  <!-- Modal  -->
+
+  <div class="modal fade" id="entityModal" tabindex="-1" role="dialog" aria-labelledby="entityModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+          <div class="modal-content">
+              <!-- The content of the modal will be generated dynamically from the JavaScript code -->
+          </div>
+      </div>
+  </div>
+  <!-- cards -->
+  <div class="container" id="card-container">
+      <div class="row justify-content-center text-center">
+      </div>
+  </div>
+  <div style="display: flex; justify-content: center; align-items: center; height: 10vh;">
+      <button type="button" class="btn btn-primary" id="confirmSelection">Confirm Selection</button>
+  </div>
+  <!-- //stepper -->
+</div>
+
       <!-- ------------company------------------ -->
       <div class="tab-pane fade" id="company" role="tabpanel" aria-labelledby="company-tab">
          <h3 class="text-start">Company Selector </h3>
@@ -98,11 +100,11 @@
             </ol>
          </nav>
          <!-- Botón para agregar compañía con ícono -->
-         <button type="button" class="btn btn-primary" id="agregarCompania"><i class="fas fa-plus-circle"></i></button>
+         <button type="button" class="btn btn-primary" id="addCompany"><i class="fas fa-plus-circle"></i></button>
          <!-- Botón para editar compañía con ícono -->
-         <button id="editarCompany" class="btn btn-secondary"><i class="fas fa-edit"></i></button>
+         <button id="editCompanyBtn" class="btn btn-secondary"><i class="fas fa-edit"></i></button>
          <!-- Botón para eliminar compañía con ícono -->
-         <button type="button" class="btn btn-danger" id="eliminarCompany"><i class="fas fa-trash-alt"></i></button>
+         <button type="button" class="btn btn-danger" id="deleteCompany"><i class="fas fa-trash-alt"></i></button>
          <!-- Modal para agregar la compañía -->
          <div class="modal fade" id="companyModal" tabindex="-1" role="dialog" aria-labelledby="companyModalLabel"
             aria-hidden="true">
@@ -111,7 +113,7 @@
                <div class="modal-content"></div>
             </div>
          </div>
-         <div class="modal fade" id="companyEdit" tabindex="-1" role="dialog" aria-labelledby="companyModalLabel"
+         <div class="modal fade" id="companyEditModal" tabindex="-1" role="dialog" aria-labelledby="companyModalLabel"
             aria-hidden="true">
             <div class="modal-dialog" role="document">
                <!-- El contenido del modal se generará dinámicamente con JavaScript/jQuery -->
@@ -157,13 +159,12 @@
                <li class="breadcrumb-item active" aria-current="page">Region Selector</li>
             </ol>
          </nav>
-
          <!-- Botón para agregar compañía con ícono -->
-         <button type="button" class="btn btn-primary" id="agregarRegion"><i class="fas fa-plus-circle"></i></button>
+         <button type="button" class="btn btn-primary" id="addRegion"><i class="fas fa-plus-circle"></i></button>
          <!-- Botón para editar compañía con ícono -->
-         <button id="editarRegion" class="btn btn-secondary"><i class="fas fa-edit"></i></button>
+         <button id="editRegion" class="btn btn-secondary"><i class="fas fa-edit"></i></button>
          <!-- Botón para eliminar compañía con ícono -->
-         <button type="button" class="btn btn-danger" id="eliminarRegion"><i class="fas fa-trash-alt"></i></button>
+         <button type="button" class="btn btn-danger" id="deleteRegion"><i class="fas fa-trash-alt"></i></button>
          <!-- Modal para agregar la compañía -->
          <div class="modal fade" id="RegionModalAdd" tabindex="-1" role="dialog" aria-labelledby="RegionModalAdd"
             aria-hidden="true">
@@ -221,153 +222,164 @@
          </nav>
          <!-- cards -->
          <div class="container py-5">
-          <div class="row py-5">
-              <!-- Selected entity card -->
-              <div class="col-md-4">
+            <div class="row py-5">
+               <!-- Selected entity card -->
+               <div class="col-md-4">
                   <div class="card">
-                      <img src="" class="card-img-top selected-entity" alt="Entity image" id="infraIMG">
-                      <div class="card-body">
-                          <h3 class="card-title text-center" id="selectedEntityName"></h3>
-                      </div>
+                     <img src="" class="card-img-top selected-entity" alt="Entity image" id="infraIMG">
+                     <div class="card-body">
+                        <h3 class="card-title text-center" id="selectedEntityName"></h3>
+                     </div>
                   </div>
-              </div>
-              <!-- Environment list -->
-              <div class="col-md-4">
+               </div>
+               <!-- Environment list -->
+               <div class="col-md-4">
                   <div class="card h-90 d-flex flex-column">
-                      <h5 class="card-title text-center">Environments</h5>
-                      <ul class="list-group flex-grow-1" id="environment-list">
-                          <!-- Los ítems serán agregados aquí dinámicamente -->
-                      </ul>
-                      <div class="card-footer text-center p-0">
+                     <h5 class="card-title text-center">Environments</h5>
+                     <ul class="list-group flex-grow-1" id="environment-list">
+                        <!-- Los ítems serán agregados aquí dinámicamente -->
+                     </ul>
+                     <div class="card-footer text-center p-0">
                         <button class="btn btn-danger w-100 h-100" style="border-radius: 8;">.</button>
-                    </div>
+                     </div>
                   </div>
-              </div>
-              <!-- Infrastructure type list -->
-              <div class="col-md-4">
+               </div>
+               <!-- Infrastructure type list -->
+               <div class="col-md-4">
                   <div class="card h-90 d-flex flex-column">
-                      <h5 class="card-title text-center">Infra Type</h5>
-                      <ul class="list-group flex-grow-1" id="infrastructure-list">
-                          <!-- Los ítems serán agregados aquí dinámicamente -->
-                      </ul>
-                      <div class="card-footer text-center p-0">
+                     <h5 class="card-title text-center">Infra Type</h5>
+                     <ul class="list-group flex-grow-1" id="infrastructure-list">
+                        <!-- Los ítems serán agregados aquí dinámicamente -->
+                     </ul>
+                     <div class="card-footer text-center p-0">
                         <button class="btn btn-danger w-100 h-100" style="border-radius: 8;">.</button>
-                    </div>
+                     </div>
                   </div>
-              </div>
-          </div>
-      </div>
-
-
+               </div>
+            </div>
+         </div>
          <!-- //stepper -->
       </div>
       <div class="tab-pane fade" id="env-and-infra" role="tabpanel" aria-labelledby="env-and-infra-tab">
-        <!-- Content for env-and-infra -->
-    </div>
-
-    <!-- New Content Sections: Config and Summary -->
-    <div class="tab-pane fade" id="config" role="tabpanel" aria-labelledby="config-tab">
-        <h3 class="text-start">Config</h3>
-        <!-- Add more content here for the Config tab as needed -->
-    </div>
-
-    <div class="tab-pane fade" id="summary" role="tabpanel" aria-labelledby="summary-tab">
-        <h3 class="text-start">Summary</h3>
-        <div class="container mt-4">
-          <h2 class="mb-4">Resumen de configuración</h2>
-          <a href="#">Home ></a>
-
-          <!-- Location Section -->
-          <div class="row mt-4">
-              <div class="col-md-6">
+         <!-- Content for env-and-infra -->
+      </div>
+      <!-- New Content Sections: Config and Summary -->
+      <div class="tab-pane fade" id="config" role="tabpanel" aria-labelledby="config-tab">
+         <h3 class="text-start">Config</h3>
+         <!-- Add more content here for the Config tab as needed -->
+      </div>
+      <div class="tab-pane fade" id="summary" role="tabpanel" aria-labelledby="summary-tab">
+         <h3 class="text-start">Summary</h3>
+         <div class="container mt-4">
+            <h2 class="mb-4">Resumen de configuración</h2>
+            <a href="#">Home ></a>
+            <!-- Location Section -->
+            <div class="row mt-4">
+               <div class="col-md-6">
                   <h4>Location <a href="#">(edit)</a></h4>
                   <table class="table">
-                      <tbody>
-                          <tr><td>ENTITY</td><td>MEXICO</td></tr>
-                          <tr><td>REGION</td><td>Texas</td></tr>
-                          <tr><td>COMPANY</td><td>Santander Bank, National Association</td></tr>
-                      </tbody>
+                     <tbody>
+                        <tr>
+                           <td>ENTITY</td>
+                           <td>MEXICO</td>
+                        </tr>
+                        <tr>
+                           <td>REGION</td>
+                           <td>Texas</td>
+                        </tr>
+                        <tr>
+                           <td>COMPANY</td>
+                           <td>Santander Bank, National Association</td>
+                        </tr>
+                     </tbody>
                   </table>
-              </div>
-
-              <!-- Environments & Infra Section -->
-              <div class="col-md-6">
+               </div>
+               <!-- Environments & Infra Section -->
+               <div class="col-md-6">
                   <h4>Enviroments & Infra <a href="#">(edit)</a></h4>
                   <table class="table">
-                      <tbody>
-                          <tr><td>DEV</td><td>OHE</td><td>VMWare</td></tr>
-                          <tr><td>QA</td><td>OHE</td><td>VMWare</td></tr>
-                          <!-- ... -->
-                      </tbody>
+                     <tbody>
+                        <tr>
+                           <td>DEV</td>
+                           <td>OHE</td>
+                           <td>VMWare</td>
+                        </tr>
+                        <tr>
+                           <td>QA</td>
+                           <td>OHE</td>
+                           <td>VMWare</td>
+                        </tr>
+                        <!-- ... -->
+                     </tbody>
                   </table>
-              </div>
-          </div>
-
-          <!-- Settings Section -->
-          <div class="row mt-4">
-              <div class="col-md-6">
+               </div>
+            </div>
+            <!-- Settings Section -->
+            <div class="row mt-4">
+               <div class="col-md-6">
                   <h4>Settings <a href="#">(edit)</a></h4>
                   <table class="table">
-                      <tbody>
-                          <!-- Puedes seguir este formato para las otras filas -->
-                          <tr><td>Ha List</td><td>OHE</td></tr>
-                          <!-- ... -->
-                      </tbody>
+                     <tbody>
+                        <!-- Puedes seguir este formato para las otras filas -->
+                        <tr>
+                           <td>Ha List</td>
+                           <td>OHE</td>
+                        </tr>
+                        <!-- ... -->
+                     </tbody>
                   </table>
-              </div>
-
-              <!-- Metal By Tenant List Section -->
-              <div class="col-md-6">
+               </div>
+               <!-- Metal By Tenant List Section -->
+               <div class="col-md-6">
                   <h4>Metal By Tenant List <a href="#">(edit)</a></h4>
                   <table class="table">
-                      <tbody>
-                          <tr><td>BRONZE</td><td>GOLD</td></tr>
-                          <!-- ... -->
-                      </tbody>
+                     <tbody>
+                        <tr>
+                           <td>BRONZE</td>
+                           <td>GOLD</td>
+                        </tr>
+                        <!-- ... -->
+                     </tbody>
                   </table>
-              </div>
-          </div>
-
-          <!-- Disable Products Section -->
-          <div class="row mt-4">
-              <div class="col-md-12">
+               </div>
+            </div>
+            <!-- Disable Products Section -->
+            <div class="row mt-4">
+               <div class="col-md-12">
                   <h4>Disable Products <a href="#">(edit)</a></h4>
                   <table class="table">
-                      <tbody>
-                          <tr><td>product1</td><td>product2</td></tr>
-                          <!-- ... -->
-                      </tbody>
+                     <tbody>
+                        <tr>
+                           <td>product1</td>
+                           <td>product2</td>
+                        </tr>
+                        <!-- ... -->
+                     </tbody>
                   </table>
-              </div>
-          </div>
-
-          <!-- Buttons at the bottom -->
-          <div class="row mt-4">
-              <div class="col-md-6 text-left">
+               </div>
+            </div>
+            <!-- Buttons at the bottom -->
+            <div class="row mt-4">
+               <div class="col-md-6 text-left">
                   <button class="btn btn-primary">GO BACK</button>
-              </div>
-              <div class="col-md-6 text-right">
+               </div>
+               <div class="col-md-6 text-right">
                   <button class="btn btn-danger">Confirmar</button>
-              </div>
-          </div>
+               </div>
+            </div>
+         </div>
       </div>
-    </div>
-
    </body>
    <script src="assets/js/jquery-3.3.1.min.js"></script>
    <script src="assets/js/popper.min.js"></script>
    <script src="assets/js/bootstrap.min.js"></script>
-
-
    <script src="assets/js/sweetalert2@11.js"></script>
    <script src="js/entities-managment-util.js"></script>
    <script src="js/new-entities.js"></script>
    <script src="js/entities-managment.js"></script>
-
    <script src="js/companies-manegment.js"></script>
    <script src="js/new-companies.js"></script>
    <script src="js/regions-managment.js"></script>
    <script src="js/envandinfra-management.js"> </script>
-
    </body>
 </html>

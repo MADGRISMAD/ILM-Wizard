@@ -1,40 +1,38 @@
-var companies = [];  // Cambio el nombre para evitar confusiones.
+var companies = [];  // Changed the name to avoid confusion.
 let matchedCompany = null;
-
 
 $(document).ready(function () {
   var companyList = document.getElementById("company-list");
 
-    $("#confirmarSeleccion").click(function() {
-        companyList.innerHTML = "";  // Limpia la lista de compañías
+    $("#confirmSelection").click(function() {
+        companyList.innerHTML = "";  // Clears the company list
         if (matchedEntity) {
-            obtenerYMostrarCompanies(matchedEntity.companyName);
+            fetchAndDisplayCompanies(matchedEntity.companyName);
         }
     });
 
-
-  function obtenerYMostrarCompanies(selectedCompanyName) {
-    // Realiza una solicitud AJAX para obtener los datos de las compañías
+  function fetchAndDisplayCompanies(selectedCompanyName) {
+    // Make an AJAX request to get company data
     $.ajax({
-      url: '/newentities/obtenerCompanies',
+      url: '/newentities/getCompanies',
       type: 'GET',
       success: function (data) {
         if (data.code == "OK") {
           const companies = data.object;
 
-          const companiesConNombre = obtenerCompanies(selectedCompanyName, companies);
+          const companiesWithName = getCompaniesByName(selectedCompanyName, companies);
 
-          for (var i = 0; i < companiesConNombre.length; i++) {
-            var company = companiesConNombre[i];
+          for (var i = 0; i < companiesWithName.length; i++) {
+            var company = companiesWithName[i];
 
             var listItem = document.createElement("li");
             listItem.className = "list-group-item d-flex justify-content-between align-items-center";
             listItem.id = "company" + company.identifier;
             listItem.textContent = company.identifier;
 
-            // Si la compañía tiene isEnabled en false, sombrear en gris y agregar "DISABLE"
+            // If the company has isEnabled set to false, shade in gray and add "DISABLED"
             if (!company.isEnabled) {
-                listItem.style.backgroundColor = "#d3d3d3"; // gris claro
+                listItem.style.backgroundColor = "#d3d3d3"; // light gray
                 listItem.textContent += "(disabled)";
             }
 
@@ -44,17 +42,18 @@ $(document).ready(function () {
         }
       },
       error: function () {
-        alert('Hubo un error al obtener los datos de las compañías.');
+        alert('There was an error fetching company data.');
       }
     });
 
-    function obtenerCompanies(companyName, companies) {
+    function getCompaniesByName(companyName, companies) {
       return companies.filter(function (company) {
         return company.Company === companyName;
       });
     }
   }
 });
+
 
 
 
@@ -66,11 +65,11 @@ function selectCompany(tagId) {
   // 2. Extract identifier from tagId
   const companyId = tagId.replace('company', '');
 
-  // 3. Realizar una solicitud AJAX para obtener los datos de la compañía por su identificador
+  // 3. Make an AJAX request to get company data by its identifier
   $.ajax({
-    url: '/newentities/obtenerCompanyPorId',  // Ruta del servidor donde se obtiene la compañía por ID
+    url: '/newentities/getCompanyById',  // Server route where the company is retrieved by ID
     type: 'GET',
-    data: { identifier: companyId },  // Enviar el identificador como parámetro
+    data: { identifier: companyId },  // Send the identifier as a parameter
     success: function(data) {
       if (data.code == "OK") {
         matchedCompany = data.object;
@@ -78,21 +77,22 @@ function selectCompany(tagId) {
         if (matchedCompany) {
           // 4. Add 'selected' class to the list item
           $(`#${tagId}`).addClass('selected');
-          console.log("compañía encontrada", matchedCompany);
+          console.log("company found", matchedCompany);
         } else {
-          console.log("compañía no encontrada en la base de datos");
-          console.log("ID buscado:", companyId);
+          console.log("company not found in the database");
+          console.log("Searched ID:", companyId);
         }
 
       } else {
-        console.log("Error al obtener la compañía:", data.message);
+        console.log("Error retrieving the company:", data.message);
       }
     },
     error: function() {
-      console.log("Error al realizar la petición AJAX para obtener la compañía");
+      console.log("Error performing the AJAX request to retrieve the company");
     }
   });
 }
+
 $(document).on('click', '#company-list li', function() {
   selectCompany(this.id);
 });
@@ -100,53 +100,54 @@ $(document).on('click', '#company-list li', function() {
 
 
 
-// update the entity card
+
+// Update the entity card
 $(document).ready(function () {
-  $("#confirmarSeleccion").click(function() {
+  $("#confirmSelection").click(function() {
       if (matchedEntity) {
-          actualizarTarjeta(matchedEntity);
+          updateCard(matchedEntity);
       } else {
           Swal.fire({
               icon: 'error',
               title: 'Oops...',
-              text: 'Por favor, selecciona una tarjeta antes de confirmar.',
+              text: 'Please, select a card before confirming.',
           });
       }
   });
 
-  function actualizarTarjeta(entidades) {
-      if (!entidades.flag || !entidades.companyName) {
+  function updateCard(entity) {
+      if (!entity.flag || !entity.companyName) {
           Swal.fire({
               icon: 'error',
               title: 'Oops...',
-              text: 'Los datos de la entidad son incompletos o no válidos.',
+              text: 'Entity data is incomplete or invalid.',
           });
-          return;  // Salir de la función si los datos no son válidos
+          return;  // Exit the function if the data is not valid
       }
 
-      // Actualizar el logo de la entidad
+      // Update the entity logo
       const imgElement = $(".card-img-top.current-company");
       if (!imgElement.length) {
           Swal.fire({
               icon: 'error',
               title: 'Oops...',
-              text: 'No se pudo encontrar el elemento para la imagen.',
+              text: 'Could not find the image element.',
           });
-          return;  // Salir de la función si no se encuentra el elemento
+          return;  // Exit the function if the element is not found
       }
-      imgElement.attr("src", entidades.flag);
+      imgElement.attr("src", entity.flag);
 
-      // Actualizar el nombre de la entidad
+      // Update the name of the entity
       const nameElement = $("#company-name");
       if (!nameElement.length) {
           Swal.fire({
               icon: 'error',
               title: 'Oops...',
-              text: 'No se pudo encontrar el elemento para el nombre de la entidad.',
+              text: 'Could not find the entity name element.',
           });
-          return;  // Salir de la función si no se encuentra el elemento
+          return;  // Exit the function if the element is not found
       }
-      nameElement.text(entidades.companyName);
+      nameElement.text(entity.companyName);
   }
 });
 
@@ -156,19 +157,19 @@ $(document).ready(function () {
 
 
 
-//modal to add new company
 
+// Modal to add a new company
 $(document).ready(function () {
 
   function isValidInput(value, id) {
     const allowSpacesInMiddle = ["regionClientCode", "cmdbCompany", "company", "delivery", "identifier", "nicName", "shortName", "vdc"];
 
-    // Si el valor tiene espacios al principio o al final, es inválido.
+    // If the value has spaces at the beginning or end, it's invalid.
     if (value.trim() !== value) {
         return false;
     }
 
-    // Si el ID no está en la lista que permite espacios en medio pero tiene espacios en medio, es inválido.
+    // If the ID isn't in the list that allows spaces in the middle but has spaces in the middle, it's invalid.
     if (!allowSpacesInMiddle.includes(id) && value.includes(" ")) {
         return false;
     }
@@ -176,181 +177,176 @@ $(document).ready(function () {
     return true;
 }
 
-function validarCampo(campoId) {
-    const valor = $(campoId).val();
+function validateField(fieldId) {
+    const value = $(fieldId).val();
 
-    if (valor === "" || !isValidInput(valor, campoId.replace("#", ""))) {
-        $(campoId).addClass('is-invalid'); // Marca el campo como inválido
+    if (value === "" || !isValidInput(value, fieldId.replace("#", ""))) {
+        $(fieldId).addClass('is-invalid'); // Mark the field as invalid
         return false;
     } else {
-        $(campoId).removeClass('is-invalid'); // Si es válido, quita la marca de inválido
-        return valor;
+        $(fieldId).removeClass('is-invalid'); // If valid, remove the invalid mark
+        return value;
     }
 }
 
-  $("#agregarCompania").click(function () {
+  $("#addCompany").click(function () {
     const defaultValueForCompany = matchedEntity ? matchedEntity.companyName : '';
     const modalContent = `
             <div class="modal-header">
-                <h5 class="modal-title">Agregar Nueva Compañía</h5>
+                <h5 class="modal-title">Add New Company</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="modal-body">
-                <form id="companiaForm">
+                <form id="companyForm">
                     <div class="row">
-                        <div class="col-md-6"> <!-- Primera columna -->
+                        <div class="col-md-6"> <!-- First column -->
                             <div class="form-group">
-                                <label for="identifierInput">Identificador:</label>
-                                <input type="text" class="form-control" id="identifierInput" placeholder="Ingrese identificador">
+                                <label for="identifierInput">Identifier:</label>
+                                <input type="text" class="form-control" id="identifierInput" placeholder="Enter identifier">
                             </div>
                             <div class="form-group">
-                                <label for="companyInput">Compañía:</label>
-                                <input type="text" class="form-control" id="companyInput" placeholder="Ingrese nombre de la compañía" value="${defaultValueForCompany}">
+                                <label for="companyInput">Company:</label>
+                                <input type="text" class="form-control" id="companyInput" placeholder="Enter company name" value="${defaultValueForCompany}">
                             </div>
                             <div class="form-group">
-                                <label for="hostnamePrefixInput">Hostname prefix:</label>
-                                <input type="text" class="form-control" id="hostnamePrefixInput" placeholder="Ingrese hostname prefix">
+                                <label for="hostnamePrefixInput">Hostname Prefix:</label>
+                                <input type="text" class="form-control" id="hostnamePrefixInput" placeholder="Enter hostname prefix">
                             </div>
                             <div class="form-group">
-                                <label for="regionClientCodeInput">Region or client code:</label>
-                                <input type="text" class="form-control" id="regionClientCodeInput" placeholder="Ingrese region or client code">
+                                <label for="regionClientCodeInput">Region or Client Code:</label>
+                                <input type="text" class="form-control" id="regionClientCodeInput" placeholder="Enter region or client code">
                             </div>
                             <div class="form-group">
                                 <label for="deliveryInput">Delivery:</label>
-                                <input type="text" class="form-control" id="deliveryInput" placeholder="Ingrese delivery">
+                                <input type="text" class="form-control" id="deliveryInput" placeholder="Enter delivery">
                             </div>
                             <div class="form-group">
                                 <label for="vdcInput">VDC:</label>
-                                <input type="text" class="form-control" id="vdcInput" placeholder="Ingrese VDC">
+                                <input type="text" class="form-control" id="vdcInput" placeholder="Enter VDC">
                             </div>
                         </div>
-                        <div class="col-md-6"> <!-- Segunda columna -->
+                        <div class="col-md-6"> <!-- Second column -->
                             <div class="form-group">
-                                <label for="cmdbCompanyInput">CMDB company:</label>
-                                <input type="text" class="form-control" id="cmdbCompanyInput" placeholder="Ingrese CMDB company">
+                                <label for="cmdbCompanyInput">CMDB Company:</label>
+                                <input type="text" class="form-control" id="cmdbCompanyInput" placeholder="Enter CMDB company">
                             </div>
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" class="custom-control-input" id="isEnabledInput" checked>
-                                <label class="custom-control-label" for="isEnabledInput">Habilitado</label>
+                                <label class="custom-control-label" for="isEnabledInput">Enabled</label>
                             </div>
                             <div class="form-group">
                                 <label for="selectInput">Select:</label>
-                                <input type="text" class="form-control" id="selectInput" placeholder="Ingrese select">
+                                <input type="text" class="form-control" id="selectInput" placeholder="Enter select">
                             </div>
                             <div class="form-group">
-                                <label for="shortNameInput">Short name:</label>
-                                <input type="text" class="form-control" id="shortNameInput" placeholder="Ingrese short name">
+                                <label for="shortNameInput">Short Name:</label>
+                                <input type="text" class="form-control" id="shortNameInput" placeholder="Enter short name">
                             </div>
                             <div class="form-group">
                                 <label for="nicNameInput">Nic Name:</label>
-                                <input type="text" class="form-control" id="nicNameInput" placeholder="Ingrese Nic Name">
+                                <input type="text" class="form-control" id="nicNameInput" placeholder="Enter Nic Name">
                             </div>
                             <div class="form-group">
                                 <label for="regionInput">Region:</label>
-                                <input type="text" class="form-control" id="regionInput" placeholder="Ingrese region">
+                                <input type="text" class="form-control" id="regionInput" placeholder="Enter region">
                             </div>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-outline-primary" id="guardarCompania">Aceptar</button>
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-outline-primary" id="saveCompany">Accept</button>
             </div>
         `;
 
-
-      // Agrega el contenido al modal
-      $("#companyModal .modal-content").html(modalContent);
-      // Abre el modal
-      $("#companyModal").modal("show");
+    // Add content to modal
+    $("#companyModal .modal-content").html(modalContent);
+    // Open modal
+    $("#companyModal").modal("show");
   });
 
-  $("#companyModal").on("click", "#guardarCompania", function () {
-    const identifier = validarCampo("#identifierInput");
-    const company = validarCampo("#companyInput");
-    const hostnamePrefix = validarCampo("#hostnamePrefixInput");
-    const regionClientCode = validarCampo("#regionClientCodeInput");
-    const delivery = validarCampo("#deliveryInput");
-    const vdc = validarCampo("#vdcInput");
-    const cmdbCompany = validarCampo("#cmdbCompanyInput");
-    const select = validarCampo("#selectInput");
-    const shortName = validarCampo("#shortNameInput");
-    const nicName = validarCampo("#nicNameInput");
-    const region = validarCampo("#regionInput");
+  $("#companyModal").on("click", "#saveCompany", function () {
+    const identifier = validateField("#identifierInput");
+    const company = validateField("#companyInput");
+    const hostnamePrefix = validateField("#hostnamePrefixInput");
+    const regionClientCode = validateField("#regionClientCodeInput");
+    const delivery = validateField("#deliveryInput");
+    const vdc = validateField("#vdcInput");
+    const cmdbCompany = validateField("#cmdbCompanyInput");
+    const select = validateField("#selectInput");
+    const shortName = validateField("#shortNameInput");
+    const nicName = validateField("#nicNameInput");
+    const region = validateField("#regionInput");
     const isEnabled = $("#isEnabledInput").prop("checked");
 
     if (!(identifier && company && hostnamePrefix && regionClientCode && delivery && vdc && cmdbCompany && select && shortName && nicName && region)) {
         Swal.fire({
             icon: 'warning',
-            title: 'Campos Incompletos o Inválidos',
-            text: 'Por favor, completa y corrige todos los campos resaltados.',
+            title: 'Incomplete or Invalid Fields',
+            text: 'Please complete and correct all highlighted fields.',
         });
         return;
     }
 
     Swal.fire({
-        title: '¿Estás seguro?',
-        text: "Se agregará la nueva compañía con los datos proporcionados.",
+        title: 'Are you sure?',
+        text: "The new company will be added with the provided data.",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: 'Sí, agregar',
-        cancelButtonText: 'Cancelar'
+        confirmButtonText: 'Yes, add',
+        cancelButtonText: 'Cancel'
     }).then((result) => {
         if (result.isConfirmed) {
-          const nuevaCompania = {
-            "identifier": identifier,
-            "Company": company,
-            "Hostname prefix": hostnamePrefix,
-            "Region or client code": regionClientCode,
-            "Delivery": delivery,
-            "VDC": vdc,
-            "CMDB company": cmdbCompany,
-            "isEnabled": isEnabled,
-            "select": select,
-            "short_name": shortName,
-            "nicName": nicName,
-            "region": region
-        };
+            const newCompany = {
+                "identifier": identifier,
+                "Company": company,
+                "Hostname prefix": hostnamePrefix,
+                "Region or client code": regionClientCode,
+                "Delivery": delivery,
+                "VDC": vdc,
+                "CMDB company": cmdbCompany,
+                "isEnabled": isEnabled,
+                "select": select,
+                "short_name": shortName,
+                "nicName": nicName,
+                "region": region
+            };
 
             $.ajax({
-                url: "/newentities/guardarCompanies",
+                url: "/newentities/saveCompanies",
                 type: "POST",
                 dataType: "json",
-                data: nuevaCompania,
+                data: newCompany,
                 success: function (response) {
                     if (response.code === "OK") {
                         Swal.fire({
                             icon: 'success',
-                            title: 'Éxito',
-                            text: 'Los datos de la compañía se han guardado con éxito',
+                            title: 'Success',
+                            text: 'Company data has been saved successfully',
                         });
                         $("#companyModal").modal("hide");
-                        // location.reload();
                         $('#company-tab').tab('show');
-                        //recarga la tabla para que se vea la nueva compañia
-                        $('#company-tab').DataTable().ajax.reload();
-
-
+                        // Reload the table to display the new company
 
                     } else {
-                        console.log("Respuesta inesperada del servidor:", response);
+                        console.log("Unexpected server response:", response);
                     }
                 },
                 error: function (error) {
                     if (error.status === 409) {
                         Swal.fire({
                             icon: 'warning',
-                            title: 'Advertencia',
-                            text: 'La compañía con ese identificador o nombre ya existe.',
+                            title: 'Warning',
+                            text: 'A company with that identifier or name already exists.',
                         });
                     } else {
                         Swal.fire({
                             icon: 'error',
                             title: 'Oops...',
-                            text: 'Error al enviar datos de la compañía al controlador.',
+                            text: 'Error sending company data to the controller.',
                         });
                     }
                 },
@@ -361,144 +357,130 @@ function validarCampo(campoId) {
 });
 
 
-//modal para editar compañia
+
+// Modal to edit company
 $(document).ready(function() {
 
-
   function showCompanyModalContent(editCompany) {
-      const isEditing = editCompany !== undefined;
+    const isEditing = editCompany !== undefined;
 
-      const modalContent = `
-        <div class="modal-header">
-            <h5 class="modal-title">${isEditing ? 'Editar Compañía ' + editCompany.identifier : 'Agregar Nueva Compañía'}</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="modal-body">
-          <form id="companiaForm">
-              <div class="row">
-                  <div class="col-md-6"> <!-- Primera columna -->
-                      <div class="form-group">
-                          <label for="identifierInput">Identificador:</label>
-                          <input type="text" class="form-control" id="identifierInput" placeholder="Ingrese identificador" value="${isEditing ? editCompany.identifier : ''}" ${isEditing ? 'readonly' : ''}>
-
-                      </div>
-                      <div class="form-group">
-                          <label for="companyInput">Compañía:</label>
-                          <input type="text" class="form-control" id="companyInput" placeholder="Ingrese nombre de la compañía" value="${isEditing ? editCompany.Company : ''}">
-                      </div>
-                      <div class="form-group">
-                          <label for="hostnamePrefixInput">Hostname prefix:</label>
-                          <input type="text" class="form-control" id="hostnamePrefixInput" placeholder="Ingrese hostname prefix" value="${isEditing ? editCompany["Hostname prefix"] : ''}">
-                      </div>
-                      <div class="form-group">
-                          <label for="regionClientCodeInput">Region or client code:</label>
-                          <input type="text" class="form-control" id="regionClientCodeInput" placeholder="Ingrese region or client code" value="${isEditing ? editCompany["Region or client code"] : ''}">
-                      </div>
-                      <div class="form-group">
-                          <label for="deliveryInput">Delivery:</label>
-                          <input type="text" class="form-control" id="deliveryInput" placeholder="Ingrese delivery" value="${isEditing ? editCompany.Delivery : ''}">
-                      </div>
-                      <div class="form-group">
-                          <label for="vdcInput">VDC:</label>
-                          <input type="text" class="form-control" id="vdcInput" placeholder="Ingrese VDC" value="${isEditing ? editCompany.VDC : ''}">
-                      </div>
-                  </div>
-                  <div class="col-md-6"> <!-- Segunda columna -->
-                      <div class="form-group">
-                          <label for="cmdbCompanyInput">CMDB company:</label>
-                          <input type="text" class="form-control" id="cmdbCompanyInput" placeholder="Ingrese CMDB company" value="${isEditing ? editCompany["CMDB company"] : ''}">
-                      </div>
-                      <div class="custom-control custom-checkbox">
-                          <input type="checkbox" class="custom-control-input" id="isEnabledInput" ${isEditing && editCompany.isEnabled ? 'checked' : ''}>
-                          <label class="custom-control-label" for="isEnabledInput">Habilitado</label>
-                      </div>
-                      <div class="form-group">
-                          <label for="selectInput">Select:</label>
-                          <input type="text" class="form-control" id="selectInput" placeholder="Ingrese select" value="${isEditing ? editCompany.select : ''}">
-                      </div>
-                      <div class="form-group">
-                          <label for="shortNameInput">Short name:</label>
-                          <input type="text" class="form-control" id="shortNameInput" placeholder="Ingrese short name" value="${isEditing ? editCompany.short_name : ''}">
-                      </div>
-                      <div class="form-group">
-                          <label for="nicNameInput">Nic Name:</label>
-                          <input type="text" class="form-control" id="nicNameInput" placeholder="Ingrese Nic Name" value="${isEditing ? editCompany.nicName : ''}">
-                      </div>
-                      <div class="form-group">
-                          <label for="regionInput">Region:</label>
-                          <input type="text" class="form-control" id="regionInput" placeholder="Ingrese region" value="${isEditing ? editCompany.region : ''}">
-                      </div>
-                  </div>
-              </div>
-          </form>
+    const modalContent = `
+      <div class="modal-header">
+          <h5 class="modal-title">${isEditing ? 'Edit Company ' + editCompany.identifier : 'Add New Company'}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <i class="fas fa-times"></i>
+          </button>
       </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
-            <button type="button" class="btn btn-outline-primary" id="editedCompania">${isEditing ? 'Actualizar' : 'Aceptar'}</button>
-        </div>
-      `;
+      <div class="modal-body">
+        <form id="companyForm">
+            <div class="row">
+                <div class="col-md-6"> <!-- First column -->
+                    <div class="form-group">
+                        <label for="identifierInput">Identifier:</label>
+                        <input type="text" class="form-control" id="identifierInput" placeholder="Enter identifier" value="${isEditing ? editCompany.identifier : ''}" ${isEditing ? 'readonly' : ''}>
+                    </div>
+                    <div class="form-group">
+                        <label for="companyInput">Company:</label>
+                        <input type="text" class="form-control" id="companyInput" placeholder="Enter company name" value="${isEditing ? editCompany.Company : ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="hostnamePrefixInput">Hostname Prefix:</label>
+                        <input type="text" class="form-control" id="hostnamePrefixInput" placeholder="Enter hostname prefix" value="${isEditing ? editCompany["Hostname prefix"] : ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="regionClientCodeInput">Region or Client Code:</label>
+                        <input type="text" class="form-control" id="regionClientCodeInput" placeholder="Enter region or client code" value="${isEditing ? editCompany["Region or client code"] : ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="deliveryInput">Delivery:</label>
+                        <input type="text" class="form-control" id="deliveryInput" placeholder="Enter delivery" value="${isEditing ? editCompany.Delivery : ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="vdcInput">VDC:</label>
+                        <input type="text" class="form-control" id="vdcInput" placeholder="Enter VDC" value="${isEditing ? editCompany.VDC : ''}">
+                    </div>
+                </div>
+                <div class="col-md-6"> <!-- Second column -->
+                    <div class="form-group">
+                        <label for="cmdbCompanyInput">CMDB Company:</label>
+                        <input type="text" class="form-control" id="cmdbCompanyInput" placeholder="Enter CMDB company" value="${isEditing ? editCompany["CMDB company"] : ''}">
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="isEnabledInput" ${isEditing && editCompany.isEnabled ? 'checked' : ''}>
+                        <label class="custom-control-label" for="isEnabledInput">Enabled</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="selectInput">Select:</label>
+                        <input type="text" class="form-control" id="selectInput" placeholder="Enter select" value="${isEditing ? editCompany.select : ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="shortNameInput">Short Name:</label>
+                        <input type="text" class="form-control" id="shortNameInput" placeholder="Enter short name" value="${isEditing ? editCompany.short_name : ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="nicNameInput">Nic Name:</label>
+                        <input type="text" class="form-control" id="nicNameInput" placeholder="Enter Nic Name" value="${isEditing ? editCompany.nicName : ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="regionInput">Region:</label>
+                        <input type="text" class="form-control" id="regionInput" placeholder="Enter region" value="${isEditing ? editCompany.region : ''}">
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+      <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-outline-primary" id="saveEditedCompany">${isEditing ? 'Update' : 'Accept'}</button>
+      </div>
+    `;
 
-      $("#companyEdit .modal-content").html(modalContent);
-      $("#companyEdit").modal("show");
+    $("#companyEditModal .modal-content").html(modalContent);
+    $("#companyEditModal").modal("show");
   }
-  $("#editarCompany").click(function() {
-    if (!matchedCompany) {
+
+  $("#editCompanyBtn").click(function() {
+    if (!selectedCompany) {
         Swal.fire({
             icon: 'error',
             title: 'Oops...',
-            text: 'Por favor, selecciona una compañía antes de continuar.',
+            text: 'Please, select a company before continuing.',
         });
         return;
     }
-    showCompanyModalContent(matchedCompany);
-});
+    showCompanyModalContent(selectedCompany);
+  });
 
-function hasChanges(editedCompany, originalCompany) {
-    return editedCompany.companyName !== originalCompany.Company ||
-           editedCompany["Hostname prefix"] !== originalCompany["Hostname prefix"] ||
-           editedCompany["Region or client code"] !== originalCompany["Region or client code"] ||
-           editedCompany.Delivery !== originalCompany.Delivery ||
-           editedCompany.VDC !== originalCompany.VDC ||
-           editedCompany["CMDB company"] !== originalCompany["CMDB company"] ||
-           editedCompany.isEnabled !== originalCompany.isEnabled ||
-           editedCompany.select !== originalCompany.select ||
-           editedCompany.short_name !== originalCompany.short_name ||
-           editedCompany.nicName !== originalCompany.nicName ||
-           editedCompany.region !== originalCompany.region;
-}
+  function hasChanges(updatedCompany, originalCompany) {
+    return updatedCompany.companyName !== originalCompany.Company ||
+           updatedCompany["Hostname prefix"] !== originalCompany["Hostname prefix"] ||
+           updatedCompany["Region or client code"] !== originalCompany["Region or client code"] ||
+           updatedCompany.Delivery !== originalCompany.Delivery ||
+           updatedCompany.VDC !== originalCompany.VDC ||
+           updatedCompany["CMDB company"] !== originalCompany["CMDB company"] ||
+           updatedCompany.isEnabled !== originalCompany.isEnabled ||
+           updatedCompany.select !== originalCompany.select ||
+           updatedCompany.short_name !== originalCompany.short_name ||
+           updatedCompany.nicName !== originalCompany.nicName ||
+           updatedCompany.region !== originalCompany.region;
+  }
 
+  $("#companyEditModal").on("click", "#saveEditedCompany", function() {
 
+    const identifier = $("#identifierInput").val().trim();
+    const companyName = $("#companyInput").val().trim();
+    const hostnamePrefix = $("#hostnamePrefixInput").val().trim();
+    const regionClientCode = $("#regionClientCodeInput").val().trim();
+    const delivery = $("#deliveryInput").val().trim();
+    const vdc = $("#vdcInput").val().trim();
+    const cmdbCompany = $("#cmdbCompanyInput").val().trim();
+    const isEnabled = $("#isEnabledInput").is(":checked");
+    const select = $("#selectInput").val().trim();
+    const shortName = $("#shortNameInput").val().trim();
+    const nicName = $("#nicNameInput").val().trim();
+    const region = $("#regionInput").val().trim();
 
-  $("#companyEdit").on("click", "#editedCompania", function() {
-
-
-      const identifier = $("#identifierInput").val().trim();
-      const companyName = $("#companyInput").val().trim();
-      const hostnamePrefix = $("#hostnamePrefixInput").val().trim();
-      const regionClientCode = $("#regionClientCodeInput").val().trim();
-      const delivery = $("#deliveryInput").val().trim();
-      const vdc = $("#vdcInput").val().trim();
-      const cmdbCompany = $("#cmdbCompanyInput").val().trim();
-      const isEnabled = $("#isEnabledInput").is(":checked");
-      const select = $("#selectInput").val().trim();
-      const shortName = $("#shortNameInput").val().trim();
-      const nicName = $("#nicNameInput").val().trim();
-      const region = $("#regionInput").val().trim();
-
-
-
-      if (!matchedCompany) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'Por favor, selecciona una tarjeta antes de continuar.',
-        });
-        return;
-    }
-
-    const companyActualizada = {
+    const updatedCompany = {
         "identifier": identifier,
         "Company": companyName,
         "Hostname Prefix": hostnamePrefix,
@@ -511,50 +493,46 @@ function hasChanges(editedCompany, originalCompany) {
         "short_name": shortName,
         "nicName": nicName,
         "region": region
-
     };
 
-
-
-
-      if (hasChanges(companyActualizada, matchedCompany)) {
-        Swal.fire({
-            title: '¿Estás seguro?',
-            text: "Se actualizará la compañía con los datos proporcionados.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Sí, actualizar',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-              updateCompany(companyActualizada);
-            }
-        });
-      } else {
-        updateCompany(companyActualizada);
-      }
+    if (hasChanges(updatedCompany, selectedCompany)) {
+      Swal.fire({
+          title: 'Are you sure?',
+          text: "The company will be updated with the provided data.",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, update',
+          cancelButtonText: 'Cancel'
+      }).then((result) => {
+          if (result.isConfirmed) {
+            performCompanyUpdate(updatedCompany);
+          }
+      });
+    } else {
+      performCompanyUpdate(updatedCompany);
+    }
   });
 
-  function updateCompany(companyActualizada) {
+  function performCompanyUpdate(updatedCompany) {
     $.ajax({
-        url: '/newentities/editar-companies',
+        url: '/newentities/edit-companies',
         type: 'PUT',
-        data: companyActualizada,
+        data: updatedCompany,
         success: function(response) {
             if (response.code === "OK") {
                 Swal.fire({
                     icon: 'success',
-                    title: 'Compañía guardada con éxito',
+                    title: 'Company successfully saved',
                     showConfirmButton: false,
                     timer: 1500
                 });
-                $("#companyEdit").modal("hide");
-                //recarga la pesta;a para que se vea la compañia actualizada
+                $("#companyEditModal").modal("hide");
+                // Reload the tab to show the updated company
                 location.reload();
             } else {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error al guardar la compañía',
+                    title: 'Error saving the company',
                     text: response.message
                 });
             }
@@ -562,13 +540,14 @@ function hasChanges(editedCompany, originalCompany) {
         error: function() {
             Swal.fire({
                 icon: 'error',
-                title: 'Error de servidor',
-                text: 'No se pudo guardar la compañía. Inténtalo de nuevo más tarde.'
+                title: 'Server error',
+                text: 'Could not save the company. Please try again later.'
             });
         }
     });
-}
+  }
 });
+
 
 
 //delete company
