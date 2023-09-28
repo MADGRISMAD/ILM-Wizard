@@ -359,6 +359,67 @@ function obtenerRegionPorId(req, res) {
   }
 }
 
+function guardarRegions(req, res) {
+
+  // Verificar si ya existe una región con el mismo identificador
+  const regionExistente = regions.find(region =>
+      region.identifier && region.identifier.toLowerCase() === req.body.identifier.toLowerCase()
+  );
+
+  // Si la región ya existe
+  if (regionExistente) {
+      return res.status(409).json({code: "DUPLICATE", message: "La región con ese identificador ya existe."});
+  }
+
+  // Convertir isEnabled a booleano (por si acaso)
+  req.body.isEnabled = (req.body.isEnabled === 'true' || req.body.isEnabled === true);
+
+  // Si la región no existe, la añade
+  regions.push(req.body);
+  res.status(200).json({code: "OK", object: regions, message: "Región agregada con éxito."});
+}
+
+function editarRegions(req, res) {
+
+  const matchedRegionIndex = regions.findIndex(region => region.identifier === req.body.identifier);
+
+  // Si no existe la región
+  if (matchedRegionIndex === -1) {
+      return res.status(404).json({ code: "NOT_FOUND", message: "La región no existe." });
+  }
+
+  // Convertir la propiedad isEnabled a booleano si es un string
+  if (typeof req.body.isEnabled === 'string') {
+    req.body.isEnabled = req.body.isEnabled.toLowerCase() === "true";
+  }
+
+  // Si existe la región
+  regions[matchedRegionIndex] = req.body;
+  res.status(200).json({ code: "OK", object: regions, message: "Región editada con éxito." });
+}
+
+function eliminarRegion(req, res) {
+
+  // Obtener el identificador de la región desde el parámetro de ruta
+  const regionIdentifier = req.params.identifier;
+
+  // Obtener el índice de la región a eliminar usando el identificador
+  const matchedRegionIndex = regions.findIndex(region => region.identifier === regionIdentifier);
+
+  // Si no existe la región
+  if (matchedRegionIndex === -1) {
+      return res.status(404).json({ code: "NOT_FOUND", message: "La región no existe." });
+  }
+
+  // Si existe la región, la elimina
+  regions.splice(matchedRegionIndex, 1);
+  res.status(200).json({ code: "OK", object: regions, message: "Región eliminada con éxito." });
+}
+
+
+
+
+
 
 function obtenerCompanies(req, res) {
 
@@ -423,6 +484,8 @@ function editarCompanies(req, res) {
   companies[matchedCompanyIndex] = req.body;
   res.status(200).json({ code: "OK", object: companies, message: "Compañía editada con éxito." });
 }
+
+
 
 function eliminarCompany(req, res) {
 
@@ -597,6 +660,10 @@ module.exports = {
   editarCompanies,
   eliminarCompany,
   obtenerRegionPorId,
+  guardarRegions,
+  editarRegions,
+  eliminarRegion,
+
 
 
 

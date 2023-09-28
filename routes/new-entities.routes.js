@@ -31,6 +31,8 @@ routes.post("/guardarEntidades" , newEntititesController.guardarEntidades)
 
 routes.post("/guardarCompanies" , newEntititesController.guardarCompanies)
 
+routes.post("/guardarRegions", newEntititesController.guardarRegions);
+
 routes.post("/guardarEnvironments", newEntititesController.guardarEnvironments);
 
 routes.post("/guardarInfraestructuras", newEntititesController.guardarInfraestructuras);
@@ -42,6 +44,8 @@ routes.delete("/eliminarEntidad", newEntititesController.eliminarEntidad);
 
 routes.delete("/eliminarCompany/:identifier", newEntititesController.eliminarCompany);
 
+routes.delete("/eliminarRegion/:identifier", newEntititesController.eliminarRegion);
+
 
 
 
@@ -49,7 +53,7 @@ routes.delete("/eliminarCompany/:identifier", newEntititesController.eliminarCom
 routes.put("/editarEntidades", newEntititesController.editarEntidades);
 
 routes.put("/editar-companies", newEntititesController.editarCompanies);
-
+routes.put("/editar-regions", newEntititesController.editarRegions);
 
 
 
