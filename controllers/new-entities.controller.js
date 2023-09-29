@@ -21,93 +21,6 @@ const entidades = [
 
 
 
-const companies = [
-  {
-
-    "identifier": "imx",
-    "Company": "MX",
-    "entity_id": "MX",
-    "Hostname prefix": "mxr",
-    "Region or client code": "Region 1",
-    "Delivery": "Delivery 1",
-    "VDC": "VDC 1",
-    "CMDB company": "CMDB Company 1",
-    "isEnabled": true,
-    "select": "di",
-    "short_name": "BSMX",
-    "nicName": "nic",
-    "region": "mx"
-  },
-  {
-    "identifier": "us",
-    "Company": "US",
-    "entity_id": "US",
-    "Hostname prefix": "mxr",
-    "Region or client code": "Region 1",
-    "Delivery": "Delivery 1",
-    "VDC": "VDC 1",
-    "CMDB company": "CMDB Company 1",
-    "isEnabled": true,
-    "select": "di",
-    "short_name": "BSMX",
-    "nicName": "nic",
-    "region": "mx"
-  },
-  // ... otras compañías
-];
-
-const regions = [
-  {
-    "entity_id": "MX",
-    "identifier": "Region 1",
-    "Region": "Region 1",
-    "isEnabled": true
-  },
-  {
-    "entity_id": "US",
-    "identifier": "Region 2",
-    "Region": "Region 2",
-    "isEnabled": true
-  },
-  {
-    "entity_id": "MX",
-    "identifier": "Region 3",
-    "Region": "Region 3",
-    "isEnabled": true
-  },
-  {
-    "entity_id": "US",
-    "identifier": "Region 4",
-    "Region": "Region 4",
-    "isEnabled": true
-  },
-  // ... otras regiones
-];
-
-
-const environments = [
-  {
-    "identifier": "dev",
-    "EnvName": "Development",
-    "isEnabled": true
-  },
-  {
-    "identifier": "pre",
-    "EnvName": "Preproduction",
-    "isEnabled": true
-  },
-
-  // ... otros entornos
-];
-const environmentsEntity = [
-  {
-    "EnviromentId":"dasdsa",
-    "EntityId":"dasdsa",
-    "isEnabled": true
-  }
-]
-
-
 const infraTypes = [
   {
     "identifier": "ohe",
@@ -331,186 +244,6 @@ function deleteEntity(req, res) {
 
 
 
-function fetchRegions(req, res) {
-  const entityId = req.query.entity_id; // Obteniendo entity_id desde la consulta
-
-  if (!entityId) {
-      return res.status(400).json({code: "ERROR", message: "Falta el parámetro entity_id."});
-  }
-
-  const filteredRegions = regions.filter(region => region.entity_id === entityId);
-
-  res.status(200).json({code: "OK", object: filteredRegions, message: ""});
-}
-
-
-function fetchRegionById(req, res) {
-  const regionId = req.query.identifier; // Asume que el identificador se envía como un parámetro de consulta
-
-  // Busca la región por su identificador
-  const region = regions.find(r => r.identifier === regionId);
-
-  if (region) {
-      // Si se encuentra la región, devuelve un estado 200 y la región
-      res.status(200).json({ code: "OK", object: region, message: "" });
-  } else {
-      // Si no se encuentra, devuelve un estado 404 y un mensaje de error
-      res.status(404).json({ code: "NOT_FOUND", message: "Región no encontrada" });
-  }
-}
-
-function saveRegions(req, res) {
-
-  // Verificar si ya existe una región con el mismo identificador
-  const regionExistente = regions.find(region =>
-      region.identifier && region.identifier.toLowerCase() === req.body.identifier.toLowerCase()
-  );
-
-  // Si la región ya existe
-  if (regionExistente) {
-      return res.status(409).json({code: "DUPLICATE", message: "La región con ese identificador ya existe."});
-  }
-
-  // Convertir isEnabled a booleano (por si acaso)
-  req.body.isEnabled = (req.body.isEnabled === 'true' || req.body.isEnabled === true);
-
-  // Si la región no existe, la añade
-  regions.push(req.body);
-  res.status(200).json({code: "OK", object: regions, message: "Región agregada con éxito."});
-}
-
-function editRegions(req, res) {
-
-  const matchedRegionIndex = regions.findIndex(region => region.identifier === req.body.identifier);
-
-  // Si no existe la región
-  if (matchedRegionIndex === -1) {
-      return res.status(404).json({ code: "NOT_FOUND", message: "La región no existe." });
-  }
-
-  // Convertir la propiedad isEnabled a booleano si es un string
-  if (typeof req.body.isEnabled === 'string') {
-    req.body.isEnabled = req.body.isEnabled.toLowerCase() === "true";
-  }
-
-  // Si existe la región
-  regions[matchedRegionIndex] = req.body;
-  res.status(200).json({ code: "OK", object: regions, message: "Región editada con éxito." });
-}
-
-function deleteRegion(req, res) {
-
-  // Obtener el identificador de la región desde el parámetro de ruta
-  const regionIdentifier = req.params.identifier;
-
-  // Obtener el índice de la región a eliminar usando el identificador
-  const matchedRegionIndex = regions.findIndex(region => region.identifier === regionIdentifier);
-
-  // Si no existe la región
-  if (matchedRegionIndex === -1) {
-      return res.status(404).json({ code: "NOT_FOUND", message: "La región no existe." });
-  }
-
-  // Si existe la región, la elimina
-  regions.splice(matchedRegionIndex, 1);
-  res.status(200).json({ code: "OK", object: regions, message: "Región eliminada con éxito." });
-}
-
-
-
-
-
-
-function getCompanies(req, res) {
-
-    res.status(200).json({code: "OK", object: companies, message: ""});
-
-}
-
-function getCompanyById(req, res) {
-  const companyId = req.query.identifier; // Asume que el identificador se envía como un parámetro de consulta
-
-  // Busca la compañía por su identificador
-  const company = companies.find(c => c.identifier === companyId);
-
-  if (company) {
-      // Si se encuentra la compañía, devuelve un estado 200 y la compañía
-      res.status(200).json({ code: "OK", object: company, message: "" });
-  } else {
-      // Si no se encuentra, devuelve un estado 404 y un mensaje de error
-      res.status(404).json({ code: "NOT_FOUND", message: "Compañía no encontrada" });
-  }
-}
-
-
-function saveCompanies(req, res) {
-  // Verificar si ya existe una compañía con el mismo identificador o nombre de compañía
-  const companyExistente = companies.find(company =>
-      (company.identifier && company.identifier.toLowerCase() === req.body.identifier.toLowerCase()) ||
-      (company.company && company.company.toLowerCase() === req.body.company.toLowerCase())
-  );
-
-  // Si la compañía con ese identificador o nombre ya existe
-  if (companyExistente) {
-      return res.status(409).json({code: "DUPLICATE", message: "La compañía con ese identificador o nombre ya existe."});
-  }
-
-  // Convertir isEnabled a booleano (por si acaso)
-  req.body.isEnabled = (req.body.isEnabled === 'true' || req.body.isEnabled === true);
-
-  // Si la compañía no existe, la añade
-  companies.push(req.body);
-  res.status(200).json({code: "OK", object: companies, message: "Compañía agregada con éxito."});
-}
-
-
-
-function editCompanies(req, res) {
-
-  // Obtener el índice de la compañía a editar con matchedCompany
-  const matchedCompanyIndex = companies.findIndex(company => company.identifier === req.body.identifier);
-
-  // Si no existe la compañía
-  if (matchedCompanyIndex === -1) {
-      return res.status(404).json({ code: "NOT_FOUND", message: "La compañía no existe." });
-  }
-
-  // Convertir la propiedad isEnabled a booleano si es un string
-  if (typeof req.body.isEnabled === 'string') {
-      req.body.isEnabled = req.body.isEnabled.toLowerCase() === "true";
-  }
-
-  // Si existe la compañía
-  companies[matchedCompanyIndex] = req.body;
-  res.status(200).json({ code: "OK", object: companies, message: "Compañía editada con éxito." });
-}
-
-
-
-function eliminarCompany(req, res) {
-
-  // Obtener el identificador de la compañía desde el parámetro de ruta
-  const companyIdentifier = req.params.identifier;
-
-  // Obtener el índice de la compañía a eliminar usando el identificador
-  const matchedCompanyIndex = companies.findIndex(company => company.identifier === companyIdentifier);
-
-  // Si no existe la compañía
-  if (matchedCompanyIndex === -1) {
-      return res.status(404).json({ code: "NOT_FOUND", message: "La compañía no existe." });
-  }
-
-  // Si existe la compañía, la elimina
-  companies.splice(matchedCompanyIndex, 1);
-  res.status(200).json({ code: "OK", object: companies, message: "Compañía eliminada con éxito." });
-}
-
-
-
-
-
-
-
 function obtenerEnvironments(req, res) {
   res.status(200).json({code: "OK", object: environments, message: ""});
 
@@ -635,7 +368,6 @@ function obtenerBusinessTypes(req, res) {
 module.exports = {
 
   obtenerEntidades,
-  getCompanies,
   obtenerEnvironments,
   obtenerInfraestructuras,
   obtenerAvailabilityZones,
@@ -651,25 +383,13 @@ module.exports = {
   obtenerBusinessTypes,
   saveEntities,
   deleteEntity,
-  saveCompanies,
   guardarEnvironments,
   guardarInfraestructuras,
-  fetchRegions,
   editEntities,
-  getCompanyById,
-  editCompanies,
-  eliminarCompany,
-  fetchRegionById,
-  saveRegions,
-  editRegions,
-  deleteRegion,
-
 
 
 
   entidades,
-  companies,
-  environments,
   infraTypes,
   availabilityZones,
   haList,
@@ -682,23 +402,8 @@ module.exports = {
   nasList,
   clusterClasses,
   businessTypes,
-  environmentsEntity,
-  regions
+
 };
-// "use strict"
-// const ejemplo = ((req, res) => {
-
-//   console.log(req.body);
-//   const {data,nombre,apellido}=req.body;
-//   const id = req.body;
-//   res.status(200).json({message: "ok", data, nombre, id});
-
-// } )
-
-// module.exports = {
-//   ejemplo
-
-// En el controlador en "controller"
 
 
 

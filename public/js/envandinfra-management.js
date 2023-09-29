@@ -34,7 +34,7 @@ $(document).ready(function() {
   // Obtiene y muestra la lista de environments
   function getAndDisplayEnvironments() {
     $.ajax({
-      url: "/newentities/obtenerEnvironments",
+      url: "/newenvironments/obtenerEnvironments",
       type: "GET",
       dataType: "json",
       success: function(data) {

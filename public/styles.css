@@ -185,3 +185,7 @@ h3 .card.selected{
   margin-left: 5px;
   margin-right: 10px;
 }
+.list-item-centered {
+  text-transform: uppercase;
+  text-align: center;
+}

@@ -3,6 +3,9 @@ const app = express();
 const port = 3000;
 const http = require('http').createServer(app);
 const newEntitiesRoutes = require('./routes/new-entities.routes');
+const newCompaniesRoutes = require('./routes/new-companies.routes');
+const newRegionsRoutes = require('./routes/new-regions.routes');
+const newEnvironmentsRoutes = require('./routes/new-environments.routes');
 
 const cockieParser = require('cookie-parser');
 const cors = require('cors');
@@ -44,6 +47,10 @@ app.use(express.json());
 app.use(cors());
 
 app.use('/newentities', newEntitiesRoutes);
+app.use('/newcompanies', newCompaniesRoutes);
+app.use('/newregions', newRegionsRoutes);
+app.use('/newenvironments', newEnvironmentsRoutes);
+
 
 
 

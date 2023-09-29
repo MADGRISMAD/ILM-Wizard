@@ -2,7 +2,7 @@ let matchedRegion = null;  // Variable to store the selected region
 
 // Update the entity card
 $(document).ready(function () {
-    $("#confirmCompany").click(function() {
+    $("#confirmCompanyBtn").click(function() {
         if (matchedEntity) {
             updateCard(matchedEntity);
         } else {
@@ -54,7 +54,7 @@ $(document).ready(function () {
 $(document).ready(function () {
     var regionList = document.getElementById("Region-list");
 
-    $("#confirmCompany").click(function() {
+    $("#confirmCompanyBtn").click(function() {
         regionList.innerHTML = "";  // Clear the region list.
         if (matchedCompany) {  // Ensure that the company is selected
             fetchAndDisplayRegions(matchedCompany.entity_id);
@@ -70,7 +70,7 @@ $(document).ready(function () {
     function fetchAndDisplayRegions(selectedEntityId) {
         // Make an AJAX request to fetch the region data
         $.ajax({
-            url: '/newentities/fetchRegions',
+            url: '/newregions/fetchRegions',
             type: 'GET',
             data: { entity_id: selectedEntityId },  // Sending entity_id as a query parameter
             success: function(data) {
@@ -81,14 +81,14 @@ $(document).ready(function () {
                         var region = filteredRegions[i];
 
                         var listItem = document.createElement("li");
-                        listItem.className = "list-group-item d-flex justify-content-between align-items-center";
+                        listItem.className = "list-group-item d-flex justify-content-between align-items-center list-item-centered";
                         listItem.id = "region" + region.identifier;
                         listItem.textContent = region.Region;
 
                         // If the region has isEnabled set to false, shade in gray and append "DISABLED"
                         if (!region.isEnabled) {
                             listItem.style.backgroundColor = "#d3d3d3"; // light gray
-                            listItem.textContent += " (DISABLED)";
+                            listItem.textContent ;
                         }
 
                         regionList.appendChild(listItem);
@@ -112,7 +112,7 @@ function selectRegion(tagId) {
 
     // 3. Make an AJAX request to fetch the region data by its identifier
     $.ajax({
-        url: '/newentities/fetchRegionById',  // Server route where the region is fetched by ID
+        url: '/newregions/fetchRegionById',  // Server route where the region is fetched by ID
         type: 'GET',
         data: { identifier: regionId },  // Send the identifier as a parameter
         success: function(data) {
@@ -239,7 +239,8 @@ $(document).ready(function () {
                       <input type="text" class="form-control" id="regionInput" placeholder="Enter region name">
                   </div>
                   <div class="custom-control custom-checkbox">
-                      <input type="checkbox" class="custom-control-input" id="isEnabledInput" checked>
+                  <input type="checkbox" class="custom-control-input" id="isEnabledInput">
+
                       <label class="custom-control-label" for="isEnabledInput">Enabled</label>
                   </div>
               </form>
@@ -288,7 +289,7 @@ $(document).ready(function () {
               };
 
               $.ajax({
-                  url: "/newentities/saveRegions",
+                  url: "/newregions/saveRegions",
                   type: "POST",
                   dataType: "json",
                   data: newRegion,
@@ -416,7 +417,7 @@ $(document).ready(function () {
 
   function saveUpdatedRegion(updatedRegion) {
       $.ajax({
-          url: '/newentities/edit-regions',
+          url: '/newregions/edit-regions',
           type: 'PUT',
           data: updatedRegion,
           success: function (response) {
@@ -477,7 +478,7 @@ $(document).ready(function() {
 
   function deleteRegion(identifier) {
       $.ajax({
-          url: `/newentities/deleteRegion/${identifier}`,  // Assuming you send the identifier in the URL
+          url: `/newregions/deleteRegion/${identifier}`,  // Assuming you send the identifier in the URL
           type: 'DELETE',
           success: function(response) {
               if (response.code === "OK") {
