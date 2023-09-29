@@ -11,4 +11,6 @@ routes.post("/saveCompanies" , newCompaniesController.saveCompanies)
 
 routes.put("/edit-companies", newCompaniesController.editCompanies);
 
+routes.post("/toggleStatus", newCompaniesController.toggleCompanyStatus);
+
 module.exports = routes;

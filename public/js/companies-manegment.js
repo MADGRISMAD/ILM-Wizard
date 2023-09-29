@@ -4,53 +4,116 @@ let matchedCompany = null;
 $(document).ready(function () {
   var companyList = document.getElementById("company-list");
 
-    $("#confirmSelection").click(function() {
-        companyList.innerHTML = "";  // Clears the company list
-        if (matchedEntity) {
-            fetchAndDisplayCompanies(matchedEntity.companyName);
-        }
-    });
+  $("#confirmSelection").click(function() {
+      companyList.innerHTML = "";  // Clears the company list
+      if (matchedEntity) {
+          fetchAndDisplayCompanies(matchedEntity.companyName);
+      }
+  });
 
   function fetchAndDisplayCompanies(matchedCompanyName) {
-    // Make an AJAX request to get company data
-    $.ajax({
-      url: '/newcompanies/getCompanies',
-      type: 'GET',
-      success: function (data) {
-        if (data.code == "OK") {
-          const companies = data.object;
+      // Make an AJAX request to get company data
+      $.ajax({
+          url: '/newcompanies/getCompanies',
+          type: 'GET',
+          success: function (data) {
+              if (data.code == "OK") {
+                  const companies = data.object;
+                  const companiesWithName = getCompaniesByName(matchedCompanyName, companies);
 
-          const companiesWithName = getCompaniesByName(matchedCompanyName, companies);
+                  for (var i = 0; i < companiesWithName.length; i++) {
+                      var company = companiesWithName[i];
+                      var listItem = document.createElement("li");
+                      listItem.className = "list-group-item d-flex justify-content-between align-items-center list-item-centered";
+                      listItem.id = "company" + company.identifier;
 
-          for (var i = 0; i < companiesWithName.length; i++) {
-            var company = companiesWithName[i];
+                      var companyText = document.createElement("span");
+                      companyText.textContent = company.identifier;
+                      listItem.appendChild(companyText);
 
-            var listItem = document.createElement("li");
-            listItem.className = "list-group-item d-flex justify-content-between align-items-center list-item-centered";
-            listItem.id = "company" + company.identifier;
-            listItem.textContent = company.identifier;
+                      // If the company has isEnabled set to false, shade in gray and add "DISABLED"
+                      if (!company.isEnabled) {
+                          listItem.style.backgroundColor = "#d3d3d3"; // light gray
+                          var disabledText = document.createElement("span");
+                          disabledText.textContent = "";
+                          companyText.appendChild(disabledText);
+                      }
 
-            // If the company has isEnabled set to false, shade in gray and add "DISABLED"
-            if (!company.isEnabled) {
-                listItem.style.backgroundColor = "#d3d3d3"; // light gray
-                listItem.textContent ;
-            }
+                      // Create the checkbox for each company
+                      var checkbox = document.createElement("input");
+                      checkbox.type = "checkbox";
+                      checkbox.id = "checkboxCompany" + company.identifier;
+                      updateCheckboxStatus(checkbox, company.isEnabled, company.identifier);
+                      listItem.appendChild(checkbox);
 
-            companyList.appendChild(listItem);
-        }
-
-        }
-      },
-      error: function () {
-        alert('There was an error fetching company data.');
-      }
-    });
-
-    function getCompaniesByName(companyName, companies) {
-      return companies.filter(function (company) {
-        return company.Company === companyName;
+                      companyList.appendChild(listItem);
+                  }
+              }
+          },
+          error: function () {
+              alert('There was an error fetching company data.');
+          }
       });
-    }
+  }
+
+  function getCompaniesByName(companyName, companies) {
+      return companies.filter(function (company) {
+          return company.Company === companyName;
+      });
+  }
+
+  function updateCheckboxStatus(checkbox, isEnabled, regionId) {
+      checkbox.checked = isEnabled;
+      checkbox.onclick = function(event) {
+          event.preventDefault();
+          Swal.fire({
+              title: 'Are you sure?',
+              text: "You are about to " + (this.checked ? "deactivate" : "activate") + " this company.",
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Yes, change it!',
+              cancelButtonText: 'No, keep it!'
+          }).then((result) => {
+              if (result.isConfirmed) {
+                  this.checked = !this.checked;
+                  updateRegionStatus(regionId, this.checked);
+              }
+          });
+      }
+  }
+
+  function updateRegionStatus(regionId, isEnabled) {
+      $.ajax({
+          url: '/newcompanies/toggleStatus',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({
+              identifier: regionId,
+              isEnabled: isEnabled
+          }),
+          success: function(response) {
+              if (response.code == "OK") {
+                  Swal.fire({
+                      icon: 'success',
+                      title: 'Success',
+                      text: 'Company status updated successfully.'
+                  });
+              } else {
+                  Swal.fire({
+                      icon: 'error',
+                      title: 'Error',
+                      text: 'Failed to update the company status. Please try again.'
+                  });
+              }
+          },
+          error: function() {
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Oops...',
+                  text: 'There was an error updating the company status. Please try again.'
+              });
+          }
+      });
   }
 });
 

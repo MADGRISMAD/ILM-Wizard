@@ -127,12 +127,44 @@ companies.splice(matchedCompanyIndex, 1);
 res.status(200).json({ code: "OK", object: companies, message: "Compañía eliminada con éxito." });
 }
 
+function toggleCompanyStatus(req, res) {
+  // Validar que req.body es un objeto y no es nulo
+  if (typeof req.body !== 'object' || req.body === null) {
+    return res.status(400).json({ code: "BAD_REQUEST", message: "El cuerpo de la petición es inválido." });
+  }
+
+  // Validar que la propiedad 'isEnabled' está presente
+  if (!('isEnabled' in req.body)) {
+    return res.status(400).json({ code: "BAD_REQUEST", message: "La propiedad isEnabled es requerida." });
+  }
+
+  // Validar que la propiedad 'identifier' está presente
+  if (!('identifier' in req.body)) {
+    return res.status(400).json({ code: "BAD_REQUEST", message: "La propiedad identifier es requerida." });
+  }
+
+  const matchedCompanyIndex = companies.findIndex(company => company.identifier === req.body.identifier);
+
+  // Si no existe la compañía
+  if (matchedCompanyIndex === -1) {
+    return res.status(404).json({ code: "NOT_FOUND", message: "La compañía no existe." });
+  }
+
+  // Convertir la propiedad isEnabled a booleano si es un string
+  const isEnabled = typeof req.body.isEnabled === 'string' ? req.body.isEnabled.toLowerCase() === "true" : req.body.isEnabled;
+
+  // Si existe la compañía, actualizar solo el campo isEnabled
+  companies[matchedCompanyIndex].isEnabled = isEnabled;
+
+  res.status(200).json({ code: "OK", object: companies[matchedCompanyIndex], message: "Estado de la compañía actualizado con éxito." });
+}
 
 module.exports = {
   getCompanies,
   getCompanyById,
   saveCompanies,
   editCompanies,
-  deleteCompany
+  deleteCompany,
+  toggleCompanyStatus
 };
 

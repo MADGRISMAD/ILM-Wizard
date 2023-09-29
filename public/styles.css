@@ -189,3 +189,12 @@ h3 .card.selected{
   text-transform: uppercase;
   text-align: center;
 }
+
+.vertical-separator {
+  height: 100%;
+  width: 1px;
+  background-color: #000;
+  margin: 0 15px;
+}
+
+

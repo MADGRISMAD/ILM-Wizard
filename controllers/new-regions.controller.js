@@ -1,25 +1,25 @@
 const regions = [
   {
     "entity_id": "MX",
-    "identifier": "Region 1",
+    "identifier": "region1",
     "Region": "Region 1",
     "isEnabled": true
   },
   {
     "entity_id": "US",
-    "identifier": "Region 2",
+    "identifier": "region2",
     "Region": "Region 2",
     "isEnabled": true
   },
   {
     "entity_id": "MX",
-    "identifier": "Region 3",
+    "identifier": "region3",
     "Region": "Region 3",
     "isEnabled": true
   },
   {
     "entity_id": "US",
-    "identifier": "Region 4",
+    "identifier": "region4",
     "Region": "Region 4",
     "isEnabled": true
   },
@@ -110,12 +110,46 @@ function deleteRegion(req, res) {
   res.status(200).json({ code: "OK", object: regions, message: "Región eliminada con éxito." });
 }
 
+function toggleRegionStatus(req, res) {
+
+  // Validar que req.body es un objeto y no es nulo
+  if (typeof req.body !== 'object' || req.body === null) {
+    return res.status(400).json({ code: "BAD_REQUEST", message: "El cuerpo de la petición es inválido." });
+  }
+
+  // Validar que la propiedad 'isEnabled' está presente
+  if (!('isEnabled' in req.body)) {
+    return res.status(400).json({ code: "BAD_REQUEST", message: "La propiedad isEnabled es requerida." });
+  }
+
+  // Validar que la propiedad 'identifier' está presente
+  if (!('identifier' in req.body)) {
+    return res.status(400).json({ code: "BAD_REQUEST", message: "La propiedad identifier es requerida." });
+  }
+
+  const matchedRegionIndex = regions.findIndex(region => region.identifier === req.body.identifier);
+
+  // Si no existe la región
+  if (matchedRegionIndex === -1) {
+    return res.status(404).json({ code: "NOT_FOUND", message: "La región no existe." });
+  }
+
+  // Convertir la propiedad isEnabled a booleano si es un string
+  const isEnabled = typeof req.body.isEnabled === 'string' ? req.body.isEnabled.toLowerCase() === "true" : req.body.isEnabled;
+
+  // Si existe la región, actualizar solo el campo isEnabled
+  regions[matchedRegionIndex].isEnabled = isEnabled;
+
+  res.status(200).json({ code: "OK", object: regions[matchedRegionIndex], message: "Estado de la región actualizado con éxito." });
+}
+
 
 module.exports = {
   fetchRegions,
   fetchRegionById,
   saveRegions,
   editRegions,
-  deleteRegion
+  deleteRegion,
+  toggleRegionStatus
 };
 

@@ -13,4 +13,6 @@ routes.delete("/deleteRegion/:identifier", newRegionsController.deleteRegion);
 
 routes.put("/edit-regions", newRegionsController.editRegions);
 
+routes.post("/toggleStatus", newRegionsController.toggleRegionStatus);
+
 module.exports = routes;

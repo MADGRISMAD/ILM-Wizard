@@ -21,19 +21,6 @@ const entidades = [
 
 
 
-const infraTypes = [
-  {
-    "identifier": "ohe",
-    "infraName": "OHE",
-    "isEnabled": true
-  },
-  {
-    "identifier": "vmware",
-    "infraName": "VMware",
-    "isEnabled": true
-  },
-  // ... otros tipos de infraestructura
-];
 
 const availabilityZones = [
   {
@@ -244,30 +231,7 @@ function deleteEntity(req, res) {
 
 
 
-function obtenerEnvironments(req, res) {
-  res.status(200).json({code: "OK", object: environments, message: ""});
 
-
-}
-
-function guardarEnvironments(req, res) {
-
-  environments.push(req.body);
-  res.status(200).json({code: "OK", object: environments, message: ""});
-
-
-}
-
-function obtenerInfraestructuras(req, res) {
-  res.status(200).json({code: "OK", object: infraTypes, message: ""});
-}
-
-function guardarInfraestructuras(req, res) {
-
-  infraTypes.push(req.body);
-  res.status(200).json({code: "OK", object: infraTypes, message: ""});
-
-}
 
 function obtenerAvailabilityZones(req, res) {
   if(req.body.availabilityZones) {
@@ -368,8 +332,6 @@ function obtenerBusinessTypes(req, res) {
 module.exports = {
 
   obtenerEntidades,
-  obtenerEnvironments,
-  obtenerInfraestructuras,
   obtenerAvailabilityZones,
   obtenerHaList,
   obtenerMetalByTenantList,
@@ -383,14 +345,11 @@ module.exports = {
   obtenerBusinessTypes,
   saveEntities,
   deleteEntity,
-  guardarEnvironments,
-  guardarInfraestructuras,
   editEntities,
 
 
 
   entidades,
-  infraTypes,
   availabilityZones,
   haList,
   metalByTenantList,
