@@ -115,6 +115,10 @@ $(document).ready(function () {
           }
       });
   }
+
+  //update the list to show any changes
+
+
 });
 
 
@@ -266,7 +270,7 @@ function validateField(fieldId) {
             </div>
             <div class="modal-body">
                 <form id="companyForm">
-                <input type="hidden" id="entityIdInput" value="${matchedEntity ? matchedEntity.Company : ''}">
+                <input type="hidden" id="entityIdInput" value="${matchedEntity ? matchedEntity.companyName : ''}">
                     <div class="row">
                         <div class="col-md-6"> <!-- First column -->
                             <div class="form-group">
@@ -337,6 +341,7 @@ function validateField(fieldId) {
 
   $("#companyModal").on("click", "#saveCompany", function () {
     const entityId = $("#entityIdInput").val();
+
     const identifier = validateField("#identifierInput");
     const company = validateField("#companyInput");
     const hostnamePrefix = validateField("#hostnamePrefixInput");

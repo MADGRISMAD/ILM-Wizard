@@ -64,26 +64,15 @@ if (company) {
 
 
 
-
 function saveCompanies(req, res) {
-// Verificar si ya existe una compañía con el mismo identificador o nombre de compañía
-const companyExistente = companies.find(company =>
-    (company.identifier && company.identifier.toLowerCase() === req.body.identifier.toLowerCase()) ||
-    (company.company && company.company.toLowerCase() === req.body.company.toLowerCase())
-);
+  // Convertir isEnabled a booleano (por si acaso)
+  req.body.isEnabled = (req.body.isEnabled === 'true' || req.body.isEnabled === true);
 
-// Si la compañía con ese identificador o nombre ya existe
-if (companyExistente) {
-    return res.status(409).json({code: "DUPLICATE", message: "La compañía con ese identificador o nombre ya existe."});
+  // Si la compañía no existe, la añade (no hacemos la verificación de unicidad ahora)
+  companies.push(req.body);
+  res.status(200).json({code: "OK", object: companies, message: "Compañía agregada con éxito."});
 }
 
-// Convertir isEnabled a booleano (por si acaso)
-req.body.isEnabled = (req.body.isEnabled === 'true' || req.body.isEnabled === true);
-
-// Si la compañía no existe, la añade
-companies.push(req.body);
-res.status(200).json({code: "OK", object: companies, message: "Compañía agregada con éxito."});
-}
 
 
 
