@@ -62,7 +62,6 @@ $(document).ready(function () {
 
 
 ///////////////////////////////////////
-$(document).ready(function () {
   var envList = document.getElementById("environment-list");
 
   function displayEnvironments() {
@@ -93,7 +92,7 @@ $(document).ready(function () {
               var checkbox = document.createElement("input");
               checkbox.type = "checkbox";
               checkbox.checked = env.isEnabled;
-              updateCheckboxStatus(checkbox, env.isEnabled, env.identifier);
+              updateCheckboxStatusI(checkbox, env.isEnabled, env.identifier);
 
               listItem.appendChild(checkbox);
 
@@ -110,7 +109,7 @@ $(document).ready(function () {
     });
   }
 
-  function updateCheckboxStatus(checkbox, isEnabled, envId) {
+  function updateCheckboxStatusI(checkbox, isEnabled, envId) {
     checkbox.onclick = function(event) {
       event.preventDefault();
       Swal.fire({
@@ -123,13 +122,13 @@ $(document).ready(function () {
       }).then((result) => {
         if (result.isConfirmed) {
           checkbox.checked = !checkbox.checked;
-          updateEnvironmentStatus(envId, checkbox.checked);
+          updateEnvironmentStatusI(envId, checkbox.checked);
         }
       });
     }
   }
 
-  function updateEnvironmentStatus(envId, isEnabled) {
+  function updateEnvironmentStatusI(envId, isEnabled) {
     $.ajax({
       url: '/newenvironments/toggleEnvironmentsStatus',
       type: 'POST',
@@ -144,6 +143,16 @@ $(document).ready(function () {
             icon: 'success',
             title: 'Success',
             text: 'Environment status updated successfully.'
+            //clear the list and display the environments again
+          }).then((result) => {
+            if (result.isConfirmed) {
+              displayEnvironments();
+            }
+
+
+
+
+
           });
         } else {
           Swal.fire({
@@ -166,7 +175,7 @@ $(document).ready(function () {
   $("#confirmRegionBtn").click(function() {
     displayEnvironments();
   });
-});
+
 
 
 
@@ -210,3 +219,126 @@ function selectEnvironment(tagId) {
 $(document).on('click', '#environment-list li', function() {
   selectEnvironment(this.id);
 });
+
+
+
+
+
+
+//INFRA MANAGEMENT
+
+//SHOW THE INFRASTRUCTURE LIST BASED ON THE ONES THAT MATCH THE EMVIRONMENT.IDENTIFIER
+
+
+var infraList = document.getElementById("infrastructure-list");
+
+function displayInfrastructures() {
+  $.ajax({
+    url: "/newinfrastructure/fetchInfrastructure",
+    type: "GET",
+    dataType: "json",
+    success: function(data) {
+      if (data.code === "OK" && Array.isArray(data.object)) {
+        infraList.innerHTML = "";
+
+        for (var i = 0; i < data.object.length; i++) {
+          var infra = data.object[i];
+
+          if (matchedEnvironment && infra.environmentId === matchedEnvironment.identifier) {
+            var listItem = document.createElement("li");
+            listItem.className = "list-group-item d-flex justify-content-between align-items-center";
+            listItem.id = "infra" + infra.identifier;
+
+            var infraText = document.createElement("span");
+            infraText.textContent = infra.infraName;
+            listItem.appendChild(infraText);
+
+            if (!infra.isEnabled) {
+              listItem.style.backgroundColor = "#d3d3d3";
+            }
+
+            var checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.checked = infra.isEnabled;
+            updateCheckboxStatusEnv(checkbox, infra.isEnabled, infra.identifier);
+
+            listItem.appendChild(checkbox);
+
+            infraList.appendChild(listItem);
+          }
+        }
+      } else {
+        console.error('Unexpected data format:', data);
+      }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      console.error('Error on AJAX request:', textStatus, errorThrown);
+    }
+  });
+}
+
+function updateCheckboxStatusEnv(checkbox, isEnabled, infraId) {
+  checkbox.onclick = function(event) {
+    event.preventDefault();
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You are about to " + (this.checked ? "deactivate" : "activate") + " this infrastructure.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, change it!',
+      cancelButtonText: 'No, keep it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        checkbox.checked = !checkbox.checked;
+        updateInfrastructureStatusEnv(infraId, checkbox.checked);
+      }
+    });
+  }
+}
+
+function updateInfrastructureStatusEnv(infraId, isEnabled) {
+  $.ajax({
+    url: '/newinfrastructure/toggleInfrastructureStatus',
+    type: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify({
+      identifier: infraId,
+      isEnabled: isEnabled
+    }),
+    success: function(response) {
+      if (response.code == "OK") {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Infrastructure status updated successfully.'
+          //clear the list and display the environments again
+        }).then((result) => {
+          if (result.isConfirmed) {
+            displayInfrastructures();
+          }
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to update the infrastructure status. Please try again.'
+        });
+      }
+    },
+    error: function() {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'There was an error updating the infrastructure status. Please try again.'
+      });
+    }
+  });
+}
+
+
+$("#confirmEnvironmentBtn").click(function() {
+  displayInfrastructures();
+});
+
+
+

@@ -13,4 +13,8 @@ routes.put("/edit-companies", newCompaniesController.editCompanies);
 
 routes.post("/toggleStatus", newCompaniesController.toggleCompanyStatus);
 
+routes.delete("/deleteCompany/:identifier", newCompaniesController.deleteCompany);
+
+
+
 module.exports = routes;

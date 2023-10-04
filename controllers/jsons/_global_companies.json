@@ -1,0 +1,34 @@
+{
+  "companies": [
+    {
+      "identifier": "imx",
+      "Company": "MX",
+      "entity_id": "MX",
+      "Hostname_prefix": "mxr",
+      "Region_or_client_code": "Region 1",
+      "Delivery": "Delivery 1",
+      "VDC": "VDC 1",
+      "CMDB_company": "CMDB Company 1",
+      "isEnabled": true,
+      "select": "di",
+      "short_name": "BSMX",
+      "nicName": "nic",
+      "region": "mx"
+    },
+    {
+      "identifier": "us",
+      "Company": "US",
+      "entity_id": "US",
+      "Hostname_prefix": "mxr",
+      "Region_or_client_code": "Region 1",
+      "Delivery": "Delivery 1",
+      "VDC": "VDC 1",
+      "CMDB_company": "CMDB Company 1",
+      "isEnabled": true,
+      "select": "di",
+      "short_name": "BSMX",
+      "nicName": "nic",
+      "region": "mx"
+    }
+  ]
+}

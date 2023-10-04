@@ -1,120 +1,133 @@
 var companies = [];  // Changed the name to avoid confusion.
 let matchedCompany = null;
+var companyList = document.getElementById("company-list");
 
-$(document).ready(function () {
-  var companyList = document.getElementById("company-list");
+function getCompaniesByName(companyName, companies) {
+  return companies.filter(company => company.Company === companyName);
+}
 
-  $("#confirmSelection").click(function() {
-      companyList.innerHTML = "";  // Clears the company list
-      if (matchedEntity) {
-          fetchAndDisplayCompanies(matchedEntity.companyName);
+function fetchAndDisplayCompanies(matchedCompanyName) {
+  // Make an AJAX request to get company data
+  $.ajax({
+      url: '/newcompanies/getCompanies',
+      type: 'GET',
+      success: function (data) {
+          if (data.code == "OK") {
+              const companies = data.object;
+              const companiesWithName = getCompaniesByName(matchedCompanyName, companies);
+
+              for (var i = 0; i < companiesWithName.length; i++) {
+                  var company = companiesWithName[i];
+                  var listItem = document.createElement("li");
+                  listItem.className = "list-group-item d-flex justify-content-between align-items-center list-item-centered";
+                  listItem.id = "company" + company.identifier;
+
+                  var companyText = document.createElement("span");
+                  companyText.textContent = company.identifier;
+                  listItem.appendChild(companyText);
+
+                  // If the company has isEnabled set to false, shade in gray and add "DISABLED"
+                  if (!company.isEnabled) {
+                      listItem.style.backgroundColor = "#d3d3d3"; // light gray
+                      var disabledText = document.createElement("span");
+                      disabledText.textContent = "";
+                      companyText.appendChild(disabledText);
+                  }
+
+                  // Create the checkbox for each company
+                  var checkbox = document.createElement("input");
+                  checkbox.type = "checkbox";
+                  checkbox.id = "checkboxCompany" + company.identifier;
+                  updateCheckboxStatusComp(checkbox, company.isEnabled, company.identifier);
+                  listItem.appendChild(checkbox);
+
+                  companyList.appendChild(listItem);
+              }
+          }
+      },
+      error: function () {
+          alert('There was an error fetching company data.');
       }
   });
+}
+$("#confirmSelection").click(function() {
+  companyList.innerHTML = "";  // Clears the company list
+  if (matchedEntity) {
+      fetchAndDisplayCompanies(matchedEntity.companyName);
+  }
+});
 
-  function fetchAndDisplayCompanies(matchedCompanyName) {
-      // Make an AJAX request to get company data
-      $.ajax({
-          url: '/newcompanies/getCompanies',
-          type: 'GET',
-          success: function (data) {
-              if (data.code == "OK") {
-                  const companies = data.object;
-                  const companiesWithName = getCompaniesByName(matchedCompanyName, companies);
 
-                  for (var i = 0; i < companiesWithName.length; i++) {
-                      var company = companiesWithName[i];
-                      var listItem = document.createElement("li");
-                      listItem.className = "list-group-item d-flex justify-content-between align-items-center list-item-centered";
-                      listItem.id = "company" + company.identifier;
-
-                      var companyText = document.createElement("span");
-                      companyText.textContent = company.identifier;
-                      listItem.appendChild(companyText);
-
-                      // If the company has isEnabled set to false, shade in gray and add "DISABLED"
-                      if (!company.isEnabled) {
-                          listItem.style.backgroundColor = "#d3d3d3"; // light gray
-                          var disabledText = document.createElement("span");
-                          disabledText.textContent = "";
-                          companyText.appendChild(disabledText);
-                      }
-
-                      // Create the checkbox for each company
-                      var checkbox = document.createElement("input");
-                      checkbox.type = "checkbox";
-                      checkbox.id = "checkboxCompany" + company.identifier;
-                      updateCheckboxStatus(checkbox, company.isEnabled, company.identifier);
-                      listItem.appendChild(checkbox);
-
-                      companyList.appendChild(listItem);
-                  }
-              }
-          },
-          error: function () {
-              alert('There was an error fetching company data.');
+function updateCheckboxStatusComp(checkbox, isEnabled, regionId) {
+  checkbox.checked = isEnabled;
+  checkbox.onclick = function(event) {
+      event.preventDefault();
+      Swal.fire({
+          title: 'Are you sure?',
+          text: "You are about to " + (this.checked ? "deactivate" : "activate") + " this company.",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, change it!',
+          cancelButtonText: 'No, keep it!'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              this.checked = !this.checked;
+              updateCompanyStatus(regionId, this.checked);
           }
       });
-  }
+  };
+}
 
-  function getCompaniesByName(companyName, companies) {
-      return companies.filter(function (company) {
-          return company.Company === companyName;
-      });
-  }
+function updateCompanyStatus(regionId, isEnabled) {
+  $.ajax({
+      url: '/newcompanies/toggleStatus',
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({
+          identifier: regionId,
+          isEnabled: isEnabled
+      }),
+      success: function(response) {
+          if (response.code == "OK") {
+              Swal.fire({
+                  icon: 'success',
+                  title: 'Success',
+                  text: 'Company status updated successfully.'
+              });
 
-  function updateCheckboxStatus(checkbox, isEnabled, regionId) {
-      checkbox.checked = isEnabled;
-      checkbox.onclick = function(event) {
-          event.preventDefault();
-          Swal.fire({
-              title: 'Are you sure?',
-              text: "You are about to " + (this.checked ? "deactivate" : "activate") + " this company.",
-              icon: 'warning',
-              showCancelButton: true,
-              confirmButtonText: 'Yes, change it!',
-              cancelButtonText: 'No, keep it!'
-          }).then((result) => {
-              if (result.isConfirmed) {
-                  this.checked = !this.checked;
-                  updateRegionStatus(regionId, this.checked);
-              }
-          });
-      }
-  }
+              // Vaciar la lista de empresas
+              companyList.innerHTML = "";
+              // Obtener y mostrar la nueva lista de empresas
+              fetchAndDisplayCompanies(matchedEntity.companyName);
 
-  function updateRegionStatus(regionId, isEnabled) {
-      $.ajax({
-          url: '/newcompanies/toggleStatus',
-          type: 'POST',
-          contentType: 'application/json',
-          data: JSON.stringify({
-              identifier: regionId,
-              isEnabled: isEnabled
-          }),
-          success: function(response) {
-              if (response.code == "OK") {
-                  Swal.fire({
-                      icon: 'success',
-                      title: 'Success',
-                      text: 'Company status updated successfully.'
-                  });
-              } else {
-                  Swal.fire({
-                      icon: 'error',
-                      title: 'Error',
-                      text: 'Failed to update the company status. Please try again.'
-                  });
-              }
-          },
-          error: function() {
+          } else {
               Swal.fire({
                   icon: 'error',
-                  title: 'Oops...',
-                  text: 'There was an error updating the company status. Please try again.'
+                  title: 'Error',
+                  text: 'Failed to update the company status. Please try again.'
               });
           }
-      });
-  }
+      },
+      error: function() {
+          Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'There was an error updating the company status. Please try again.'
+          });
+      }
+  });
+}
+
+
+
+
+
+$(document).ready(function () {
+
+
+
+
+
 
   //update the list to show any changes
 
@@ -229,31 +242,24 @@ $(document).ready(function () {
 $(document).ready(function () {
 
   function isValidInput(value, id) {
+    if (!value) return false; // Añadido para manejar valores null o undefined
+
     const allowSpacesInMiddle = ["regionClientCode", "cmdbCompany", "company", "delivery", "identifier", "nicName", "shortName", "vdc"];
-
-    // If the value has spaces at the beginning or end, it's invalid.
-    if (value.trim() !== value) {
-        return false;
-    }
-
-    // If the ID isn't in the list that allows spaces in the middle but has spaces in the middle, it's invalid.
-    if (!allowSpacesInMiddle.includes(id) && value.includes(" ")) {
-        return false;
-    }
-
+    if (value.trim() !== value) return false;
+    if (!allowSpacesInMiddle.includes(id) && value.includes(" ")) return false;
     return true;
 }
 
-function validateField(fieldId) {
-    const value = $(fieldId).val();
 
-    if (value === "" || !isValidInput(value, fieldId.replace("#", ""))) {
-        $(fieldId).addClass('is-invalid'); // Mark the field as invalid
-        return false;
-    } else {
-        $(fieldId).removeClass('is-invalid'); // If valid, remove the invalid mark
-        return value;
-    }
+function validateField(fieldId) {
+  const value = $(fieldId).val();
+  if (value === "" || !isValidInput(value, fieldId.replace("#", ""))) {
+      $(fieldId).addClass('is-invalid');
+      return false;
+  } else {
+      $(fieldId).removeClass('is-invalid');
+      return value;
+  }
 }
 
   $("#addCompany").click(function () {
@@ -349,13 +355,12 @@ function validateField(fieldId) {
     const delivery = validateField("#deliveryInput");
     const vdc = validateField("#vdcInput");
     const cmdbCompany = validateField("#cmdbCompanyInput");
-    const select = validateField("#selectInput");
     const shortName = validateField("#shortNameInput");
     const nicName = validateField("#nicNameInput");
     const region = validateField("#regionInput");
     const isEnabled = $("#isEnabledInput").prop("checked");
 
-    if (!(identifier && company && hostnamePrefix && regionClientCode && delivery && vdc && cmdbCompany && select && shortName && nicName && region)) {
+    if (!(identifier && company && hostnamePrefix && regionClientCode && delivery && vdc && cmdbCompany && shortName && nicName && region)) {
         Swal.fire({
             icon: 'warning',
             title: 'Incomplete or Invalid Fields',
@@ -383,7 +388,7 @@ function validateField(fieldId) {
                 "VDC": vdc,
                 "CMDB_company": cmdbCompany,
                 "isEnabled": isEnabled,
-                "select": select,
+
                 "short_name": shortName,
                 "nicName": nicName,
                 "region": region
@@ -404,6 +409,11 @@ function validateField(fieldId) {
                         $("#companyModal").modal("hide");
                         $('#company-tab').tab('show');
                         // Reload the table to display the new company
+                        //clear the list
+                        companyList.innerHTML = "";
+                        //fetch the new list
+
+                        fetchAndDisplayCompanies(matchedEntity.companyName)
 
                     } else {
                         console.log("Unexpected server response:", response);
@@ -607,8 +617,10 @@ $(document).ready(function() {
                     timer: 1500
                 });
                 $("#companyEditModal").modal("hide");
-                // Reload the tab to show the updated company
-                location.reload();
+                companyList.innerHTML = "";
+                        //fetch the new list
+
+                        fetchAndDisplayCompanies(matchedEntity.companyName)
             } else {
                 Swal.fire({
                     icon: 'error',
@@ -670,7 +682,10 @@ $(document).ready(function() {
                       timer: 1500
                   });
                   // Optionally: update the interface to reflect the deletion
-                  location.reload();
+                  companyList.innerHTML = "";
+                        //fetch the new list
+
+                        fetchAndDisplayCompanies(matchedEntity.companyName)
               } else {
                   Swal.fire({
                       icon: 'error',
@@ -737,3 +752,4 @@ $(document).ready(function () {
   });
 });
 
+//

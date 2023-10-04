@@ -1,48 +1,102 @@
 var entities = [];
 let matchedEntity = null;
 
+// $(document).ready(function() {
+//     NewEntities.getEntitites().done(function(data) {
+//         var cardRow = document.querySelector("#card-container .row");
+
+//         if (data.code == "OK") {
+//             entities = data.object;
+
+//             if (entities.length === 0) {
+//                 var jumbotronDiv = document.createElement("div");
+//                 jumbotronDiv.className = "jumbotron";
+//                 jumbotronDiv.innerHTML = `
+//                     <h1 class="display-4">No entities available</h1>
+//                     <p class="lead">Please, add new entities to view them here.</p>
+//                 `;
+
+//                 cardRow.appendChild(jumbotronDiv);
+//             } else {
+//                 for (var i = 0; i < entities.length; i++) {
+//                     var entity = entities[i];
+//                     var style = entity.isEnabled ? "" : "filter: grayscale(100%);";  // If disabled, apply gray filter
+//                     var disabledNote = entity.isEnabled ? "" : "<p class='text-center text-muted'>Disabled</p>";
+
+//                     var cardDiv = document.createElement("div");
+//                     cardDiv.className = "col-2 mx-auto";
+//                     cardDiv.innerHTML = `
+//                         <div id="card-${entity.identifier}" class="card" style="width: 100%;" onclick="test('${entity.identifier}')">
+//                             <img src="${entity.flag}" class="card-img-top img-fluid" style="${style}" alt="...">
+//                             <div class="card-body py-2">
+//                                 <h3 class="card-title text-center mb-2" id="country${i}">${entity.companyName}</h3>
+//                                 ${disabledNote}
+//                             </div>
+//                         </div>
+//                     `;
+
+//                     cardRow.appendChild(cardDiv);
+//                 }
+//             }
+//         } else {
+//             // Here you can handle the case where data.code is not "OK", for example, by showing an error message.
+//         }
+//     });
+// });
+
+function fetchAndRenderEntities() {
+  NewEntities.getEntitites().done(function(data) {
+      var cardRow = document.querySelector("#card-container .row");
+
+      // First, we'll clear the existing entities in the display:
+      while (cardRow.firstChild) {
+          cardRow.removeChild(cardRow.firstChild);
+      }
+
+      if (data.code == "OK") {
+          entities = data.object;
+
+          if (entities.length === 0) {
+              var jumbotronDiv = document.createElement("div");
+              jumbotronDiv.className = "jumbotron";
+              jumbotronDiv.innerHTML = `
+                  <h1 class="display-4">No entities available</h1>
+                  <p class="lead">Please, add new entities to view them here.</p>
+              `;
+
+              cardRow.appendChild(jumbotronDiv);
+          } else {
+              for (var i = 0; i < entities.length; i++) {
+                  var entity = entities[i];
+                  var style = entity.isEnabled ? "" : "filter: grayscale(100%);";  // If disabled, apply gray filter
+                  var disabledNote = entity.isEnabled ? "" : "<p class='text-center text-muted'>Disabled</p>";
+
+                  var cardDiv = document.createElement("div");
+                  cardDiv.className = "col-2 mx-auto";
+                  cardDiv.innerHTML = `
+                      <div id="card-${entity.identifier}" class="card" style="width: 100%;" onclick="test('${entity.identifier}')">
+                          <img src="${entity.flag}" class="card-img-top img-fluid" style="${style}" alt="...">
+                          <div class="card-body py-2">
+                              <h3 class="card-title text-center mb-2" id="country${i}">${entity.companyName}</h3>
+                              ${disabledNote}
+                          </div>
+                      </div>
+                  `;
+
+                  cardRow.appendChild(cardDiv);
+              }
+          }
+      } else {
+          // Here you can handle the case where data.code is not "OK", for example, by showing an error message.
+      }
+  });
+}
+
 $(document).ready(function() {
-    NewEntities.getEntitites().done(function(data) {
-        var cardRow = document.querySelector("#card-container .row");
-
-        if (data.code == "OK") {
-            entities = data.object;
-
-            if (entities.length === 0) {
-                var jumbotronDiv = document.createElement("div");
-                jumbotronDiv.className = "jumbotron";
-                jumbotronDiv.innerHTML = `
-                    <h1 class="display-4">No entities available</h1>
-                    <p class="lead">Please, add new entities to view them here.</p>
-                `;
-
-                cardRow.appendChild(jumbotronDiv);
-            } else {
-                for (var i = 0; i < entities.length; i++) {
-                    var entity = entities[i];
-                    var style = entity.isEnabled ? "" : "filter: grayscale(100%);";  // If disabled, apply gray filter
-                    var disabledNote = entity.isEnabled ? "" : "<p class='text-center text-muted'>Disabled</p>";
-
-                    var cardDiv = document.createElement("div");
-                    cardDiv.className = "col-2 mx-auto";
-                    cardDiv.innerHTML = `
-                        <div id="card-${entity.identifier}" class="card" style="width: 100%;" onclick="test('${entity.identifier}')">
-                            <img src="${entity.flag}" class="card-img-top img-fluid" style="${style}" alt="...">
-                            <div class="card-body py-2">
-                                <h3 class="card-title text-center mb-2" id="country${i}">${entity.companyName}</h3>
-                                ${disabledNote}
-                            </div>
-                        </div>
-                    `;
-
-                    cardRow.appendChild(cardDiv);
-                }
-            }
-        } else {
-            // Here you can handle the case where data.code is not "OK", for example, by showing an error message.
-        }
-    });
+  fetchAndRenderEntities();
 });
+
+
 
 
 
@@ -172,7 +226,7 @@ $(document).ready(function() {
                           });
                           // Close the modal
                           $("#exampleModal").modal("hide");
-                          location.reload();
+                          fetchAndRenderEntities()
                       } else {
                           // Handle other response codes, if there are any in the future.
                           console.log("Unexpected server response:", response);
@@ -275,6 +329,7 @@ $(document).ready(function () {
 
 //----edit entity----------------
 $(document).ready(function() {
+
 
   function showModalContent(editEntity) {
       const isEditing = editEntity !== undefined;
@@ -398,7 +453,7 @@ $(document).ready(function() {
 
                   // Close the modal
                   $("#entityModal").modal("hide");
-                  location.reload();
+                  fetchAndRenderEntities()
               } else {
                   // Handle error based on server response
                   Swal.fire({
@@ -472,7 +527,7 @@ $(document).ready(function() {
                       });
 
                       // Optional: update the UI to reflect the deletion
-                      location.reload();
+                      fetchAndRenderEntities()
                   } else {
                       Swal.fire({
                           icon: 'error',

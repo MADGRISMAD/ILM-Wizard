@@ -1,0 +1,14 @@
+{
+  "infraTypes": [
+    {
+      "identifier": "ohe",
+      "infraName": "OHE",
+      "isEnabled": true
+    },
+    {
+      "identifier": "vmware",
+      "infraName": "VMware",
+      "isEnabled": true
+    }
+  ]
+}

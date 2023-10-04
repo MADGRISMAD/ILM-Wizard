@@ -71,7 +71,7 @@ $(document).ready(function () {
 
 
 // Initial code is designed to show regions in a list and use checkboxes to enable or disable them.
-$(document).ready(function () {
+
   var regionList = document.getElementById("Region-list");
 
     // When the "confirmCompanyBtn" is clicked, execute the following function:
@@ -174,6 +174,11 @@ $(document).ready(function () {
 
                 // Call an AJAX function here to update the backend database for this region's status, based on the checkbox's new state
                 updateRegionStatus(regionId, this.checked);
+
+                //LIMPIA LA LISTA DE REGIONES
+                regionList.innerHTML = "";
+                //VUELVE A CARGAR LA LISTA DE REGIONES
+                fetchAndDisplayRegions(matchedCompany.entity_id);
             }
         });
     }
@@ -215,7 +220,6 @@ function updateRegionStatus(regionId, isEnabled) {
 
 
 
-});
 
 
 
@@ -349,40 +353,35 @@ $(document).ready(function () {
   }
 
   $("#addRegion").click(function () {
-      const modalContent = `
-          <div class="modal-header">
-              <h5 class="modal-title">Add New Region</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <i class="fas fa-times"></i>
-              </button>
-          </div>
-          <div class="modal-body">
-              <form id="regionForm">
-                  <div class="form-group">
-                      <label for="entityIdInput">Entity ID:</label>
-                      <input type="text" class="form-control" id="entityIdInput" placeholder="Enter entity ID">
-                  </div>
-                  <div class="form-group">
-                      <label for="identifierInput">Identifier:</label>
-                      <input type="text" class="form-control" id="identifierInput" placeholder="Enter identifier">
-                  </div>
-                  <div class="form-group">
-                      <label for="regionInput">Region:</label>
-                      <input type="text" class="form-control" id="regionInput" placeholder="Enter region name">
-                  </div>
-                  <div class="custom-control custom-checkbox">
-                  <input type="checkbox" class="custom-control-input" id="isEnabledInput">
+    const modalContent = `
+    <div class="modal-header">
+        <h5 class="modal-title">Add New Region</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form id="regionForm">
 
-                      <label class="custom-control-label" for="isEnabledInput">Enabled</label>
-                  </div>
-              </form>
-          </div>
-          <div class="modal-footer">
-              <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-outline-primary" id="saveRegion">Accept</button>
-          </div>
-      `;
-
+            <div class="form-group">
+                <label for="identifierInput">Identifier:</label>
+                <input type="text" class="form-control" id="identifierInput" placeholder="Enter identifier">
+            </div>
+            <div class="form-group">
+                <label for="regionInput">Region:</label>
+                <input type="text" class="form-control" id="regionInput" placeholder="Enter region name">
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="isEnabledInput">
+                <label class="custom-control-label" for="isEnabledInput">Enabled</label>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-outline-primary" id="saveRegion">Accept</button>
+    </div>
+`;
       // Add the content to the modal
       $("#RegionModalAdd .modal-content").html(modalContent);
       // Open the modal
@@ -390,10 +389,10 @@ $(document).ready(function () {
   });
 
   $("#RegionModalAdd").on("click", "#saveRegion", function () {
-      const entityId = validateField("#entityIdInput");
-      const identifier = validateField("#identifierInput");
-      const region = validateField("#regionInput");
-      const isEnabled = $("#isEnabledInput").prop("checked");
+    const entityId = matchedCompany.entity_id; // Usamos directamente matchedCompany.entity_id
+    const identifier = validateField("#identifierInput");
+    const region = validateField("#regionInput");
+    const isEnabled = $("#isEnabledInput").prop("checked");
 
       if (!(entityId && identifier && region)) {
           Swal.fire({
@@ -433,6 +432,16 @@ $(document).ready(function () {
                               text: 'Region data has been saved successfully',
                           });
                           $("#RegionModalAdd").modal("hide");
+                          //Clear the form Fields
+                          //LIMPIA LA LISTA DE REGIONES
+                regionList.innerHTML = "";
+                //VUELVE A CARGAR LA LISTA DE REGIONES
+                fetchAndDisplayRegions(matchedCompany.entity_id);
+                //CONSOLE LOG PARA VERIFICAR QUE SE ESTA ENVIANDO LA INFORMACION
+                console.log(newRegion);
+
+
+
                       } else {
                           console.log("Unexpected response from the server:", response);
                       }
@@ -562,7 +571,11 @@ $(document).ready(function () {
                   });
                   $("#RegionModalEdit").modal("hide");
                   // Reload the page to view the updated region
-                  location.reload();
+                  //LIMPIA LA LISTA DE REGIONES
+                regionList.innerHTML = "";
+                //VUELVE A CARGAR LA LISTA DE REGIONES
+                fetchAndDisplayRegions(matchedCompany.entity_id);
+
               } else {
                   Swal.fire({
                       icon: 'error',
@@ -610,6 +623,10 @@ $(document).ready(function() {
           if (result.isConfirmed) {
               // If confirmed, send a request to delete the region.
               deleteRegion(matchedRegion.identifier);
+              //LIMPIA LA LISTA DE REGIONES
+              regionList.innerHTML = "";
+              //VUELVE A CARGAR LA LISTA DE REGIONES
+              fetchAndDisplayRegions(matchedCompany.entity_id);
           }
       });
   });
@@ -631,7 +648,7 @@ $(document).ready(function() {
                       timer: 1500
                   });
                   // Optionally, refresh the page or update the UI to reflect the deletion.
-                  location.reload();
+
               } else {
                   // If there's an issue, notify the user.
                   Swal.fire({

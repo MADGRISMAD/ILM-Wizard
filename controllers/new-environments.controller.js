@@ -34,9 +34,15 @@ const environments = [
     "EnvName": "Demo",
     "isEnabled": true,
     "regionId": "region2"
+
   }
   // ... otros entornos
 ];
+
+
+
+
+
 
 function obtenerEnvironments(req, res) {
 

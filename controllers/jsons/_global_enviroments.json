@@ -1,0 +1,40 @@
+{
+  "environments": [
+    {
+      "identifier": "dev",
+      "EnvName": "Development",
+      "isEnabled": true,
+      "regionId": "region1"
+    },
+    {
+      "identifier": "pre",
+      "EnvName": "Preproduction",
+      "isEnabled": true,
+      "regionId": "region2"
+    },
+    {
+      "identifier": "prod",
+      "EnvName": "Production",
+      "isEnabled": true,
+      "regionId": "region1"
+    },
+    {
+      "identifier": "test",
+      "EnvName": "Testing",
+      "isEnabled": true,
+      "regionId": "region2"
+    },
+    {
+      "identifier": "stag",
+      "EnvName": "Staging",
+      "isEnabled": true,
+      "regionId": "region1"
+    },
+    {
+      "identifier": "demo",
+      "EnvName": "Demo",
+      "isEnabled": true,
+      "regionId": "region2"
+    }
+  ]
+}
