@@ -1,60 +1,61 @@
 var matchedEnvironment;
+var matchedInfrastructure;
 // Update the entity card
 $(document).ready(function () {
-  $("#confirmRegionBtn").click(function() {
-      if (matchedEntity) {
-          updateCard(matchedEntity);
-      } else {
-          Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              text: 'Please, select a card before confirming.',
-          });
-      }
+  $("#confirmRegionBtn").click(function () {
+    if (matchedEntity) {
+      updateCard(matchedEntity);
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Please, select a card before confirming.',
+      });
+    }
   });
 
   function updateCard(entities) {
-      if (!entities.flag) {
-          Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              text: 'Entity data is incomplete or invalid.',
-          });
-          return;  // Exit the function if the data is invalid
-      }
+    if (!entities.flag) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Entity data is incomplete or invalid.',
+      });
+      return;  // Exit the function if the data is invalid
+    }
 
-      // Update the entity logo
-      const imgElement = $("#infraIMG");
-      if (!imgElement.length) {
-          Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              text: 'Could not find the element for the image.',
-          });
-          return;  // Exit the function if the element is not found
-      }
-      imgElement.attr("src", entities.flag);
+    // Update the entity logo
+    const imgElement = $("#infraIMG");
+    if (!imgElement.length) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Could not find the element for the image.',
+      });
+      return;  // Exit the function if the element is not found
+    }
+    imgElement.attr("src", entities.flag);
 
-      // Update the entity name
-      const nameElement = $("#selectedEntityName");
-      if (!nameElement.length) {
-          Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              text: 'Could not find the element for the entity name.',
-          });
-          return;  // Exit the function if the element is not found
-      }
-      nameElement.text(entities.companyName);
+    // Update the entity name
+    const nameElement = $("#selectedEntityName");
+    if (!nameElement.length) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Could not find the element for the entity name.',
+      });
+      return;  // Exit the function if the element is not found
+    }
+    nameElement.text(entities.companyName);
 
-      // Update the company name
-      const companyNameElement = $("#company-nameEI");
-      if (matchedCompany && matchedCompany.Company) {
-        console.log("Company Found:", matchedCompany.Company); // Esto te mostrará el nombre de la compañía si existe.
-        companyNameElement.text(matchedCompany.Company);
+    // Update the company name
+    const companyNameElement = $("#company-nameEI");
+    if (matchedCompany && matchedCompany.Company) {
+      console.log("Company Found:", matchedCompany.Company); // Esto te mostrará el nombre de la compañía si existe.
+      companyNameElement.text(matchedCompany.Company);
     } else {
-        console.log("No Company Found"); // Esto te mostrará un mensaje si no se encuentra la compañía.
-        companyNameElement.text("Company not selected");
+      console.log("No Company Found"); // Esto te mostrará un mensaje si no se encuentra la compañía.
+      companyNameElement.text("Company not selected");
     }
 
   }
@@ -62,119 +63,119 @@ $(document).ready(function () {
 
 
 ///////////////////////////////////////
-  var envList = document.getElementById("environment-list");
+var envList = document.getElementById("environment-list");
 
-  function displayEnvironments() {
-    $.ajax({
-      url: "/newenvironments/obtenerEnvironments",
-      type: "GET",
-      dataType: "json",
-      success: function(data) {
-        if (data.code === "OK" && Array.isArray(data.object)) {
-          envList.innerHTML = "";
+function displayEnvironments() {
+  $.ajax({
+    url: "/newenvironments/obtenerEnvironments",
+    type: "GET",
+    dataType: "json",
+    success: function (data) {
+      if (data.code === "OK" && Array.isArray(data.object)) {
+        envList.innerHTML = "";
 
-          for (var i = 0; i < data.object.length; i++) {
-            var env = data.object[i];
+        for (var i = 0; i < data.object.length; i++) {
+          var env = data.object[i];
 
-            if (matchedRegion && env.regionId === matchedRegion.identifier) {
-              var listItem = document.createElement("li");
-              listItem.className = "list-group-item d-flex justify-content-between align-items-center";
-              listItem.id = "environment" + env.identifier;
+          if (matchedRegion && env.regionId === matchedRegion.identifier) {
+            var listItem = document.createElement("li");
+            listItem.className = "list-group-item d-flex justify-content-between align-items-center";
+            listItem.id = "environment" + env.identifier;
 
-              var envText = document.createElement("span");
-              envText.textContent = env.EnvName;
-              listItem.appendChild(envText);
+            var envText = document.createElement("span");
+            envText.textContent = env.EnvName;
+            listItem.appendChild(envText);
 
-              if (!env.isEnabled) {
-                listItem.style.backgroundColor = "#d3d3d3";
-              }
-
-              var checkbox = document.createElement("input");
-              checkbox.type = "checkbox";
-              checkbox.checked = env.isEnabled;
-              updateCheckboxStatusI(checkbox, env.isEnabled, env.identifier);
-
-              listItem.appendChild(checkbox);
-
-              envList.appendChild(listItem);
+            if (!env.isEnabled) {
+              listItem.style.backgroundColor = "#d3d3d3";
             }
+
+            var checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.checked = env.isEnabled;
+            updateCheckboxStatusE(checkbox, env.isEnabled, env.identifier);
+
+            listItem.appendChild(checkbox);
+
+            envList.appendChild(listItem);
           }
-        } else {
-          console.error('Unexpected data format:', data);
         }
-      },
-      error: function(jqXHR, textStatus, errorThrown) {
-        console.error('Error on AJAX request:', textStatus, errorThrown);
+      } else {
+        console.error('Unexpected data format:', data);
+      }
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      console.error('Error on AJAX request:', textStatus, errorThrown);
+    }
+  });
+}
+
+function updateCheckboxStatusE(checkbox, isEnabled, envId) {
+  checkbox.onclick = function (event) {
+    event.preventDefault();
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You are about to " + (this.checked ? "deactivate" : "activate") + " this environment.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, change it!',
+      cancelButtonText: 'No, keep it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        checkbox.checked = !checkbox.checked;
+        updateEnvironmentStatusE(envId, checkbox.checked);
       }
     });
   }
+}
 
-  function updateCheckboxStatusI(checkbox, isEnabled, envId) {
-    checkbox.onclick = function(event) {
-      event.preventDefault();
-      Swal.fire({
-        title: 'Are you sure?',
-        text: "You are about to " + (this.checked ? "deactivate" : "activate") + " this environment.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, change it!',
-        cancelButtonText: 'No, keep it!'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          checkbox.checked = !checkbox.checked;
-          updateEnvironmentStatusI(envId, checkbox.checked);
-        }
-      });
-    }
-  }
-
-  function updateEnvironmentStatusI(envId, isEnabled) {
-    $.ajax({
-      url: '/newenvironments/toggleEnvironmentsStatus',
-      type: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify({
-        identifier: envId,
-        isEnabled: isEnabled
-      }),
-      success: function(response) {
-        if (response.code == "OK") {
-          Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            text: 'Environment status updated successfully.'
-            //clear the list and display the environments again
-          }).then((result) => {
-            if (result.isConfirmed) {
-              displayEnvironments();
-            }
+function updateEnvironmentStatusE(envId, isEnabled) {
+  $.ajax({
+    url: '/newenvironments/toggleEnvironmentsStatus',
+    type: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify({
+      identifier: envId,
+      isEnabled: isEnabled
+    }),
+    success: function (response) {
+      if (response.code == "OK") {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Environment status updated successfully.'
+          //clear the list and display the environments again
+        }).then((result) => {
+          if (result.isConfirmed) {
+            displayEnvironments();
+          }
 
 
 
 
 
-          });
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Failed to update the environment status. Please try again.'
-          });
-        }
-      },
-      error: function() {
+        });
+      } else {
         Swal.fire({
           icon: 'error',
-          title: 'Oops...',
-          text: 'There was an error updating the environment status. Please try again.'
+          title: 'Error',
+          text: 'Failed to update the environment status. Please try again.'
         });
       }
-    });
-  }
-
-  $("#confirmRegionBtn").click(function() {
-    displayEnvironments();
+    },
+    error: function () {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'There was an error updating the environment status. Please try again.'
+      });
+    }
   });
+}
+
+$("#confirmRegionBtn").click(function () {
+  displayEnvironments();
+});
 
 
 
@@ -190,33 +191,35 @@ function selectEnvironment(tagId) {
 
   // 3. Make an AJAX request to fetch the environment data by its identifier
   $.ajax({
-      url: '/newenvironments/fetchEnvironmentById',  // Server route where the environment is fetched by ID
-      type: 'GET',
-      data: { identifier: envId },  // Send the identifier as a parameter
-      success: function(data) {
-          if (data.code == "OK") {
-              matchedEnvironment = data.object;
+    url: '/newenvironments/fetchEnvironmentById',  // Server route where the environment is fetched by ID
+    type: 'GET',
+    data: { identifier: envId },  // Send the identifier as a parameter
+    success: function (data) {
+      if (data.code == "OK") {
+        matchedEnvironment = data.object;
 
-              if (matchedEnvironment) {
-                  // 4. Add 'selected' class to the list item
-                  $(`#${tagId}`).addClass('selected');
-                  console.log("Environment found", matchedEnvironment);
-              } else {
-                  console.log("Environment not found in the database");
-                  console.log("Searched ID:", envId);
-              }
-          } else {
-              console.log("Error fetching the environment:", data.message);
-          }
-      },
-      error: function() {
-          console.log("Error making the AJAX request to fetch the environment");
+        if (matchedEnvironment) {
+          // 4. Add 'selected' class to the list item
+          $(`#${tagId}`).addClass('selected');
+          console.log("Environment found", matchedEnvironment);
+          displayInfrastructures(matchedEnvironment.identifier);
+
+        } else {
+          console.log("Environment not found in the database");
+          console.log("Searched ID:", envId);
+        }
+      } else {
+        console.log("Error fetching the environment:", data.message);
       }
+    },
+    error: function () {
+      console.log("Error making the AJAX request to fetch the environment");
+    }
   });
 }
 
 // Event listener for click on list items
-$(document).on('click', '#environment-list li', function() {
+$(document).on('click', '#environment-list li', function () {
   selectEnvironment(this.id);
 });
 
@@ -230,27 +233,32 @@ $(document).on('click', '#environment-list li', function() {
 //SHOW THE INFRASTRUCTURE LIST BASED ON THE ONES THAT MATCH THE EMVIRONMENT.IDENTIFIER
 
 
-var infraList = document.getElementById("infrastructure-list");
+function displayInfrastructures(envIdentifier) {
 
-function displayInfrastructures() {
+
+  var infraList = document.getElementById("infrastructure-list");
+  infraList.innerHTML = "";
+
   $.ajax({
     url: "/newinfrastructure/fetchInfrastructure",
     type: "GET",
     dataType: "json",
-    success: function(data) {
+
+    success: function (data) {
       if (data.code === "OK" && Array.isArray(data.object)) {
         infraList.innerHTML = "";
 
         for (var i = 0; i < data.object.length; i++) {
           var infra = data.object[i];
 
-          if (matchedEnvironment && infra.environmentId === matchedEnvironment.identifier) {
+          // Only process infrastructures that match the given environment identifier
+          if (infra.id_Env === envIdentifier) {
             var listItem = document.createElement("li");
             listItem.className = "list-group-item d-flex justify-content-between align-items-center";
-            listItem.id = "infra" + infra.identifier;
+            listItem.id = "infrastructure" + infra.identifier;
 
             var infraText = document.createElement("span");
-            infraText.textContent = infra.infraName;
+            infraText.textContent = infra.identifier;
             listItem.appendChild(infraText);
 
             if (!infra.isEnabled) {
@@ -260,7 +268,7 @@ function displayInfrastructures() {
             var checkbox = document.createElement("input");
             checkbox.type = "checkbox";
             checkbox.checked = infra.isEnabled;
-            updateCheckboxStatusEnv(checkbox, infra.isEnabled, infra.identifier);
+            updateCheckboxStatusI(checkbox, infra.isEnabled, infra.id_Env);
 
             listItem.appendChild(checkbox);
 
@@ -271,14 +279,11 @@ function displayInfrastructures() {
         console.error('Unexpected data format:', data);
       }
     },
-    error: function(jqXHR, textStatus, errorThrown) {
-      console.error('Error on AJAX request:', textStatus, errorThrown);
-    }
+    // ... (rest of the AJAX configuration remains unchanged)
   });
 }
-
-function updateCheckboxStatusEnv(checkbox, isEnabled, infraId) {
-  checkbox.onclick = function(event) {
+function updateCheckboxStatusI(checkbox, isEnabled, infraId) {
+  checkbox.onclick = function (event) {
     event.preventDefault();
     Swal.fire({
       title: 'Are you sure?',
@@ -290,13 +295,13 @@ function updateCheckboxStatusEnv(checkbox, isEnabled, infraId) {
     }).then((result) => {
       if (result.isConfirmed) {
         checkbox.checked = !checkbox.checked;
-        updateInfrastructureStatusEnv(infraId, checkbox.checked);
+        updateInfrastructureStatusI(infraId, checkbox.checked);
       }
     });
   }
 }
 
-function updateInfrastructureStatusEnv(infraId, isEnabled) {
+function updateInfrastructureStatusI(infraId, isEnabled) {
   $.ajax({
     url: '/newinfrastructure/toggleInfrastructureStatus',
     type: 'POST',
@@ -305,16 +310,18 @@ function updateInfrastructureStatusEnv(infraId, isEnabled) {
       identifier: infraId,
       isEnabled: isEnabled
     }),
-    success: function(response) {
+    success: function (response) {
       if (response.code == "OK") {
         Swal.fire({
           icon: 'success',
           title: 'Success',
           text: 'Infrastructure status updated successfully.'
-          //clear the list and display the environments again
         }).then((result) => {
           if (result.isConfirmed) {
-            displayInfrastructures();
+            if (matchedEnvironment && matchedEnvironment.identifier) {
+              displayInfrastructures(matchedEnvironment.identifier);
+            }
+
           }
         });
       } else {
@@ -325,7 +332,7 @@ function updateInfrastructureStatusEnv(infraId, isEnabled) {
         });
       }
     },
-    error: function() {
+    error: function () {
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
@@ -335,10 +342,51 @@ function updateInfrastructureStatusEnv(infraId, isEnabled) {
   });
 }
 
+// Select an infrastructure from the list
+function selectInfrastructure(tagId) {
+  $('#infrastructure-list li').removeClass('selected');
 
-$("#confirmEnvironmentBtn").click(function() {
-  displayInfrastructures();
+  const infraId = tagId.replace('infrastructure', '');
+
+  $.ajax({
+    url: '/newinfrastructure/fetchInfrastructureById',
+    type: 'GET',
+    data: { identifier: infraId },
+    success: function (data) {
+      if (data.code == "OK") {
+        matchedInfrastructure = data.object;
+
+        if (matchedInfrastructure) {
+          $(`#${tagId}`).addClass('selected');
+          console.log("Infrastructure found", matchedInfrastructure);
+        } else {
+          console.log("Infrastructure not found in the database");
+          console.log("Searched ID:", infraId);
+        }
+      } else {
+        console.log("Error fetching the infrastructure:", data.message);
+      }
+    },
+    error: function () {
+      console.log("Error making the AJAX request to fetch the infrastructure");
+    }
+  });
+}
+
+$(document).on('click', '#infrastructure-list li', function () {
+  selectInfrastructure(this.id);
 });
 
+//boton to confirm and go to the next section
+$("#confirmInfraAndEnvnBtn").click(function () {
+  if (matchedInfrastructure) {
+    updateCard(matchedInfrastructure);
 
-
+  } else {
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: 'Please, select a card before confirming.',
+    });
+  }
+});

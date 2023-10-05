@@ -74,20 +74,40 @@ const infraTypes = [
 ]
 
 
-
-
+// Fetch a list of all infrastructures
 function fetchInfrastructure(req, res) {
-  res.status(200).json({code: "OK", object: infraTypes, message: ""});
+  res.status(200).json({ code: "OK", object: infraTypes, message: "" });
 }
 
-function guardarInfraestructuras(req, res) {
+// Toggle the status of a specific infrastructure
+function toggleInfrastructureStatus(req, res) {
+  const { identifier, isEnabled } = req.body;
 
-  infraTypes.push(req.body);
-  res.status(200).json({code: "OK", object: infraTypes, message: ""});
-
+  const index = infraTypes.findIndex(infra => infra.identifier === identifier);
+  if (index !== -1) {
+    infraTypes[index].isEnabled = isEnabled;
+    res.status(200).json({ code: "OK", message: "Infrastructure status updated." });
+  } else {
+    res.status(400).json({ code: "ERROR", message: "Infrastructure not found." });
+  }
 }
+
+// Fetch a specific infrastructure by its ID
+function fetchInfrastructureById(req, res) {
+  const { identifier } = req.query;
+
+  const infrastructure = infraTypes.find(infra => infra.identifier === identifier);
+  if (infrastructure) {
+    res.status(200).json({ code: "OK", object: infrastructure, message: "" });
+  } else {
+    res.status(400).json({ code: "ERROR", message: "Infrastructure not found." });
+  }
+}
+
 
 module.exports = {
   fetchInfrastructure,
-  guardarInfraestructuras
+  toggleInfrastructureStatus,
+  fetchInfrastructureById,
+
 };

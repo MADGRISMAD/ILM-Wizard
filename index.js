@@ -7,6 +7,7 @@ const newCompaniesRoutes = require('./routes/new-companies.routes');
 const newRegionsRoutes = require('./routes/new-regions.routes');
 const newEnvironmentsRoutes = require('./routes/new-environments.routes');
 const newInfrastructureRoutes = require('./routes/new-infrastructure.routes');
+const newConfigRoutes = require('./routes/new-config.routes');
 
 const cockieParser = require('cookie-parser');
 const cors = require('cors');
@@ -52,6 +53,7 @@ app.use('/newcompanies', newCompaniesRoutes);
 app.use('/newregions', newRegionsRoutes);
 app.use('/newenvironments', newEnvironmentsRoutes);
 app.use('/newinfrastructure', newInfrastructureRoutes);
+app.use('/newconfig', newConfigRoutes);
 
 
 

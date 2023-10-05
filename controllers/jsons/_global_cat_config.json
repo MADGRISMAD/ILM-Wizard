@@ -1,0 +1,68 @@
+{
+  "qtr": [
+    {
+      "_id": "1",
+      "id_Env": "dev",
+      "isenabled": true
+    },
+    {
+      "_id": "2",
+      "id_Env": "pre",
+      "isenabled": true
+    },
+    {
+      "_id": "3",
+      "id_Env": "prod",
+      "isenabled": true
+    },
+    {
+      "_id": "4",
+      "id_Env": "test",
+      "isenabled": true
+    }
+  ],
+  "otherSoftware": [
+    {
+      "_id": "1",
+      "id_Env": "dev",
+      "isenabled": true
+    },
+    {
+      "_id": "2",
+      "id_Env": "pre",
+      "isenabled": true
+    },
+    {
+      "_id": "3",
+      "id_Env": "prod",
+      "isenabled": true
+    },
+    {
+      "_id": "4",
+      "id_Env": "test",
+      "isenabled": true
+    }
+  ],
+  "HA": [
+    {
+      "_id": "1",
+      "id_Env": "dev",
+      "isenabled": true
+    },
+    {
+      "_id": "2",
+      "id_Env": "pre",
+      "isenabled": true
+    },
+    {
+      "_id": "3",
+      "id_Env": "prod",
+      "isenabled": true
+    },
+    {
+      "_id": "4",
+      "id_Env": "test",
+      "isenabled": true
+    }
+  ]
+}
