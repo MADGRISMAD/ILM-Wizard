@@ -1,73 +1,73 @@
 const infraTypes = [
   {
     "id_Env": "dev",
-    "identifier": "ohe",
+    "_id": "ohe",
     "infraName": "OHE",
     "isEnabled": true
   },
   {
     "id_Env": "dev",
-    "identifier": "vmware",
+    "_id": "vmware",
     "infraName": "VMware",
     "isEnabled": true
   },
   {
     "id_Env": "pre",
-    "identifier": "ohe",
+    "_id": "ohe",
     "infraName": "OHE",
     "isEnabled": true
   },
   {
     "id_Env": "pre",
-    "identifier": "vmware",
+    "_id": "vmware",
     "infraName": "VMware",
     "isEnabled": true
   },
   {
     "id_Env": "prod",
-    "identifier": "ohe",
+    "_id": "ohe",
     "infraName": "OHE",
     "isEnabled": true
   },
   {
     "id_Env": "prod",
-    "identifier": "vmware",
+    "_id": "vmware",
     "infraName": "VMware",
     "isEnabled": true
   },
   {
     "id_Env": "test",
-    "identifier": "ohe",
+    "_id": "ohe",
     "infraName": "OHE",
     "isEnabled": true
   },
   {
     "id_Env": "test",
-    "identifier": "vmware",
+    "_id": "vmware",
     "infraName": "VMware",
     "isEnabled": true
   },
   {
     "id_Env": "stag",
-    "identifier": "ohe",
+    "_id": "ohe",
     "infraName": "OHE",
     "isEnabled": true
   },
   {
     "id_Env": "stag",
-    "identifier": "vmware",
+    "_id": "vmware",
     "infraName": "VMware",
     "isEnabled": true
   },
   {
     "id_Env": "demo",
-    "identifier": "ohe",
+    "_id": "ohe",
     "infraName": "OHE",
     "isEnabled": true
   },
   {
     "id_Env": "demo",
-    "identifier": "vmware",
+    "_id": "vmware",
     "infraName": "VMware",
     "isEnabled": true
   }
@@ -81,9 +81,9 @@ function fetchInfrastructure(req, res) {
 
 // Toggle the status of a specific infrastructure
 function toggleInfrastructureStatus(req, res) {
-  const { identifier, isEnabled } = req.body;
+  const { _id, isEnabled } = req.body;
 
-  const index = infraTypes.findIndex(infra => infra.identifier === identifier);
+  const index = infraTypes.findIndex(infra => infra._id === _id);
   if (index !== -1) {
     infraTypes[index].isEnabled = isEnabled;
     res.status(200).json({ code: "OK", message: "Infrastructure status updated." });
@@ -94,9 +94,9 @@ function toggleInfrastructureStatus(req, res) {
 
 // Fetch a specific infrastructure by its ID
 function fetchInfrastructureById(req, res) {
-  const { identifier } = req.query;
+  const { _id } = req.query;
 
-  const infrastructure = infraTypes.find(infra => infra.identifier === identifier);
+  const infrastructure = infraTypes.find(infra => infra._id === _id);
   if (infrastructure) {
     res.status(200).json({ code: "OK", object: infrastructure, message: "" });
   } else {

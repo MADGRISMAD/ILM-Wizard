@@ -81,7 +81,7 @@ $("#confirmCompanyBtn").click(function () {
 
   // If a company is matched/selected, fetch and display its related regions
   if (matchedCompany) {
-    fetchAndDisplayRegions(matchedCompany.entity_id);
+    fetchAndDisplayRegions();
   } else {
     // If no company is selected, display an error message
     Swal.fire({
@@ -92,22 +92,28 @@ $("#confirmCompanyBtn").click(function () {
   }
 });
 // Fetches and displays regions related to the selected entity
-function fetchAndDisplayRegions(selectedEntityId) {
+
+function fetchAndDisplayRegions() {
   // Make an AJAX request to fetch the region data
+  if (!matchedCompany || !matchedCompany._id) {
+    alert('Identificador de la compañía no encontrado.');
+    return;
+  }
   $.ajax({
     url: '/newregions/fetchRegions',
     type: 'GET',
-    data: { entity_id: selectedEntityId },
     success: function (data) {
       if (data.code == "OK") {
-        const filteredRegions = data.object;
+        // Filtrar las regiones que coinciden con matchedCompany._id
+        const filteredRegions = data.object.filter(region => region.parent_id === matchedCompany._id);
+
         // Loop through each region and add it to the HTML list
         for (var i = 0; i < filteredRegions.length; i++) {
           var region = filteredRegions[i];
 
           var listItem = document.createElement("li");
           listItem.className = "list-group-item d-flex justify-content-between align-items-center list-item-centered";
-          listItem.id = "region" + region.identifier;
+          listItem.id = "region" + region._id;
 
           // Create a span for the region name
           var regionNameSpan = document.createElement("span");
@@ -135,10 +141,10 @@ function fetchAndDisplayRegions(selectedEntityId) {
           var checkbox = document.createElement("input");
           checkbox.className = "form-check-input";  // Bootstrap class for checkboxes
           checkbox.type = "checkbox";
-          checkbox.id = "checkboxRegion" + region.identifier;
+          checkbox.id = "checkboxRegion" + region._id;
 
-          // Update checkbox status and add click event based on the region's isEnabled property and identifier
-          updateCheckboxStatus(checkbox, region.isEnabled, region.identifier);
+          // Update checkbox status and add click event based on the region's isEnabled property and _id
+          updateCheckboxStatusRegion(checkbox, region.isEnabled, region._id);
 
           checkboxContainer.appendChild(checkbox);
           listItem.appendChild(checkboxContainer);
@@ -152,8 +158,9 @@ function fetchAndDisplayRegions(selectedEntityId) {
   });
 }
 
+
 // Updates the checkbox status based on the region's isEnabled property and adds an event listener for checkbox clicks
-function updateCheckboxStatus(checkbox, isEnabled, regionId) {
+function updateCheckboxStatusRegion(checkbox, isEnabled, regionId) {
   checkbox.checked = isEnabled;
   // When the checkbox is clicked, ask for confirmation and then proceed based on the user's choice
   checkbox.onclick = function (event) {
@@ -178,7 +185,7 @@ function updateCheckboxStatus(checkbox, isEnabled, regionId) {
         //LIMPIA LA LISTA DE REGIONES
         regionList.innerHTML = "";
         //VUELVE A CARGAR LA LISTA DE REGIONES
-        fetchAndDisplayRegions(matchedCompany.entity_id);
+        fetchAndDisplayRegions();
       }
     });
   }
@@ -190,7 +197,7 @@ function updateRegionStatus(regionId, isEnabled) {
     type: 'POST',
     contentType: 'application/json',  // Indica que estás enviando JSON
     data: JSON.stringify({            // Convierte el objeto a JSON string
-      identifier: regionId,
+      _id: regionId,
       isEnabled: isEnabled          // Asegúrate de que esta propiedad tenga el mismo nombre que en el backend
     }),
     success: function (response) {
@@ -229,15 +236,15 @@ function selectRegion(tagId) {
   // This ensures that no other region is marked as selected.
   $('#Region-list li').removeClass('selected');
 
-  // Step 2: Extract the identifier from the provided tagId.
+  // Step 2: Extract the _id from the provided tagId.
   // This will help fetch the exact region from the backend.
   const regionId = tagId.replace('region', '');
 
-  // Step 3: Perform an AJAX request to get data about the region using its identifier.
+  // Step 3: Perform an AJAX request to get data about the region using its _id.
   $.ajax({
     url: '/newregions/fetchRegionById',  // Endpoint where the region data can be fetched by ID
     type: 'GET',
-    data: { identifier: regionId },  // The identifier is sent as a parameter to the backend
+    data: { _id: regionId },  // The _id is sent as a parameter to the backend
     success: function (data) {
       // If the request was successful and the server responded with "OK"
       if (data.code == "OK") {
@@ -325,7 +332,7 @@ $(document).ready(function () {
 $(document).ready(function () {
 
   function isValidInput(value, id) {
-    const allowSpacesInMiddle = ["identifier", "Region"];
+    const allowSpacesInMiddle = ["_id", "Region"];
 
     // If the value has spaces at the beginning or end, it's invalid.
     if (value.trim() !== value) {
@@ -353,6 +360,8 @@ $(document).ready(function () {
   }
 
   $("#addRegion").click(function () {
+    let currentTimestamp = new Date().getTime();
+    let _idValueRegion = (currentTimestamp + "").substr(1);
     const modalContent = `
     <div class="modal-header">
         <h5 class="modal-title">Add New Region</h5>
@@ -364,16 +373,16 @@ $(document).ready(function () {
         <form id="regionForm">
 
             <div class="form-group">
-                <label for="identifierInput">Identifier:</label>
-                <input type="text" class="form-control" id="identifierInput" placeholder="Enter identifier">
+                <label for="_idInput">Identifier:</label>
+                <input type="text" class="form-control" id="_idInput" value="${_idValueRegion}" readonly>
             </div>
             <div class="form-group">
                 <label for="regionInput">Region:</label>
                 <input type="text" class="form-control" id="regionInput" placeholder="Enter region name">
             </div>
             <div class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input" id="isEnabledInput">
-                <label class="custom-control-label" for="isEnabledInput">Enabled</label>
+                <input type="checkbox" class="custom-control-input" id="isEnabledInputRAdd">
+                <label class="custom-control-label" for="isEnabledInputRAdd">Enabled</label>
             </div>
         </form>
     </div>
@@ -386,15 +395,17 @@ $(document).ready(function () {
     $("#RegionModalAdd .modal-content").html(modalContent);
     // Open the modal
     $("#RegionModalAdd").modal("show");
+
+
   });
 
   $("#RegionModalAdd").on("click", "#saveRegion", function () {
-    const entityId = matchedCompany.entity_id; //we use the entity_id from the matchedCompany
-    const identifier = validateField("#identifierInput");
+    const _id = validateField("#_idInput");
     const region = validateField("#regionInput");
-    const isEnabled = $("#isEnabledInput").prop("checked");
+    const isEnabled = $("#isEnabledInputRAdd").prop("checked");
 
-    if (!(entityId && identifier && region)) {
+
+    if (!(_id && region)) {
       Swal.fire({
         icon: 'warning',
         title: 'Incomplete or Invalid Fields',
@@ -413,10 +424,10 @@ $(document).ready(function () {
     }).then((result) => {
       if (result.isConfirmed) {
         const newRegion = {
-          "entity_id": entityId,
-          "identifier": identifier,
+          "_id": _id,
           "Region": region,
-          "isEnabled": isEnabled
+          "isEnabled": isEnabled,
+          "parent_id": matchedCompany ? matchedCompany._id : null
         };
 
         $.ajax({
@@ -436,7 +447,7 @@ $(document).ready(function () {
               //LIMPIA LA LISTA DE REGIONES
               regionList.innerHTML = "";
               //VUELVE A CARGAR LA LISTA DE REGIONES
-              fetchAndDisplayRegions(matchedCompany.entity_id);
+              fetchAndDisplayRegions(matchedCompany.Region);
               //CONSOLE LOG PARA VERIFICAR QUE SE ESTA ENVIANDO LA INFORMACION
               console.log(newRegion);
 
@@ -451,7 +462,7 @@ $(document).ready(function () {
               Swal.fire({
                 icon: 'warning',
                 title: 'Warning',
-                text: 'A region with that identifier or name already exists.',
+                text: 'A region with that _id or name already exists.',
               });
             } else {
               Swal.fire({
@@ -476,7 +487,7 @@ $(document).ready(function () {
 
     const modalContent = `
           <div class="modal-header">
-              <h5 class="modal-title">${isEditing ? 'Edit Region ' + editRegion.identifier : 'Add New Region'}</h5>
+              <h5 class="modal-title">${isEditing ? 'Edit Region ' + editRegion._id : 'Add New Region'}</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <i class="fas fa-times"></i>
               </button>
@@ -484,16 +495,16 @@ $(document).ready(function () {
           <div class="modal-body">
               <form id="regionForm">
                   <div class="form-group">
-                      <label for="identifierInput">Identifier:</label>
-                      <input type="text" class="form-control" id="identifierInput" placeholder="Enter identifier" value="${isEditing ? editRegion.identifier : ''}" ${isEditing ? 'readonly' : ''}>
+                      <label for="_idInput">Identifier:</label>
+                      <input type="text" class="form-control" id="_idInput" placeholder="Enter _id" value="${isEditing ? editRegion._id : ''}" ${isEditing ? 'readonly' : ''}>
                   </div>
                   <div class="form-group">
                       <label for="regionInput">Region:</label>
                       <input type="text" class="form-control" id="regionInput" placeholder="Enter region name" value="${isEditing ? editRegion.Region : ''}">
                   </div>
                   <div class="custom-control custom-checkbox">
-                      <input type="checkbox" class="custom-control-input" id="isEnabledInput" ${isEditing && editRegion.isEnabled ? 'checked' : ''}>
-                      <label class="custom-control-label" for="isEnabledInput">Enabled</label>
+                      <input type="checkbox" class="custom-control-input" id="isEnabledInputREdit" ${isEditing && editRegion.isEnabled ? 'checked' : ''}>
+                      <label class="custom-control-label" for="isEnabledInputREdit">Enabled</label>
                   </div>
               </form>
           </div>
@@ -521,19 +532,19 @@ $(document).ready(function () {
   });
 
   function hasChanges(editedRegion, originalRegion) {
-    return editedRegion.identifier !== originalRegion.identifier ||
+    return editedRegion._id !== originalRegion._id ||
       editedRegion.Region !== originalRegion.Region ||
       editedRegion.isEnabled !== originalRegion.isEnabled;
   }
 
   $("#RegionModalEdit").on("click", "#updatedRegion", function () {
-    const identifier = $("#identifierInput").val().trim();
+    const _id = $("#_idInput").val().trim();
     const region = $("#regionInput").val().trim();
-    const isEnabled = $("#isEnabledInput").is(":checked");
+    const isEnabled = $("#isEnabledInputREdit").is(":checked");
 
     const updatedRegion = {
-      "entity_id": matchedRegion.entity_id,  // Keep the same entity_id
-      "identifier": identifier,
+      "parent_id": matchedCompany._id,
+      "_id": _id,
       "Region": region,
       "isEnabled": isEnabled
     };
@@ -622,7 +633,7 @@ $(document).ready(function () {
     }).then((result) => {
       if (result.isConfirmed) {
         // If confirmed, send a request to delete the region.
-        deleteRegion(matchedRegion.identifier);
+        deleteRegion(matchedRegion._id);
         //LIMPIA LA LISTA DE REGIONES
         regionList.innerHTML = "";
         //VUELVE A CARGAR LA LISTA DE REGIONES
@@ -632,10 +643,10 @@ $(document).ready(function () {
   });
 
   // Function to send a DELETE request to the server to delete the selected region.
-  function deleteRegion(identifier) {
+  function deleteRegion(_id) {
     $.ajax({
-      // Assuming the identifier is appended to the URL
-      url: `/newregions/deleteRegion/${identifier}`,
+      // Assuming the _id is appended to the URL
+      url: `/newregions/deleteRegion/${_id}`,
       type: 'DELETE',
       success: function (response) {
         // If the server returns a successful response, notify the user of the successful deletion.

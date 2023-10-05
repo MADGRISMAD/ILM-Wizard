@@ -14,21 +14,16 @@ function guardarRegiones(regions) {
 
 function fetchRegions(req, res) {
   const regions = cargarRegiones();
-  const entityId = req.query.entity_id;
-
-  if (!entityId) {
-    return res.status(400).json({ code: "ERROR", message: "Falta el parámetro entity_id." });
-  }
-
-  const filteredRegions = regions.filter(region => region.entity_id === entityId);
-  res.status(200).json({ code: "OK", object: filteredRegions, message: "" });
+  res.status(200).json({ code: "OK", object: regions, message: "" });
 }
+
+
 
 function fetchRegionById(req, res) {
   const regions = cargarRegiones();
-  const regionId = req.query.identifier;
+  const regionId = req.query._id;
 
-  const region = regions.find(r => r.identifier === regionId);
+  const region = regions.find(r => r._id === regionId);
   if (region) {
     res.status(200).json({ code: "OK", object: region, message: "" });
   } else {
@@ -40,7 +35,7 @@ function saveRegions(req, res) {
   const regions = cargarRegiones();
 
   const regionExistente = regions.find(region =>
-    region.identifier && region.identifier.toLowerCase() === req.body.identifier.toLowerCase()
+    region._id && region._id.toLowerCase() === req.body._id.toLowerCase()
   );
 
   if (regionExistente) {
@@ -54,7 +49,7 @@ function saveRegions(req, res) {
 
 function editRegions(req, res) {
   const regions = cargarRegiones();
-  const matchedRegionIndex = regions.findIndex(region => region.identifier === req.body.identifier);
+  const matchedRegionIndex = regions.findIndex(region => region._id === req.body._id);
   if (matchedRegionIndex === -1) {
     return res.status(404).json({ code: "NOT_FOUND", message: "La región no existe." });
   }
@@ -70,8 +65,8 @@ function editRegions(req, res) {
 
 function deleteRegion(req, res) {
   const regions = cargarRegiones();
-  const regionIdentifier = req.params.identifier;
-  const matchedRegionIndex = regions.findIndex(region => region.identifier === regionIdentifier);
+  const regionIdentifier = req.params._id;
+  const matchedRegionIndex = regions.findIndex(region => region._id === regionIdentifier);
   if (matchedRegionIndex === -1) {
     return res.status(404).json({ code: "NOT_FOUND", message: "La región no existe." });
   }
@@ -90,11 +85,11 @@ function toggleRegionStatus(req, res) {
     return res.status(400).json({ code: "BAD_REQUEST", message: "La propiedad isEnabled es requerida." });
   }
 
-  if (!('identifier' in req.body)) {
-    return res.status(400).json({ code: "BAD_REQUEST", message: "La propiedad identifier es requerida." });
+  if (!('_id' in req.body)) {
+    return res.status(400).json({ code: "BAD_REQUEST", message: "La propiedad _id es requerida." });
   }
 
-  const matchedRegionIndex = regions.findIndex(region => region.identifier === req.body.identifier);
+  const matchedRegionIndex = regions.findIndex(region => region._id === req.body._id);
 
   if (matchedRegionIndex === -1) {
     return res.status(404).json({ code: "NOT_FOUND", message: "La región no existe." });

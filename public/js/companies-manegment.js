@@ -2,11 +2,12 @@ var companies = [];  // Changed the name to avoid confusion.
 let matchedCompany = null;
 var companyList = document.getElementById("company-list");
 
-function getCompaniesByName(companyName, companies) {
-  return companies.filter(company => company.Company === companyName);
+function getCompaniesByName(_id, companies) {
+  return companies.filter(company => company.parent_id === _id);
 }
 
-function fetchAndDisplayCompanies(matchedCompanyName) {
+
+function fetchAndDisplayCompanies(_id) {
   // Make an AJAX request to get company data
   $.ajax({
     url: '/newcompanies/getCompanies',
@@ -14,16 +15,17 @@ function fetchAndDisplayCompanies(matchedCompanyName) {
     success: function (data) {
       if (data.code == "OK") {
         const companies = data.object;
-        const companiesWithName = getCompaniesByName(matchedCompanyName, companies);
+        const companiesWithName = getCompaniesByName(_id, companies);
+
 
         for (var i = 0; i < companiesWithName.length; i++) {
           var company = companiesWithName[i];
           var listItem = document.createElement("li");
           listItem.className = "list-group-item d-flex justify-content-between align-items-center list-item-centered";
-          listItem.id = "company" + company.identifier;
+          listItem.id = "company" + company._id;
 
           var companyText = document.createElement("span");
-          companyText.textContent = company.identifier;
+          companyText.textContent = company.Company;
           listItem.appendChild(companyText);
 
           // If the company has isEnabled set to false, shade in gray and add "DISABLED"
@@ -37,8 +39,8 @@ function fetchAndDisplayCompanies(matchedCompanyName) {
           // Create the checkbox for each company
           var checkbox = document.createElement("input");
           checkbox.type = "checkbox";
-          checkbox.id = "checkboxCompany" + company.identifier;
-          updateCheckboxStatusComp(checkbox, company.isEnabled, company.identifier);
+          checkbox.id = "checkboxCompany" + company._id;
+          updateCheckboxStatusComp(checkbox, company.isEnabled, company._id);
           listItem.appendChild(checkbox);
 
           companyList.appendChild(listItem);
@@ -53,7 +55,7 @@ function fetchAndDisplayCompanies(matchedCompanyName) {
 $("#confirmSelection").click(function () {
   companyList.innerHTML = "";  // Clears the company list
   if (matchedEntity) {
-    fetchAndDisplayCompanies(matchedEntity.companyName);
+    fetchAndDisplayCompanies(matchedEntity._id);
   }
 });
 
@@ -84,7 +86,7 @@ function updateCompanyStatus(regionId, isEnabled) {
     type: 'POST',
     contentType: 'application/json',
     data: JSON.stringify({
-      identifier: regionId,
+      _id: regionId,
       isEnabled: isEnabled
     }),
     success: function (response) {
@@ -98,7 +100,7 @@ function updateCompanyStatus(regionId, isEnabled) {
         // Vaciar la lista de empresas
         companyList.innerHTML = "";
         // Obtener y mostrar la nueva lista de empresas
-        fetchAndDisplayCompanies(matchedEntity.companyName);
+        fetchAndDisplayCompanies(matchedEntity._id);
 
       } else {
         Swal.fire({
@@ -142,14 +144,14 @@ function selectCompany(tagId) {
   // 1. Remove 'selected' class from all list items
   $('#company-list li').removeClass('selected');
 
-  // 2. Extract identifier from tagId
+  // 2. Extract _id from tagId
   const companyId = tagId.replace('company', '');
 
-  // 3. Make an AJAX request to get company data by its identifier
+  // 3. Make an AJAX request to get company data by its _id
   $.ajax({
     url: '/newcompanies/getCompanyById',  // Server route where the company is retrieved by ID
     type: 'GET',
-    data: { identifier: companyId },  // Send the identifier as a parameter
+    data: { _id: companyId },  // Send the _id as a parameter
     success: function (data) {
       if (data.code == "OK") {
         matchedCompany = data.object;
@@ -244,7 +246,7 @@ $(document).ready(function () {
   function isValidInput(value, id) {
     if (!value) return false; // Añadido para manejar valores null o undefined
 
-    const allowSpacesInMiddle = ["regionClientCode", "cmdbCompany", "company", "delivery", "identifier", "nicName", "shortName", "vdc"];
+    const allowSpacesInMiddle = ["regionClientCode", "cmdbCompany", "company", "delivery", "_id", "nicName", "shortName", "vdc"];
     if (value.trim() !== value) return false;
     if (!allowSpacesInMiddle.includes(id) && value.includes(" ")) return false;
     return true;
@@ -263,7 +265,8 @@ $(document).ready(function () {
   }
 
   $("#addCompany").click(function () {
-    const defaultValueForCompany = matchedEntity ? matchedEntity.companyName : '';
+    let currentTimestamp = new Date().getTime();
+    let _idValueCompany = (currentTimestamp + "").substr(1);
     const deliveryOptions = ["Option1", "Option2", "Option3"];
     const vdcOptions = ["OptionA", "OptionB", "OptionC"];
 
@@ -276,36 +279,43 @@ $(document).ready(function () {
             </div>
             <div class="modal-body">
                 <form id="companyForm">
-                <input type="hidden" id="entityIdInput" value="${matchedEntity ? matchedEntity.companyName : ''}">
+                <input type="hidden" id="parentIdInput" value="${matchedEntity ? matchedEntity._id : ''}">
+
                     <div class="row">
                         <div class="col-md-6"> <!-- First column -->
                             <div class="form-group">
-                                <label for="identifierInput">Identifier:</label>
-                                <input type="text" class="form-control" id="identifierInput" placeholder="Enter identifier">
+                                <label for="_idInput">Identifier:</label>
+                                <input type="text" class="form-control" id="_idInput" value="${_idValueCompany}" readonly>
                             </div>
                             <div class="form-group">
                                 <label for="companyInput">Company:</label>
-                                <input type="text" class="form-control" id="companyInput" placeholder="Enter company name" value="${defaultValueForCompany}">
+                                <input type="text" class="form-control" id="companyInput" placeholder="Enter company name" value="">
                             </div>
                             <div class="form-group">
                                 <label for="hostnamePrefixInput">Hostname Prefix:</label>
-                                <input type="text" class="form-control" id="hostnamePrefixInput" placeholder="Enter hostname prefix">
+                                <input type="text" class="form-control" id="hostnamePrefixInput" placeholder="Enter hostname prefix" maxlength="4">
                             </div>
                             <div class="form-group">
                                 <label for="regionClientCodeInput">Region or Client Code:</label>
                                 <input type="text" class="form-control" id="regionClientCodeInput" placeholder="Enter region or client code">
                             </div>
                             <div class="form-group">
-                                <label for="deliveryInput">Delivery:</label>
-                                <select class="form-control" id="deliveryInput">
-                                    ${deliveryOptions.map(option => `<option value="${option}">${option}</option>`).join('')}
-                                </select>
+                            <label for="deliveryInput">Delivery:</label>
+                            <select class="form-control" id="deliveryInput">
+                                <option value="" disabled selected>Select a delivery option</option>
+                                ${deliveryOptions.map(option => `<option value="${option}">${option}</option>`).join('')}
+                            </select>
+
                             </div>
+
                             <div class="form-group">
-                                <label for="vdcInput">VDC:</label>
-                                <select class="form-control" id="vdcInput">
-                                    ${vdcOptions.map(option => `<option value="${option}">${option}</option>`).join('')}
-                                </select>
+                            <label for="vdcInput">VDC:</label>
+                            <select class="form-control" id="vdcInput">
+                                <option value="" disabled selected>Select a VDC option</option>
+                                ${vdcOptions.map(option => `<option value="${option}">${option}</option>`).join('')}
+                            </select>
+
+
                             </div>
                         </div>
                         <div class="col-md-6"> <!-- Second column -->
@@ -314,8 +324,8 @@ $(document).ready(function () {
                                 <input type="text" class="form-control" id="cmdbCompanyInput" placeholder="Enter CMDB_company">
                             </div>
                             <div class="custom-control custom-checkbox mb-3">
-                                <input type="checkbox" class="custom-control-input" id="isEnabledInput" checked>
-                                <label class="custom-control-label" for="isEnabledInput">Enabled</label>
+                                <input type="checkbox" class="custom-control-input" id="isEnabledInputCAdd" checked>
+                                <label class="custom-control-label" for="isEnabledInputCAdd">Enabled</label>
                             </div>
                             <div class="form-group">
                                 <label for="shortNameInput">Short Name:</label>
@@ -343,12 +353,36 @@ $(document).ready(function () {
     $("#companyModal .modal-content").html(modalContent);
     // Open modal
     $("#companyModal").modal("show");
+    // Add event listener to _idInput
+    $("#_idInput").focus(function() {
+      // Prevent the input from being focused
+      $(this).blur();
+
+      // Show a notification in English
+      Swal.fire({
+          icon: 'info',
+          title: 'Information',
+          text: 'The code is automatically generated and cannot be modified.',
+      });
+  });
   });
 
-  $("#companyModal").on("click", "#saveCompany", function () {
-    const entityId = $("#entityIdInput").val();
+  $("#hostnamePrefixInput").on("paste", function(e) {
+    var pastedData = e.originalEvent.clipboardData.getData('text');
 
-    const identifier = validateField("#identifierInput");
+    if(pastedData.length > 4) {
+        e.preventDefault();
+        Swal.fire({
+            icon: 'error',
+            title: 'Too Long',
+            text: 'You can only enter up to 4 characters for the Hostname Prefix.'
+        });
+    }
+});
+
+  $("#companyModal").on("click", "#saveCompany", function () {
+    const parentId = $("#parentIdInput").val();
+    const _id = validateField("#_idInput");
     const company = validateField("#companyInput");
     const hostnamePrefix = validateField("#hostnamePrefixInput");
     const regionClientCode = validateField("#regionClientCodeInput");
@@ -358,9 +392,9 @@ $(document).ready(function () {
     const shortName = validateField("#shortNameInput");
     const nicName = validateField("#nicNameInput");
     const region = validateField("#regionInput");
-    const isEnabled = $("#isEnabledInput").prop("checked");
+    const isEnabled = $("#isEnabledInputCAdd").prop("checked");
 
-    if (!(identifier && company && hostnamePrefix && regionClientCode && delivery && vdc && cmdbCompany && shortName && nicName && region)) {
+    if (!(_id && company && hostnamePrefix && regionClientCode && delivery && vdc && cmdbCompany && shortName && nicName && region)) {
       Swal.fire({
         icon: 'warning',
         title: 'Incomplete or Invalid Fields',
@@ -379,8 +413,8 @@ $(document).ready(function () {
     }).then((result) => {
       if (result.isConfirmed) {
         const newCompany = {
-          "entity_id": entityId,
-          "identifier": identifier,
+          "parent_id": parentId,
+          "_id": _id,
           "Company": company,
           "Hostname_prefix": hostnamePrefix,
           "Region_or_client_code": regionClientCode,
@@ -388,7 +422,6 @@ $(document).ready(function () {
           "VDC": vdc,
           "CMDB_company": cmdbCompany,
           "isEnabled": isEnabled,
-
           "short_name": shortName,
           "nicName": nicName,
           "region": region
@@ -413,7 +446,7 @@ $(document).ready(function () {
               companyList.innerHTML = "";
               //fetch the new list
 
-              fetchAndDisplayCompanies(matchedEntity.companyName)
+              fetchAndDisplayCompanies(matchedEntity._id)
 
             } else {
               console.log("Unexpected server response:", response);
@@ -424,7 +457,7 @@ $(document).ready(function () {
               Swal.fire({
                 icon: 'warning',
                 title: 'Warning',
-                text: 'A company with that identifier or name already exists.',
+                text: 'A company with that _id or name already exists.',
               });
             } else {
               Swal.fire({
@@ -452,7 +485,7 @@ $(document).ready(function () {
 
     const modalContent = `
       <div class="modal-header">
-          <h5 class="modal-title">${isEditing ? 'Edit Company ' + editCompany.identifier : 'Add New Company'}</h5>
+          <h5 class="modal-title">${isEditing ? 'Edit Company ' + editCompany.Company : 'Add New Company'}</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <i class="fas fa-times"></i>
           </button>
@@ -460,15 +493,17 @@ $(document).ready(function () {
       <div class="modal-body">
           <form id="companyForm">
               <input type="hidden" id="entityIdInput" value="${matchedEntity ? matchedEntity.companyName : ''}">
+              <input type="hidden" id="parentIdInput" value="${isEditing ? editCompany.parent_id : ''}">
+
               <div class="row">
                   <div class="col-md-6"> <!-- First column -->
                       <div class="form-group">
-                          <label for="identifierInput">Identifier:</label>
-                          <input type="text" class="form-control" id="identifierInput" placeholder="Enter identifier" value="${isEditing ? editCompany.identifier : ''}" ${isEditing ? 'readonly' : ''}>
+                          <label for="_idInput">Identifier:</label>
+                          <input type="text" class="form-control" id="_idInput" placeholder="Enter _id" value="${isEditing ? editCompany._id : ''}" ${isEditing ? 'readonly' : ''}>
                       </div>
                       <div class="form-group">
                           <label for="companyInput">Company:</label>
-                          <input type="text" class="form-control" id="companyInput" placeholder="Enter company name" value="${isEditing ? editCompany.Company : ''}" ${isEditing ? 'readonly' : ''}>
+                          <input type="text" class="form-control" id="companyInput" placeholder="Enter company name" value="${isEditing ? editCompany.Company : ''}" ${isEditing ? '' : ''}>
                       </div>
                       <div class="form-group">
                           <label for="hostnamePrefixInput">Hostname Prefix:</label>
@@ -493,13 +528,10 @@ $(document).ready(function () {
                           <input type="text" class="form-control" id="cmdbCompanyInput" placeholder="Enter CMDB company" value="${isEditing ? editCompany["CMDB_company"] : ''}">
                       </div>
                       <div class="custom-control custom-checkbox">
-                          <input type="checkbox" class="custom-control-input" id="isEnabledInput" ${isEditing && editCompany.isEnabled ? 'checked' : ''}>
-                          <label class="custom-control-label" for="isEnabledInput">Enabled</label>
+                          <input type="checkbox" class="custom-control-input" id="isEnabledInputCEdit" ${isEditing && editCompany.isEnabled ? 'checked' : ''}>
+                          <label class="custom-control-label" for="isEnabledInputCEdit">Enabled</label>
                       </div>
-                      <div class="form-group">
-                          <label for="selectInput">Select:</label>
-                          <input type="text" class="form-control" id="selectInput" placeholder="Enter select" value="${isEditing ? editCompany.select : ''}">
-                      </div>
+
                       <div class="form-group">
                           <label for="shortNameInput">Short Name:</label>
                           <input type="text" class="form-control" id="shortNameInput" placeholder="Enter short name" value="${isEditing ? editCompany.short_name : ''}">
@@ -546,32 +578,31 @@ $(document).ready(function () {
       updatedCompany.VDC !== originalCompany.VDC ||
       updatedCompany["CMDB_company"] !== originalCompany["CMDB_company"] ||
       updatedCompany.isEnabled !== originalCompany.isEnabled ||
-      updatedCompany.select !== originalCompany.select ||
       updatedCompany.short_name !== originalCompany.short_name ||
       updatedCompany.nicName !== originalCompany.nicName ||
       updatedCompany.region !== originalCompany.region;
-    updatedCompany.entity_id !== originalCompany.entity_id;
   }
 
   $("#companyEditModal").on("click", "#saveEditedCompany", function () {
-
+    const parentId = $("#parentIdInput").val().trim();
     const entityId = $("#entityIdInput").val().trim();
-    const identifier = $("#identifierInput").val().trim();
+    const _id = $("#_idInput").val().trim();
     const companyName = $("#companyInput").val().trim();
     const hostnamePrefix = $("#hostnamePrefixInput").val().trim();
     const regionClientCode = $("#regionClientCodeInput").val().trim();
     const delivery = $("#deliveryInput").val().trim();
     const vdc = $("#vdcInput").val().trim();
     const cmdbCompany = $("#cmdbCompanyInput").val().trim();
-    const isEnabled = $("#isEnabledInput").is(":checked");
-    const select = $("#selectInput").val().trim();
+    const isEnabled = $("#isEnabledInputCEdit").is(":checked");
+
     const shortName = $("#shortNameInput").val().trim();
     const nicName = $("#nicNameInput").val().trim();
     const region = $("#regionInput").val().trim();
 
     const updatedCompany = {
+      "parent_id": parentId,
       "entity_id": entityId,
-      "identifier": identifier,
+      "_id": _id,
       "Company": companyName,
       "Hostname Prefix": hostnamePrefix,
       "Region_or_client_code": regionClientCode,
@@ -579,7 +610,7 @@ $(document).ready(function () {
       "VDC": vdc,
       "CMDB_company": cmdbCompany,
       "isEnabled": isEnabled,
-      "select": select,
+
       "short_name": shortName,
       "nicName": nicName,
       "region": region
@@ -620,7 +651,7 @@ $(document).ready(function () {
           companyList.innerHTML = "";
           //fetch the new list
 
-          fetchAndDisplayCompanies(matchedEntity.companyName)
+          fetchAndDisplayCompanies(matchedEntity._id)
         } else {
           Swal.fire({
             icon: 'error',
@@ -656,21 +687,21 @@ $(document).ready(function () {
 
     Swal.fire({
       title: 'Are you sure?',
-      text: "Do you really want to delete this company?",
+      text: "Do you really want to delete the company " + matchedCompany.Company + "?",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Yes, delete',
       cancelButtonText: 'Cancel'
     }).then((result) => {
       if (result.isConfirmed) {
-        performCompanyDeletion(matchedCompany.identifier);
+        performCompanyDeletion(matchedCompany._id);
       }
     });
   });
 
-  function performCompanyDeletion(identifier) {
+  function performCompanyDeletion(_id) {
     $.ajax({
-      url: `/newcompanies/deleteCompany/${identifier}`,  // Assuming you send the identifier in the URL
+      url: `/newcompanies/deleteCompany/${_id}`,  // Assuming you send the _id in the URL
       type: 'DELETE',
       success: function (response) {
         if (response.code === "OK") {
@@ -685,7 +716,7 @@ $(document).ready(function () {
           companyList.innerHTML = "";
           //fetch the new list
 
-          fetchAndDisplayCompanies(matchedEntity.companyName)
+          fetchAndDisplayCompanies(matchedEntity._id)
         } else {
           Swal.fire({
             icon: 'error',
@@ -728,7 +759,7 @@ $(document).ready(function () {
       // Ask if the user really wants to confirm the selection
       Swal.fire({
         title: 'Are you sure?',
-        text: `You are about to confirm the selection of ${matchedCompany.company}. Do you want to continue?`,
+        text: `You are about to confirm the selection of ${matchedCompany.Company}. Do you want to continue?`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Yes, confirm',

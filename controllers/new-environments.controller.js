@@ -24,9 +24,9 @@ function guardarEnvironments(req, res) {
 
 function fetchEnvironmentById(req, res) {
     const environments = cargarEnvironments();
-    const envId = req.query.identifier;
+    const envId = req.query._id;
 
-    const environment = environments.find(e => e.identifier === envId);
+    const environment = environments.find(e => e._id === envId);
     if (environment) {
         res.status(200).json({ code: "OK", object: environment, message: "" });
     } else {
@@ -36,7 +36,7 @@ function fetchEnvironmentById(req, res) {
 
 function toggleEnvironmentsStatus(req, res) {
     const environments = cargarEnvironments();
-    const matchedEnvironmentIndex = environments.findIndex(env => env.identifier === req.body.identifier);
+    const matchedEnvironmentIndex = environments.findIndex(env => env._id === req.body._id);
 
     if (matchedEnvironmentIndex === -1) {
         return res.status(404).json({ code: "NOT_FOUND", message: "El entorno no existe." });

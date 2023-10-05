@@ -19,8 +19,8 @@ function getCompanies(req, res) {
 
 function getCompanyById(req, res) {
   const companies = cargarCompanias();
-  const companyId = req.query.identifier;
-  const company = companies.find(c => c.identifier === companyId);
+  const companyId = req.query._id;
+  const company = companies.find(c => c._id === companyId);
 
   if (company) {
     res.status(200).json({ code: "OK", object: company, message: "" });
@@ -39,7 +39,7 @@ function saveCompanies(req, res) {
 
 function editCompanies(req, res) {
   const companies = cargarCompanias();
-  const matchedCompanyIndex = companies.findIndex(company => company.identifier === req.body.identifier);
+  const matchedCompanyIndex = companies.findIndex(company => company._id === req.body._id);
 
   if (matchedCompanyIndex === -1) {
     return res.status(404).json({ code: "NOT_FOUND", message: "La compañía no existe." });
@@ -57,8 +57,8 @@ function editCompanies(req, res) {
 
 function deleteCompany(req, res) {
   const companies = cargarCompanias();
-  const companyIdentifier = req.params.identifier;
-  const matchedCompanyIndex = companies.findIndex(company => company.identifier === companyIdentifier);
+  const companyIdentifier = req.params._id;
+  const matchedCompanyIndex = companies.findIndex(company => company._id === companyIdentifier);
 
   if (matchedCompanyIndex === -1) {
     return res.status(404).json({ code: "NOT_FOUND", message: "La compañía no existe." });
@@ -81,11 +81,11 @@ function toggleCompanyStatus(req, res) {
     return res.status(400).json({ code: "BAD_REQUEST", message: "La propiedad isEnabled es requerida." });
   }
 
-  if (!('identifier' in req.body)) {
-    return res.status(400).json({ code: "BAD_REQUEST", message: "La propiedad identifier es requerida." });
+  if (!('_id' in req.body)) {
+    return res.status(400).json({ code: "BAD_REQUEST", message: "La propiedad _id es requerida." });
   }
 
-  const matchedCompanyIndex = companies.findIndex(company => company.identifier === req.body.identifier);
+  const matchedCompanyIndex = companies.findIndex(company => company._id === req.body._id);
 
   if (matchedCompanyIndex === -1) {
     return res.status(404).json({ code: "NOT_FOUND", message: "La compañía no existe." });

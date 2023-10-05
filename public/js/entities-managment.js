@@ -1,48 +1,6 @@
 var entities = [];
 let matchedEntity = null;
 
-// $(document).ready(function() {
-//     NewEntities.getEntitites().done(function(data) {
-//         var cardRow = document.querySelector("#card-container .row");
-
-//         if (data.code == "OK") {
-//             entities = data.object;
-
-//             if (entities.length === 0) {
-//                 var jumbotronDiv = document.createElement("div");
-//                 jumbotronDiv.className = "jumbotron";
-//                 jumbotronDiv.innerHTML = `
-//                     <h1 class="display-4">No entities available</h1>
-//                     <p class="lead">Please, add new entities to view them here.</p>
-//                 `;
-
-//                 cardRow.appendChild(jumbotronDiv);
-//             } else {
-//                 for (var i = 0; i < entities.length; i++) {
-//                     var entity = entities[i];
-//                     var style = entity.isEnabled ? "" : "filter: grayscale(100%);";  // If disabled, apply gray filter
-//                     var disabledNote = entity.isEnabled ? "" : "<p class='text-center text-muted'>Disabled</p>";
-
-//                     var cardDiv = document.createElement("div");
-//                     cardDiv.className = "col-2 mx-auto";
-//                     cardDiv.innerHTML = `
-//                         <div id="card-${entity.identifier}" class="card" style="width: 100%;" onclick="test('${entity.identifier}')">
-//                             <img src="${entity.flag}" class="card-img-top img-fluid" style="${style}" alt="...">
-//                             <div class="card-body py-2">
-//                                 <h3 class="card-title text-center mb-2" id="country${i}">${entity.companyName}</h3>
-//                                 ${disabledNote}
-//                             </div>
-//                         </div>
-//                     `;
-
-//                     cardRow.appendChild(cardDiv);
-//                 }
-//             }
-//         } else {
-//             // Here you can handle the case where data.code is not "OK", for example, by showing an error message.
-//         }
-//     });
-// });
 
 function fetchAndRenderEntities() {
   NewEntities.getEntitites().done(function (data) {
@@ -74,7 +32,7 @@ function fetchAndRenderEntities() {
           var cardDiv = document.createElement("div");
           cardDiv.className = "col-2 mx-auto";
           cardDiv.innerHTML = `
-                      <div id="card-${entity.identifier}" class="card" style="width: 100%;" onclick="test('${entity.identifier}')">
+                      <div id="card-${entity._id}" class="card" style="width: 100%;" onclick="test('${entity._id}')">
                           <img src="${entity.flag}" class="card-img-top img-fluid" style="${style}" alt="...">
                           <div class="card-body py-2">
                               <h3 class="card-title text-center mb-2" id="country${i}">${entity.companyName}</h3>
@@ -106,6 +64,8 @@ $(document).ready(function () {
   // Add click event to the button
   $("#addEntity").click(function () {
     // Dynamically generate the input fields in the modal
+    const currentTimestamp = new Date().getTime();
+    const _idValue = (currentTimestamp + "").substr(1);  // Convert the timestamp to string and extract the last 16 digits.
     const modalContent = `
         <div class="modal-header">
             <h5 class="modal-title" id="exampleModalLabel">Add New Entity</h5>
@@ -116,8 +76,8 @@ $(document).ready(function () {
         <div class="modal-body">
             <form id="entityForm">
                 <div class="form-group">
-                    <label for="identifier">Identifier:</label>
-                    <input type="text" class="form-control" id="identifierInput" placeholder="Enter identifier">
+                    <label for="_id">Identifier:</label>
+                    <input type="text" class="form-control" id="_idInput" value="${_idValue}" readonly>
                 </div>
                 <div class="form-group">
                     <label for="companyName">Company Name:</label>
@@ -152,23 +112,37 @@ $(document).ready(function () {
 
     // Open the modal
     $("#exampleModal").modal("show");
+    // Add event listener to _idInput
+ // Add event listener to _idInput
+ $("#_idInput").focus(function() {
+  // Prevent the input from being focused
+  $(this).blur();
+
+  // Show a notification in English
+  Swal.fire({
+      icon: 'info',
+      title: 'Information',
+      text: 'The code is automatically generated and cannot be modified.',
+  });
+});
+
   });
 
   // Add click event to the "Accept" button inside the modal
   $("#exampleModal").on("click", "#saveEntity", function () {
-    const identifier = $("#identifierInput").val().trim();
+    const _id = $("#_idInput").val().trim();
     const companyName = $("#companyNameInput").val().trim();
     const description = $("#descriptionInput").val().trim();
     const flag = $("#flagInput").val();
     const isEnabled = $("#isEnabledInput").prop("checked");
 
     // Remove the error class previously added
-    $("#identifierInput, #companyNameInput, #descriptionInput, #flagInput").removeClass("error-input");
+    $("#_idInput, #companyNameInput, #descriptionInput, #flagInput").removeClass("error-input");
 
     let allFieldsFilled = true;
 
-    if (!identifier) {
-      $("#identifierInput").addClass("error-input");
+    if (!_id) {
+      $("#_idInput").addClass("error-input");
       allFieldsFilled = false;
     }
     if (!companyName) {
@@ -204,7 +178,7 @@ $(document).ready(function () {
       if (result.isConfirmed) {
         // Create an entity object with the data
         const newEntity = {
-          identifier,
+          _id,
           companyName,
           description,
           isEnabled,
@@ -239,7 +213,7 @@ $(document).ready(function () {
               Swal.fire({
                 icon: 'warning',
                 title: 'Warning',
-                text: 'An entity with that identifier already exists.',
+                text: 'An entity with that _id already exists.',
               });
             } else {
               Swal.fire({
@@ -267,7 +241,7 @@ function test(tagId) {
   $('.card').removeClass('selected');
 
   // 2. Find entity object by tagId
-  matchedEntity = entities.find(entity => entity.identifier === tagId);
+  matchedEntity = entities.find(entity => entity._id === tagId);
 
   // 3. Check if the entity was found
   if (matchedEntity) {
@@ -336,7 +310,7 @@ $(document).ready(function () {
     const isEditing = editEntity !== undefined;
     const modalContent = `
         <div class="modal-header">
-            <h5 class="modal-title" id="entityModalLabel">${isEditing ? 'Edit Entity ' + matchedEntity.identifier : 'Add New Entity'}</h5>
+            <h5 class="modal-title" id="entityModalLabel">${isEditing ? 'Edit Entity ' + matchedEntity._id : 'Add New Entity'}</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <i class="fas fa-times"></i>
             </button>
@@ -344,8 +318,8 @@ $(document).ready(function () {
         <div class="modal-body">
             <form id="entityForm">
             <div class="form-group">
-            <label for="identifier">Identifier:</label>
-            <input type="text" class="form-control" id="identifierInput" placeholder="Enter identifier" value="${isEditing ? editEntity.identifier : ''}" ${isEditing ? 'disabled' : ''}>
+            <label for="_id">Identifier:</label>
+            <input type="text" class="form-control" id="_idInput" placeholder="Enter _id" value="${isEditing ? editEntity._id : ''}" ${isEditing ? 'disabled' : ''}>
         </div>
         <div class="form-group">
             <label for="companyName">Company Name:</label>
@@ -399,7 +373,7 @@ $(document).ready(function () {
   }
 
   $("#entityModal").on("click", "#saveEntity", function () {
-    const identifier = $("#identifierInput").val().trim();
+    const _id = $("#_idInput").val().trim();
     const companyName = $("#companyNameInput").val().trim();
     const description = $("#descriptionInput").val().trim();
     const flag = $("#flagInput").val();
@@ -415,7 +389,7 @@ $(document).ready(function () {
     }
 
     const updatedEntity = {
-      identifier,
+      _id,
       companyName,
       description,
       isEnabled,
@@ -509,7 +483,7 @@ $(document).ready(function () {
 
   function removeEntity(entity) {
     // Find the index of the entity in the entities array
-    const index = entities.findIndex(e => e.identifier === entity.identifier);
+    const index = entities.findIndex(e => e._id === entity._id);
 
     // If found, remove from the array
     if (index !== -1) {

@@ -20,7 +20,7 @@ function obtenerEntidades(req, res) {
 function saveEntities(req, res) {
   const entidades = cargarEntidades();
   const entidadExistente = entidades.find(entity =>
-    (entity.identifier && entity.identifier.toLowerCase() === req.body.identifier.toLowerCase()) ||
+    (entity._id && entity._id.toLowerCase() === req.body._id.toLowerCase()) ||
     (entity.companyName && entity.companyName.toLowerCase() === req.body.companyName.toLowerCase())
   );
 
@@ -37,7 +37,7 @@ function saveEntities(req, res) {
 
 function editEntities(req, res) {
   const entidades = cargarEntidades();
-  const matchedEntityIndex = entidades.findIndex(entity => entity.identifier === req.body.identifier);
+  const matchedEntityIndex = entidades.findIndex(entity => entity._id === req.body._id);
 
   if (matchedEntityIndex === -1) {
     return res.status(404).json({ code: "NOT_FOUND", message: "La entidad no existe." });
@@ -55,7 +55,7 @@ function editEntities(req, res) {
 
 function deleteEntity(req, res) {
   const entidades = cargarEntidades();
-  const matchedEntityIndex = entidades.findIndex(entity => entity.identifier === req.body.identifier);
+  const matchedEntityIndex = entidades.findIndex(entity => entity._id === req.body._id);
 
   if (matchedEntityIndex === -1) {
     return res.status(404).json({ code: "NOT_FOUND", message: "La entidad no existe." });

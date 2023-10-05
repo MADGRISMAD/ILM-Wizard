@@ -77,10 +77,10 @@ function displayEnvironments() {
         for (var i = 0; i < data.object.length; i++) {
           var env = data.object[i];
 
-          if (matchedRegion && env.regionId === matchedRegion.identifier) {
+          if (matchedRegion && env._id === matchedRegion.parent_id) {
             var listItem = document.createElement("li");
             listItem.className = "list-group-item d-flex justify-content-between align-items-center";
-            listItem.id = "environment" + env.identifier;
+            listItem.id = "environment" + env._id;
 
             var envText = document.createElement("span");
             envText.textContent = env.EnvName;
@@ -93,7 +93,7 @@ function displayEnvironments() {
             var checkbox = document.createElement("input");
             checkbox.type = "checkbox";
             checkbox.checked = env.isEnabled;
-            updateCheckboxStatusE(checkbox, env.isEnabled, env.identifier);
+            updateCheckboxStatusE(checkbox, env.isEnabled, env._id);
 
             listItem.appendChild(checkbox);
 
@@ -135,7 +135,7 @@ function updateEnvironmentStatusE(envId, isEnabled) {
     type: 'POST',
     contentType: 'application/json',
     data: JSON.stringify({
-      identifier: envId,
+      _id: envId,
       isEnabled: isEnabled
     }),
     success: function (response) {
@@ -186,14 +186,14 @@ function selectEnvironment(tagId) {
   // 1. Remove 'selected' class from all list items
   $('#environment-list li').removeClass('selected');
 
-  // 2. Extract identifier from tagId
+  // 2. Extract _id from tagId
   const envId = tagId.replace('environment', '');
 
-  // 3. Make an AJAX request to fetch the environment data by its identifier
+  // 3. Make an AJAX request to fetch the environment data by its _id
   $.ajax({
     url: '/newenvironments/fetchEnvironmentById',  // Server route where the environment is fetched by ID
     type: 'GET',
-    data: { identifier: envId },  // Send the identifier as a parameter
+    data: { _id: envId },  // Send the _id as a parameter
     success: function (data) {
       if (data.code == "OK") {
         matchedEnvironment = data.object;
@@ -202,7 +202,7 @@ function selectEnvironment(tagId) {
           // 4. Add 'selected' class to the list item
           $(`#${tagId}`).addClass('selected');
           console.log("Environment found", matchedEnvironment);
-          displayInfrastructures(matchedEnvironment.identifier);
+          displayInfrastructures(matchedEnvironment._id);
 
         } else {
           console.log("Environment not found in the database");
@@ -251,14 +251,14 @@ function displayInfrastructures(envIdentifier) {
         for (var i = 0; i < data.object.length; i++) {
           var infra = data.object[i];
 
-          // Only process infrastructures that match the given environment identifier
+          // Only process infrastructures that match the given environment _id
           if (infra.id_Env === envIdentifier) {
             var listItem = document.createElement("li");
             listItem.className = "list-group-item d-flex justify-content-between align-items-center";
-            listItem.id = "infrastructure" + infra.identifier;
+            listItem.id = "infrastructure" + infra._id;
 
             var infraText = document.createElement("span");
-            infraText.textContent = infra.identifier;
+            infraText.textContent = infra._id;
             listItem.appendChild(infraText);
 
             if (!infra.isEnabled) {
@@ -307,7 +307,7 @@ function updateInfrastructureStatusI(infraId, isEnabled) {
     type: 'POST',
     contentType: 'application/json',
     data: JSON.stringify({
-      identifier: infraId,
+      _id: infraId,
       isEnabled: isEnabled
     }),
     success: function (response) {
@@ -318,8 +318,8 @@ function updateInfrastructureStatusI(infraId, isEnabled) {
           text: 'Infrastructure status updated successfully.'
         }).then((result) => {
           if (result.isConfirmed) {
-            if (matchedEnvironment && matchedEnvironment.identifier) {
-              displayInfrastructures(matchedEnvironment.identifier);
+            if (matchedEnvironment && matchedEnvironment._id) {
+              displayInfrastructures(matchedEnvironment._id);
             }
 
           }
@@ -351,7 +351,7 @@ function selectInfrastructure(tagId) {
   $.ajax({
     url: '/newinfrastructure/fetchInfrastructureById',
     type: 'GET',
-    data: { identifier: infraId },
+    data: { _id: infraId },
     success: function (data) {
       if (data.code == "OK") {
         matchedInfrastructure = data.object;

@@ -13,7 +13,7 @@ routes.put("/edit-companies", newCompaniesController.editCompanies);
 
 routes.post("/toggleStatus", newCompaniesController.toggleCompanyStatus);
 
-routes.delete("/deleteCompany/:identifier", newCompaniesController.deleteCompany);
+routes.delete("/deleteCompany/:_id", newCompaniesController.deleteCompany);
 
 
 

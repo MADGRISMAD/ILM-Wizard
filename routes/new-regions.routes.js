@@ -9,7 +9,7 @@ routes.get("/fetchRegionById", newRegionsController.fetchRegionById);
 
 routes.post("/saveRegions", newRegionsController.saveRegions);
 
-routes.delete("/deleteRegion/:identifier", newRegionsController.deleteRegion);
+routes.delete("/deleteRegion/:_id", newRegionsController.deleteRegion);
 
 routes.put("/edit-regions", newRegionsController.editRegions);
 
