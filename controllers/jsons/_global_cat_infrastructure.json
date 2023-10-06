@@ -3,12 +3,12 @@
     {
       "_id": "ohe",
       "infraName": "OHE",
-      "isEnabled": true
+      "isEnabled": false
     },
     {
       "_id": "vmware",
       "infraName": "VMware",
-      "isEnabled": true
+      "isEnabled": false
     }
   ]
 }

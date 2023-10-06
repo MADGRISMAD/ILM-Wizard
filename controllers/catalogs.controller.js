@@ -83,6 +83,12 @@ const HA  = [
 
 ]
 
+
+
+
+
+
+
 function fetchCatalogs(req, res) {
  //create a new object with the catalogs
   const catalogs = {
@@ -103,3 +109,4 @@ module.exports = {
   HA
 
 }
+

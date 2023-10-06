@@ -1,0 +1,30 @@
+{
+  "environments": [
+    {
+      "_id": "dev",
+      "EnvName": "Development",
+      "isEnabled": false
+    },
+    {
+      "_id": "pre",
+      "EnvName": "Preproduction",
+      "isEnabled": false
+    },
+    {
+      "_id": "prod",
+      "EnvName": "Production",
+      "isEnabled": false
+    },
+    {
+      "_id":"dmz",
+      "EnvName": "DMZ",
+      "isEnabled": false
+    },
+    {
+      "_id":"cert",
+      "EnvName": "Certification",
+      "isEnabled": false
+    }
+
+  ]
+}

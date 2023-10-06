@@ -401,11 +401,11 @@ $(document).ready(function () {
 
   $("#RegionModalAdd").on("click", "#saveRegion", function () {
     const _id = validateField("#_idInput");
-    const region = validateField("#regionInput");
+    const regionName = validateField("#regionInput");
     const isEnabled = $("#isEnabledInputRAdd").prop("checked");
 
 
-    if (!(_id && region)) {
+    if (!(_id && regionName)) {
       Swal.fire({
         icon: 'warning',
         title: 'Incomplete or Invalid Fields',
@@ -425,7 +425,7 @@ $(document).ready(function () {
       if (result.isConfirmed) {
         const newRegion = {
           "_id": _id,
-          "Region": region,
+          "Region": regionName,
           "isEnabled": isEnabled,
           "parent_id": matchedCompany ? matchedCompany._id : null
         };
@@ -500,7 +500,7 @@ $(document).ready(function () {
                   </div>
                   <div class="form-group">
                       <label for="regionInput">Region:</label>
-                      <input type="text" class="form-control" id="regionInput" placeholder="Enter region name" value="${isEditing ? editRegion.Region : ''}">
+                      <input type="text" class="form-control" id="regionInputE" placeholder="Enter region name" value="${isEditing ? editRegion.Region : ''}">
                   </div>
                   <div class="custom-control custom-checkbox">
                       <input type="checkbox" class="custom-control-input" id="isEnabledInputREdit" ${isEditing && editRegion.isEnabled ? 'checked' : ''}>
@@ -533,19 +533,19 @@ $(document).ready(function () {
 
   function hasChanges(editedRegion, originalRegion) {
     return editedRegion._id !== originalRegion._id ||
-      editedRegion.Region !== originalRegion.Region ||
+      editedRegion.RegionN !== originalRegion.RegionN ||
       editedRegion.isEnabled !== originalRegion.isEnabled;
   }
 
   $("#RegionModalEdit").on("click", "#updatedRegion", function () {
     const _id = $("#_idInput").val().trim();
-    const region = $("#regionInput").val().trim();
+    const regionEdit = $("#regionInputE").val().trim();
     const isEnabled = $("#isEnabledInputREdit").is(":checked");
 
     const updatedRegion = {
       "parent_id": matchedCompany._id,
       "_id": _id,
-      "Region": region,
+      "Region": regionEdit,
       "isEnabled": isEnabled
     };
 

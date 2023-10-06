@@ -1,57 +1,107 @@
 const fs = require('fs');
 const path = require('path');
 
+// Para cargar el JSON principal
 function cargarEnvironments() {
-    const rawData = fs.readFileSync(path.join(__dirname, 'jsons/_global_environments.json'));
-    return JSON.parse(rawData).environments;
+  const rawData = fs.readFileSync(path.join(__dirname, 'jsons/_global_environments.json'));
+  return JSON.parse(rawData).environments;
+}
+
+// Para cargar el JSON del catálogo
+function cargarCatalogoEnviroments() {
+  const rawData = fs.readFileSync(path.join(__dirname, 'jsons/_global_cat_enviroments.json'));
+  return JSON.parse(rawData).environments;
 }
 
 function guardarEnvironmentsData(environments) {
-    fs.writeFileSync(path.join(__dirname, 'jsons/_global_environments.json'), JSON.stringify({ environments }));
+  fs.writeFileSync(path.join(__dirname, 'jsons/_global_environments.json'), JSON.stringify({ environments }, null, 4));
 }
 
+
+
+
+
+
+
 function obtenerEnvironments(req, res) {
-    const environments = cargarEnvironments();
-    res.status(200).json({ code: "OK", object: environments, message: "" });
+  const environments = cargarEnvironments();
+  res.status(200).json({ code: "OK", object: environments, message: "" });
+}
+
+function obtenerCatalogoEnviroments(req, res) {
+  const catalogo = cargarCatalogoEnviroments();
+  res.status(200).json({ code: "OK", object: catalogo, message: "" });
 }
 
 function guardarEnvironments(req, res) {
-    const environments = cargarEnvironments();
-    environments.push(req.body);
-    guardarEnvironmentsData(environments);
-    res.status(200).json({ code: "OK", object: environments, message: "Entorno agregado con éxito." });
+  const environments = cargarEnvironments();
+  environments.push(req.body);
+  guardarEnvironmentsData(environments);
+  res.status(200).json({ code: "OK", object: environments, message: "Entorno agregado con éxito." });
 }
 
 function fetchEnvironmentById(req, res) {
-    const environments = cargarEnvironments();
-    const envId = req.query._id;
+  const environments = cargarEnvironments();
+  const envId = req.query._id;
 
-    const environment = environments.find(e => e._id === envId);
-    if (environment) {
-        res.status(200).json({ code: "OK", object: environment, message: "" });
-    } else {
-        res.status(404).json({ code: "NOT_FOUND", message: "Entorno no encontrado" });
-    }
+  let environment = environments.find(e => e._id === envId);
+
+  if (!environment) {
+    environment = {
+      _id: envId,
+      // Aquí puedes agregar propiedades iniciales para el nuevo entorno
+      isEnabled: false
+    };
+    environments.push(environment);
+    guardarEnvironmentsData(environments);
+  }
+
+  res.status(200).json({ code: "OK", object: environment, message: "" });
 }
 
 function toggleEnvironmentsStatus(req, res) {
-    const environments = cargarEnvironments();
-    const matchedEnvironmentIndex = environments.findIndex(env => env._id === req.body._id);
+  const environments = cargarEnvironments();
+  const envId = req.body._id;
+  const parentId = req.body.parent_id;
+  console.log("Received request with parent_id:", parentId); // Registro para parent_id
 
-    if (matchedEnvironmentIndex === -1) {
-        return res.status(404).json({ code: "NOT_FOUND", message: "El entorno no existe." });
-    }
+  const isEnabled = req.body.isEnabled === true;
 
-    const isEnabled = typeof req.body.isEnabled === 'string' ? req.body.isEnabled.toLowerCase() === "true" : req.body.isEnabled;
-    environments[matchedEnvironmentIndex].isEnabled = isEnabled;
+  const existingEnvironment = environments.find(env => env._id === envId && env.parent_id === parentId);
 
-    guardarEnvironmentsData(environments);
-    res.status(200).json({ code: "OK", object: environments[matchedEnvironmentIndex], message: "Estado del entorno actualizado con éxito." });
+  if (!existingEnvironment) {
+      environments.push({
+          _id: envId,
+          parent_id: parentId,  // Guardamos el parent_id
+          isEnabled: isEnabled
+      });
+  } else {
+      existingEnvironment.isEnabled = isEnabled;
+  }
+
+  guardarEnvironmentsData(environments);
+  res.status(200).json({ code: "OK", object: { _id: envId, isEnabled: isEnabled, parent_id: parentId }, message: "Estado del entorno actualizado con éxito." });
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 module.exports = {
-    obtenerEnvironments,
-    guardarEnvironments,
-    toggleEnvironmentsStatus,
-    fetchEnvironmentById
+  obtenerEnvironments,
+  obtenerCatalogoEnviroments,
+  guardarEnvironments,
+  toggleEnvironmentsStatus,
+  fetchEnvironmentById
 };

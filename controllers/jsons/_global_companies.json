@@ -1,1 +1,1 @@
-{"companies":[{"parent_id":"696549003907","_id":"696549003907","Company":"usa1","Hostname_prefix":"usa2","Region_or_client_code":"usa3","Delivery":"Option3","VDC":"OptionA","CMDB_company":"usa","isEnabled":true,"short_name":"usa","nicName":"usa4","region":"usa5"}]}
+{"companies":[{"parent_id":"696549003907","entity_id":"US","_id":"696549003907","Company":"USA","Hostname Prefix":"usa2","Region_or_client_code":"usa3","Delivery":"Option3","VDC":"OptionA","CMDB_company":"usa","isEnabled":true,"short_name":"usa","nicName":"usa4","region":"usa5"}]}
