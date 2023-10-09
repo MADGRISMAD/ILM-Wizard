@@ -1,22 +1,21 @@
 var entities = [];
 let matchedEntity = null;
 
-
 function fetchAndRenderEntities() {
   NewEntities.getEntitites().done(function (data) {
-    var cardRow = document.querySelector("#card-container .row");
+    var cardRow = document.querySelector('#card-container .row');
 
     // First, we'll clear the existing entities in the display:
     while (cardRow.firstChild) {
       cardRow.removeChild(cardRow.firstChild);
     }
 
-    if (data.code == "OK") {
+    if (data.code == 'OK') {
       entities = data.object;
 
       if (entities.length === 0) {
-        var jumbotronDiv = document.createElement("div");
-        jumbotronDiv.className = "jumbotron";
+        var jumbotronDiv = document.createElement('div');
+        jumbotronDiv.className = 'jumbotron';
         jumbotronDiv.innerHTML = `
                   <h1 class="display-4">No entities available</h1>
                   <p class="lead">Please, add new entities to view them here.</p>
@@ -26,11 +25,13 @@ function fetchAndRenderEntities() {
       } else {
         for (var i = 0; i < entities.length; i++) {
           var entity = entities[i];
-          var style = entity.isEnabled ? "" : "filter: grayscale(100%);";  // If disabled, apply gray filter
-          var disabledNote = entity.isEnabled ? "" : "<p class='text-center text-muted'>Disabled</p>";
+          var style = entity.isEnabled ? '' : 'filter: grayscale(100%);'; // If disabled, apply gray filter
+          var disabledNote = entity.isEnabled
+            ? ''
+            : "<p class='text-center text-muted'>Disabled</p>";
 
-          var cardDiv = document.createElement("div");
-          cardDiv.className = "col-2 mx-auto";
+          var cardDiv = document.createElement('div');
+          cardDiv.className = 'col-2 mx-auto';
           cardDiv.innerHTML = `
                       <div id="card-${entity._id}" class="card" style="width: 100%;" onclick="test('${entity._id}')">
                           <img src="${entity.flag}" class="card-img-top img-fluid" style="${style}" alt="...">
@@ -54,18 +55,13 @@ $(document).ready(function () {
   fetchAndRenderEntities();
 });
 
-
-
-
-
 // Add entity
 $(document).ready(function () {
-
   // Add click event to the button
-  $("#addEntity").click(function () {
+  $('#addEntity').click(function () {
     // Dynamically generate the input fields in the modal
     const currentTimestamp = new Date().getTime();
-    const _idValue = (currentTimestamp + "").substr(1);  // Convert the timestamp to string and extract the last 16 digits.
+    const _idValue = (currentTimestamp + '').substr(1); // Convert the timestamp to string and extract the last 16 digits.
     const modalContent = `
         <div class="modal-header">
             <h5 class="modal-title" id="exampleModalLabel">Add New Entity</h5>
@@ -108,53 +104,54 @@ $(document).ready(function () {
     `;
 
     // Add the content to the modal
-    $("#exampleModal .modal-content").html(modalContent);
+    $('#exampleModal .modal-content').html(modalContent);
 
     // Open the modal
-    $("#exampleModal").modal("show");
+    $('#exampleModal').modal('show');
     // Add event listener to _idInput
- // Add event listener to _idInput
- $("#_idInput").focus(function() {
-  // Prevent the input from being focused
-  $(this).blur();
+    // Add event listener to _idInput
+    $('#_idInput').focus(function () {
+      // Prevent the input from being focused
+      $(this).blur();
 
-  // Show a notification in English
-  Swal.fire({
-      icon: 'info',
-      title: 'Information',
-      text: 'The code is automatically generated and cannot be modified.',
-  });
-});
-
+      // Show a notification in English
+      Swal.fire({
+        icon: 'info',
+        title: 'Information',
+        text: 'The code is automatically generated and cannot be modified.',
+      });
+    });
   });
 
   // Add click event to the "Accept" button inside the modal
-  $("#exampleModal").on("click", "#saveEntity", function () {
-    const _id = $("#_idInput").val().trim();
-    const companyName = $("#companyNameInput").val().trim();
-    const description = $("#descriptionInput").val().trim();
-    const flag = $("#flagInput").val();
-    const isEnabled = $("#isEnabledInput").prop("checked");
+  $('#exampleModal').on('click', '#saveEntity', function () {
+    const _id = $('#_idInput').val().trim();
+    const companyName = $('#companyNameInput').val().trim();
+    const description = $('#descriptionInput').val().trim();
+    const flag = $('#flagInput').val();
+    const isEnabled = $('#isEnabledInput').prop('checked');
 
     // Remove the error class previously added
-    $("#_idInput, #companyNameInput, #descriptionInput, #flagInput").removeClass("error-input");
+    $(
+      '#_idInput, #companyNameInput, #descriptionInput, #flagInput',
+    ).removeClass('error-input');
 
     let allFieldsFilled = true;
 
     if (!_id) {
-      $("#_idInput").addClass("error-input");
+      $('#_idInput').addClass('error-input');
       allFieldsFilled = false;
     }
     if (!companyName) {
-      $("#companyNameInput").addClass("error-input");
+      $('#companyNameInput').addClass('error-input');
       allFieldsFilled = false;
     }
     if (!description) {
-      $("#descriptionInput").addClass("error-input");
+      $('#descriptionInput').addClass('error-input');
       allFieldsFilled = false;
     }
     if (!flag) {
-      $("#flagInput").addClass("error-input");
+      $('#flagInput').addClass('error-input');
       allFieldsFilled = false;
     }
 
@@ -169,11 +166,11 @@ $(document).ready(function () {
 
     Swal.fire({
       title: 'Are you sure?',
-      text: "The new entity will be added with the provided data.",
+      text: 'The new entity will be added with the provided data.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Yes, add',
-      cancelButtonText: 'Cancel'
+      cancelButtonText: 'Cancel',
     }).then((result) => {
       if (result.isConfirmed) {
         // Create an entity object with the data
@@ -187,24 +184,24 @@ $(document).ready(function () {
 
         // Send the data to the "controller" using an AJAX request
         $.ajax({
-          url: "/newentities/saveEntities",
-          type: "POST",
-          dataType: "json",
+          url: '/newentities/saveEntities',
+          type: 'POST',
+          dataType: 'json',
           data: newEntity,
           success: function (response) {
-            if (response.code === "OK") {
-              console.log("Data successfully sent to the controller", response);
+            if (response.code === 'OK') {
+              console.log('Data successfully sent to the controller', response);
               Swal.fire({
                 icon: 'success',
                 title: 'Success',
                 text: 'The data has been saved successfully',
               });
               // Close the modal
-              $("#exampleModal").modal("hide");
-              fetchAndRenderEntities()
+              $('#exampleModal').modal('hide');
+              fetchAndRenderEntities();
             } else {
               // Handle other response codes, if there are any in the future.
-              console.log("Unexpected server response:", response);
+              console.log('Unexpected server response:', response);
             }
           },
           error: function (error) {
@@ -224,51 +221,41 @@ $(document).ready(function () {
             }
           },
         });
-
       }
     });
-
   });
-
 });
 
-
-
-
 function test(tagId) {
-
   // 1. Remove 'selected' class from all cards
   $('.card').removeClass('selected');
 
   // 2. Find entity object by tagId
-  matchedEntity = entities.find(entity => entity._id === tagId);
+  matchedEntity = entities.find((entity) => entity._id === tagId);
 
   // 3. Check if the entity was found
   if (matchedEntity) {
     // 4. Add 'selected' class to the card
     $(`#card-${tagId}`).addClass('selected');
-    console.log("Entity found", matchedEntity);
-
+    console.log('Entity found', matchedEntity);
   } else {
-    console.log("Entity not found");
+    console.log('Entity not found');
   }
-
 }
-
 
 //----confirm entity----------------
 $(document).ready(function () {
   // ... (your existing code for card selection)
 
   // Add a click event to the confirm button
-  $("#confirmSelection").click(function () {
+  $('#confirmSelection').click(function () {
     if (matchedEntity) {
       if (!matchedEntity.isEnabled) {
         // If matchedEntity has isEnabled set to false, show an error message and do not continue.
         Swal.fire({
           icon: 'error',
           title: 'Action Forbidden',
-          text: 'The selected entity is disabled and cannot be confirmed.'
+          text: 'The selected entity is disabled and cannot be confirmed.',
         });
         return; // This ends the function here and will not execute the following code.
       }
@@ -280,37 +267,32 @@ $(document).ready(function () {
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Yes, confirm',
-        cancelButtonText: 'Cancel'
+        cancelButtonText: 'Cancel',
       }).then((result) => {
         $('#company-tab').tab('show');
       });
 
       // Other actions you might want to perform after confirming the selection
-
     } else {
       // Show a message if no card is selected
       Swal.fire({
         icon: 'warning',
         title: 'No Selection',
-        text: 'Please select a card before confirming.'
+        text: 'Please select a card before confirming.',
       });
     }
   });
 });
 
-
-
-
-
 //----edit entity----------------
 $(document).ready(function () {
-
-
   function showModalContent(editEntity) {
     const isEditing = editEntity !== undefined;
     const modalContent = `
         <div class="modal-header">
-            <h5 class="modal-title" id="entityModalLabel">${isEditing ? 'Edit Entity ' + matchedEntity._id : 'Add New Entity'}</h5>
+            <h5 class="modal-title" id="entityModalLabel">${
+              isEditing ? 'Edit Entity ' + matchedEntity._id : 'Add New Entity'
+            }</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <i class="fas fa-times"></i>
             </button>
@@ -319,41 +301,63 @@ $(document).ready(function () {
             <form id="entityForm">
             <div class="form-group">
             <label for="_id">Identifier:</label>
-            <input type="text" class="form-control" id="_idInput" placeholder="Enter _id" value="${isEditing ? editEntity._id : ''}" ${isEditing ? 'disabled' : ''}>
+            <input type="text" class="form-control" id="_idInput" placeholder="Enter _id" value="${
+              isEditing ? editEntity._id : ''
+            }" ${isEditing ? 'disabled' : ''}>
         </div>
         <div class="form-group">
             <label for="companyName">Company Name:</label>
-            <input type="text" class="form-control" id="companyNameInput" placeholder="Enter company name" value="${isEditing ? editEntity.companyName : ''}" ${isEditing ? 'disabled' : ''}>
+            <input type="text" class="form-control" id="companyNameInput" placeholder="Enter company name" value="${
+              isEditing ? editEntity.companyName : ''
+            }" ${isEditing ? 'disabled' : ''}>
         </div>
                 <div class="form-group">
                     <label for="description">Description:</label>
-                    <input type="text" class="form-control" id="descriptionInput" placeholder="Enter description" value="${isEditing ? editEntity.description : ''}">
+                    <input type="text" class="form-control" id="descriptionInput" placeholder="Enter description" value="${
+                      isEditing ? editEntity.description : ''
+                    }">
                 </div>
                 <div class="form-group">
                     <label for="flag">Flag:</label>
                     <select class="form-control" id="flagInput">
-          <option value="assets/img/MEXICO.jpg" ${isEditing && editEntity.flag === "assets/img/MEXICO.jpg" ? 'selected' : ''}>MX</option>
-          <option value="assets/img/Usa.jpg" ${isEditing && editEntity.flag === "assets/img/Usa.jpg" ? 'selected' : ''}>USA</option>
-          <option value="assets/img/SantanderLogo.jfif" ${isEditing && editEntity.flag === "assets/img/SantanderLogo.jfif" ? 'selected' : ''}>Santander Logo</option>
+          <option value="assets/img/MEXICO.jpg" ${
+            isEditing && editEntity.flag === 'assets/img/MEXICO.jpg'
+              ? 'selected'
+              : ''
+          }>MX</option>
+          <option value="assets/img/Usa.jpg" ${
+            isEditing && editEntity.flag === 'assets/img/Usa.jpg'
+              ? 'selected'
+              : ''
+          }>USA</option>
+          <option value="assets/img/SantanderLogo.jfif" ${
+            isEditing && editEntity.flag === 'assets/img/SantanderLogo.jfif'
+              ? 'selected'
+              : ''
+          }>Santander Logo</option>
       </select>
                 </div>
                 <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="isEnabledInput" ${isEditing && editEntity.isEnabled ? 'checked' : ''}>
+                    <input type="checkbox" class="custom-control-input" id="isEnabledInput" ${
+                      isEditing && editEntity.isEnabled ? 'checked' : ''
+                    }>
                     <label class="custom-control-label" for="isEnabledInput">Enabled</label>
                 </div>
             </form>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-outline-primary" id="saveEntity">${isEditing ? 'Update' : 'Accept'}</button>
+            <button type="button" class="btn btn-outline-primary" id="saveEntity">${
+              isEditing ? 'Update' : 'Accept'
+            }</button>
         </div>
     `;
 
-    $("#entityModal .modal-content").html(modalContent);
-    $("#entityModal").modal("show");
+    $('#entityModal .modal-content').html(modalContent);
+    $('#entityModal').modal('show');
   }
 
-  $("#editEntity").click(function () {
+  $('#editEntity').click(function () {
     if (!matchedEntity) {
       Swal.fire({
         icon: 'error',
@@ -366,18 +370,19 @@ $(document).ready(function () {
   });
 
   function hasChanges(editedEntity, originalEntity) {
-    return editedEntity.description !== originalEntity.description ||
+    return (
+      editedEntity.description !== originalEntity.description ||
       editedEntity.flag !== originalEntity.flag ||
-      editedEntity.isEnabled !== originalEntity.isEnabled;
-
+      editedEntity.isEnabled !== originalEntity.isEnabled
+    );
   }
 
-  $("#entityModal").on("click", "#saveEntity", function () {
-    const _id = $("#_idInput").val().trim();
-    const companyName = $("#companyNameInput").val().trim();
-    const description = $("#descriptionInput").val().trim();
-    const flag = $("#flagInput").val();
-    const isEnabled = $("#isEnabledInput").prop("checked");
+  $('#entityModal').on('click', '#saveEntity', function () {
+    const _id = $('#_idInput').val().trim();
+    const companyName = $('#companyNameInput').val().trim();
+    const description = $('#descriptionInput').val().trim();
+    const flag = $('#flagInput').val();
+    const isEnabled = $('#isEnabledInput').prop('checked');
 
     if (!matchedEntity) {
       Swal.fire({
@@ -398,11 +403,11 @@ $(document).ready(function () {
     if (hasChanges(updatedEntity, matchedEntity)) {
       Swal.fire({
         title: 'Are you sure?',
-        text: "The entity will be updated with the provided data.",
+        text: 'The entity will be updated with the provided data.',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Yes, update',
-        cancelButtonText: 'Cancel'
+        cancelButtonText: 'Cancel',
       }).then((result) => {
         if (result.isConfirmed) {
           updateEntity(updatedEntity);
@@ -416,11 +421,11 @@ $(document).ready(function () {
   function updateEntity(updatedEntity) {
     $.ajax({
       url: `/newentities/editEntities`,
-      type: "PUT",
-      dataType: "json",
+      type: 'PUT',
+      dataType: 'json',
       data: updatedEntity,
       success: function (response) {
-        if (response && response.code === "OK") {
+        if (response && response.code === 'OK') {
           Swal.fire({
             icon: 'success',
             title: 'Success',
@@ -428,8 +433,8 @@ $(document).ready(function () {
           });
 
           // Close the modal
-          $("#entityModal").modal("hide");
-          fetchAndRenderEntities()
+          $('#entityModal').modal('hide');
+          fetchAndRenderEntities();
         } else {
           // Handle error based on server response
           Swal.fire({
@@ -447,17 +452,12 @@ $(document).ready(function () {
         });
       },
     });
-
-  };
+  }
 });
-
-
-
-
 
 //----delete entity----------------
 $(document).ready(function () {
-  $("#deleteEntity").click(function () {
+  $('#deleteEntity').click(function () {
     if (!matchedEntity) {
       Swal.fire({
         icon: 'error',
@@ -469,11 +469,11 @@ $(document).ready(function () {
 
     Swal.fire({
       title: 'Are you sure?',
-      text: "Do you really want to delete this entity?",
+      text: 'Do you really want to delete this entity?',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Yes, delete',
-      cancelButtonText: 'Cancel'
+      cancelButtonText: 'Cancel',
     }).then((result) => {
       if (result.isConfirmed) {
         removeEntity(matchedEntity);
@@ -483,7 +483,7 @@ $(document).ready(function () {
 
   function removeEntity(entity) {
     // Find the index of the entity in the entities array
-    const index = entities.findIndex(e => e._id === entity._id);
+    const index = entities.findIndex((e) => e._id === entity._id);
 
     // If found, remove from the array
     if (index !== -1) {
@@ -491,11 +491,11 @@ $(document).ready(function () {
 
       $.ajax({
         url: `/newentities/deleteEntity`,
-        type: "DELETE",
-        dataType: "json",
+        type: 'DELETE',
+        dataType: 'json',
         data: entity,
         success: function (response) {
-          if (response && response.code === "OK") {
+          if (response && response.code === 'OK') {
             Swal.fire({
               icon: 'success',
               title: 'Success',
@@ -503,7 +503,7 @@ $(document).ready(function () {
             });
 
             // Optional: update the UI to reflect the deletion
-            fetchAndRenderEntities()
+            fetchAndRenderEntities();
           } else {
             Swal.fire({
               icon: 'error',
@@ -518,7 +518,7 @@ $(document).ready(function () {
             title: 'Oops...',
             text: 'There was an error deleting the entity.',
           });
-        }
+        },
       });
     } else {
       Swal.fire({

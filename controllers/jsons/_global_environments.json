@@ -2,16 +2,36 @@
     "environments": [
         {
             "_id": "dev",
+            "parent_id": "696602033686",
+            "isEnabled": true
+        },
+        {
+            "_id": "pre",
+            "parent_id": "696602033686",
+            "isEnabled": true
+        },
+        {
+            "_id": "prod",
+            "parent_id": "696602033686",
+            "isEnabled": true
+        },
+        {
+            "_id": "dev",
+            "parent_id": "696862864834",
+            "isEnabled": true
+        },
+        {
+            "_id": "pre",
+            "parent_id": "696862864834",
+            "isEnabled": true
+        },
+        {
+            "_id": "dev",
             "parent_id": "696601789537",
             "isEnabled": true
         },
         {
             "_id": "pre",
-            "parent_id": "696601789537",
-            "isEnabled": true
-        },
-        {
-            "_id": "prod",
             "parent_id": "696601789537",
             "isEnabled": true
         }

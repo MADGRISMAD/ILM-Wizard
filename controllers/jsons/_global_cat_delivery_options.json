@@ -1,0 +1,16 @@
+{
+    "devOptions": [
+        {
+            "id": "1",
+            "value": "Single"
+        },
+        {
+            "id": "2",
+            "value": "Dual"
+        },
+        {
+            "id": "3",
+            "value": "Quad"
+        }
+    ]
+}

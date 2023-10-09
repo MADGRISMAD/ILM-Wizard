@@ -1,0 +1,16 @@
+{
+    "vdcOptions": [
+        {
+            "id": "1",
+            "value": "Video"
+        },
+        {
+            "id": "2",
+            "value": "Audio"
+        },
+        {
+            "id": "3",
+            "value": "Both"
+        }
+    ]
+}

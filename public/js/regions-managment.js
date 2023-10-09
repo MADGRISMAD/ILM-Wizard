@@ -1,5 +1,5 @@
 // Variable to store the selected region
-let matchedRegion = null;
+var matchedRegion = null;
 
 // This function is called when the entire document is fully loaded
 $(document).ready(function () {
@@ -302,7 +302,7 @@ $(document).ready(function () {
       // Prompt the user to confirm their selection of the region
       Swal.fire({
         title: 'Are you sure?',
-        text: `You are about to confirm the selection of ${matchedRegion.regionName}. Do you want to proceed?`,
+        text: `You are about to confirm the selection of ${matchedRegion.Region.toUpperCase()}. Do you want to proceed?`,
         icon: 'warning',
         showCancelButton: true,  // Display a cancel button
         confirmButtonText: 'Yes, confirm',
@@ -311,6 +311,7 @@ $(document).ready(function () {
         // If the user confirms, switch to the 'env-and-infra' tab
         if (result.isConfirmed) {
           $('#env-and-infra-tab').tab('show');
+          displayEnvironmentsFromCatalog();
         }
       });
 
