@@ -1,6 +1,11 @@
 {
     "environments": [
         {
+            "_id": "dev",
+            "parent_id": "696601789537",
+            "isEnabled": true
+        },
+        {
             "_id": "pre",
             "parent_id": "696601789537",
             "isEnabled": true

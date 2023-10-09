@@ -4,15 +4,10 @@ const newEntititesController = require('../controllers/new-entities.controller.j
 const routes = express.Router()
 
 
-
-
 routes.get("/obtenerEntidades" , newEntititesController.obtenerEntidades)
 
 
-
-
 routes.post("/saveEntities" , newEntititesController.saveEntities)
-
 
 
 routes.delete("/deleteEntity", newEntititesController.deleteEntity);
