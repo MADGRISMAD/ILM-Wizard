@@ -297,16 +297,26 @@
     <div class="tab-pane fade" id="config" role="tabpanel" aria-labelledby="config-tab">
       <h3 class="text-start">Config</h3>
       <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="#entity">Env and Infra</a></li>
-        </ol>
+          <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="#entity">Env and Infra</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Config</li>
+          </ol>
       </nav>
 
-      <div id="qtrContent"></div>
-      <div id="otherSoftwareContent"></div>
-      <div id="HAContent"></div>
+      <!-- Container for the dropdowns -->
+      <div class="container" id="configDropdownContainer">
+          <!-- Dropdowns will be added here dynamically -->
+      </div>
 
-    </div>
+      <div class="row">
+          <div class="col text-center">
+              <button class="btn btn-primary mt-4" id="confirmConfig">Confirm</button>
+          </div>
+      </div>
+  </div>
+
+
+
 
 
 
