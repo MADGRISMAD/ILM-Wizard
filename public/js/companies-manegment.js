@@ -251,163 +251,166 @@ function isValidInput(value, id) {
   return true;
 }
 
-// Modal to add a new company
-$(document).ready(function () {
-
-$('#addCompany').click(function () {
-  let currentTimestamp = new Date().getTime();
-  let _idValueCompany = (currentTimestamp + '').substr(1);
-
-            // Show a notification in English
-            Swal.fire({
-              icon: 'info',
-              title: 'Information',
-              text: 'The code is automatically generated and cannot be modified.',
-            });
-          });
-        });
-
-
-  $('#hostnamePrefixInput').on('paste', function (e) {
-    var pastedData = e.originalEvent.clipboardData.getData('text');
-
-    if (pastedData.length > 4) {
-      e.preventDefault();
-      Swal.fire({
-        icon: 'error',
-        title: 'Too Long',
-        text: 'You can only enter up to 4 characters for the Hostname Prefix.',
-      });
-    }
-  });
-});
-$('#companyModal').on('click', '#saveCompany', function () {
-  const parentId = $('#parentIdInput').val();
-  const _id = validateField('#_idInput');
-  const company = validateField('#companyInput');
-  const hostnamePrefix = validateField('#hostnamePrefixInput');
-  const regionClientCode = validateField('#regionClientCodeInput');
-  const delivery = validateField('#deliveryInput');
-  const vdc = validateField('#vdcInput');
-  const cmdbCompany = validateField('#cmdbCompanyInput');
-  const shortName = validateField('#shortNameInput');
-  const nicName = validateField('#nicNameInput');
-  const region = validateField('#regionInput');
-  const isEnabled = $('#isEnabledInputCAdd').prop('checked');
-
-  if (
-    !(
-      _id &&
-      company &&
-      hostnamePrefix &&
-      regionClientCode &&
-      delivery &&
-      vdc &&
-      cmdbCompany &&
-      shortName &&
-      nicName &&
-      region
-    )
-  ) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Incomplete or Invalid Fields',
-      text: 'Please complete and correct all highlighted fields.',
-    });
-    return;
-  }
-
-  Swal.fire({
-    title: 'Are you sure?',
-    text: 'The new company will be added with the provided data.',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Yes, add',
-    cancelButtonText: 'Cancel',
-  }).then((result) => {
-    if (result.isConfirmed) {
-      const newCompany = {
-        parent_id: parentId,
-        _id: _id,
-        Company: company,
-        Hostname_prefix: hostnamePrefix,
-        Region_or_client_code: regionClientCode,
-        Delivery: delivery,
-        VDC: vdc,
-        CMDB_company: cmdbCompany,
-        isEnabled: isEnabled,
-        short_name: shortName,
-        nicName: nicName,
-        region: region,
-      };
-
-      $.ajax({
-        url: '/newcompanies/saveCompanies',
-        type: 'POST',
-        dataType: 'json',
-        data: newCompany,
-        success: function (response) {
-          if (response.code === 'OK') {
-            Swal.fire({
-              icon: 'success',
-              title: 'Success',
-              text: 'Company data has been saved successfully',
-            });
-            $('#companyModal').modal('hide');
-            $('#company-tab').tab('show');
-            // Reload the table to display the new company
-            //clear the list
-            companyList.innerHTML = '';
-            //fetch the new list
-
-            fetchAndDisplayCompanies(matchedEntity._id);
-          } else {
-            console.log('Unexpected server response:', response);
-          }
-        },
-        error: function (error) {
-          if (error.status === 409) {
-            Swal.fire({
-              icon: 'warning',
-              title: 'Warning',
-              text: 'A company with that _id or name already exists.',
-            });
-          } else {
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              text: 'Error sending company data to the controller.',
-            });
-          }
-        },
-      });
-    }
-  });
-  function validateField(fieldId) {
-    const value = $(fieldId).val().trim();
-    if (value === '' || !isValidInput(value, fieldId.replace('#', ''))) {
-      $(fieldId).addClass('is-invalid');
-      return false;
-    } else {
-      $(fieldId).removeClass('is-invalid');
-      return value;
-    }
-  }
-});
-
 // Modal to edit company
 $(document).ready(function () {
-  function showCompanyModalContent(editCompany) {
-    const isEditing = editCompany !== undefined;
+  function saveCompanies() {
+    const parentId = $('#parentIdInput').val().trim();
+    console.log(parentId);
+    const entityId = $('#entityIdInput').val().trim();
+    const _id = $('#_idInput').val().trim();
+    const companyName = $('#companyInput').val().trim();
+    const hostnamePrefix = $('#hostnamePrefixInput').val().trim();
+    const regionClientCode = $('#regionClientCodeInput').val().trim();
+    const delivery = $('#deliveryInput').val().trim();
+    const vdc = $('#vdcInput').val().trim();
+    const cmdbCompany = $('#cmdbCompanyInput').val().trim();
+    const isEnabled = $('#isEnabledInputCEdit').is(':checked');
 
+    const shortName = $('#shortNameInput').val().trim();
+    const nicName = $('#nicNameInput').val().trim();
+    const region = $('#regionInput').val().trim();
+
+    // Verifies data
+    if (
+      !(
+        _id &&
+        company &&
+        hostnamePrefix &&
+        regionClientCode &&
+        delivery &&
+        vdc &&
+        cmdbCompany &&
+        shortName &&
+        nicName &&
+        region
+      )
+    ) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Incomplete or Invalid Fields',
+        text: 'Please complete and correct all highlighted fields.',
+      });
+      return;
+    }
+
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'The new company will be added with the provided data.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, add',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      // If yes, send the data to the controller
+      if (result.isConfirmed) {
+        // Creates the JSON object
+        const newCompany = {
+          parent_id: matchedEntity._id,
+          Company: companyName,
+          entity_id: entityId,
+          _id: _id,
+          Hostname_prefix: hostnamePrefix,
+          Region_or_client_code: regionClientCode,
+          Delivery: delivery,
+          VDC: vdc,
+          CMDB_company: cmdbCompany,
+          isEnabled: isEnabled,
+          short_name: shortName,
+          nicName: nicName,
+          region: region,
+        }
+        $.ajax({
+          url: '/newcompanies/saveCompanies',
+          type: 'POST',
+          dataType: 'json',
+          data: newCompany,
+          success: function (response) {
+            if (response.code === 'OK') {
+              Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Company data has been saved successfully',
+              });
+              $('#companyModal').modal('hide');
+              $('#company-tab').tab('show');
+              // Reload the table to display the new company
+              //clear the list
+              companyList.innerHTML = '';
+              //fetch the new list
+
+              fetchAndDisplayCompanies(matchedEntity._id);
+            } else {
+              console.log('Unexpected server response:', response);
+            }
+          },
+          error: function (error) {
+            if (error.status === 409) {
+              Swal.fire({
+                icon: 'warning',
+                title: 'Warning',
+                text: 'A company with that _id or name already exists.',
+              });
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Error sending company data to the controller.',
+              });
+            }
+          },
+        });
+      }
+    });
+    // function validateField(fieldId) {
+    //   const value = $(fieldId).val().trim();
+    //   if (value === '' || !isValidInput(value, fieldId.replace('#', ''))) {
+    //     $(fieldId).addClass('is-invalid');
+    //     return false;
+    //   } else {
+    //     $(fieldId).removeClass('is-invalid');
+    //     return value;
+    //   }
+    // }
+  }
+
+  // Show modal content
+  function showCompanyModalContent(editCompany = false) {
+    // If its editing
+    var isEditing = editCompany ? true : false;
+    var _idValueCompany;
+    var vdcOptions;
+    var deliveryOptions;
+    // If its not editing, get the id from the timestamp
+    if (!isEditing) {
+      let currentTimestamp = new Date().getTime();
+      _idValueCompany = (currentTimestamp + '').substr(1);
+    }
     $.ajax({
       method: 'GET',
       url: '/newoptions/getDeliveryOptions',
-      success: function (deliveryOptions) {
+      success: function (resDelivery) {
+        deliveryOptions = resDelivery
+          .map(
+            (option) =>
+              `<option ${
+                editCompany.Delivery == option.id && isEditing ? 'selected' : ''
+              } value="${option.id}">${option.value}</option>`,
+          )
+          .join('');
+
         $.ajax({
           method: 'GET',
           url: '/newoptions/getVdcOptions',
-          success: function (vdcOptions) {
+          success: function (resVDC) {
+            vdcOptions = resVDC
+              .map(
+                (option) =>
+                  `<option ${
+                    editCompany.VDC == option.id && isEditing ? 'selected' : ''
+                  }
+                      value="${option.id}">${option.value}</option>`,
+              )
+              .join('');
             const modalContent = `
       <div class="modal-header">
           <h5 class="modal-title">${
@@ -422,10 +425,10 @@ $(document).ready(function () {
       <div class="modal-body">
           <form id="companyForm">
               <input type="hidden" id="entityIdInput" value="${
-                matchedEntity ? matchedEntity.companyName : ''
+                matchedEntity ? matchedEntity.companyName : ""
               }">
               <input type="hidden" id="parentIdInput" value="${
-                isEditing ? editCompany.parent_id : ''
+                isEditing ? editCompany.parent_id : matchedEntity._id
               }">
 
               <div class="row">
@@ -433,14 +436,14 @@ $(document).ready(function () {
                       <div class="form-group">
                           <label for="_idInput">Identifier:</label>
                           <input type="text" class="form-control" id="_idInput" placeholder="Enter _id" value="${
-                            isEditing ? editCompany._id : ''
+                            isEditing ? editCompany._id : _idValueCompany
                           }" ${isEditing ? 'readonly' : ''}>
                       </div>
                       <div class="form-group">
                           <label for="companyInput">Company:</label>
                           <input type="text" class="form-control" id="companyInput" placeholder="Enter company name" value="${
                             isEditing ? editCompany.Company : ''
-                          }" ${isEditing ? '' : ''}>
+                          }" >
                       </div>
                       <div class="form-group">
                           <label for="hostnamePrefixInput">Hostname Prefix:</label>
@@ -460,35 +463,14 @@ $(document).ready(function () {
                           <label for="deliveryInput">Delivery:</label>
                           <select class="form-control" id="deliveryInput">
                           <option value="" disabled>Select a delivery option</option>
-                          ${deliveryOptions
-                            .map(
-                              (option) =>
-                                `<option ${
-                                  editCompany.Delivery == option.id
-                                    ? 'selected'
-                                    : ''
-                                } value="${option.id}">${
-                                  option.value
-                                }</option>`,
-                            )
-                            .join('')}
-                          </select>
+                          ${deliveryOptions}</select>
                           
                       </div>
                       <div class="form-group">
                           <label for="vdcInput">VDC:</label>
                           <select class="form-control" id="vdcInput">
                           <option value="" disabled>Select a VDC option</option>
-                          ${vdcOptions
-                            .map(
-                              (option) =>
-                                `<option ${
-                                  editCompany.VDC == option.id ? 'selected' : ''
-                                } value="${option.id}">${
-                                  option.value
-                                }</option>`,
-                            )
-                            .join('')}
+                          ${vdcOptions}
                       </select>
                       </div>
                   </div>
@@ -530,41 +512,38 @@ $(document).ready(function () {
       </div>
       <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-outline-primary" id="saveEditedCompany">${
+          <button type="button" class="btn btn-outline-primary" id="saveEditedCompany" value="${isEditing}">${
             isEditing ? 'Update' : 'Accept'
           }</button>
       </div>
     `;
 
-            $('#companyEditModal .modal-content').html(modalContent);
-            $('#companyEditModal').modal('show');
+            $('#companyModal .modal-content').html(modalContent);
+            $('#companyModal').modal('show');
 
             // Add event listener to _idInput
-          $('#_idInput').focus(function () {
-            // Prevent the input from being focused
-            $(this).blur();
-          });
+            $('#_idInput').focus(function () {
+              // Prevent the input from being focused
+              $(this).blur();
+            });
+
+            $('#hostnamePrefixInput').on('paste', function (e) {
+              var pastedData = e.originalEvent.clipboardData.getData('text');
+
+              if (pastedData.length > 4) {
+                e.preventDefault();
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Too Long',
+                  text: 'You can only enter up to 4 characters for the Hostname Prefix.',
+                });
+              }
+            });
           },
         });
       },
     });
   }
-
-  $('#hostnamePrefixInput').on('paste', function (e) {
-    var pastedData = e.originalEvent.clipboardData.getData('text');
-
-    if (pastedData.length > 4) {
-      e.preventDefault();
-      Swal.fire({
-        icon: 'error',
-        title: 'Too Long',
-        text: 'You can only enter up to 4 characters for the Hostname Prefix.',
-      });
-    }
-  });
-  $("#addCompany").click(function () {
-    
-  });
   $('#editCompanyBtn').click(function () {
     if (!matchedCompany) {
       Swal.fire({
@@ -575,6 +554,10 @@ $(document).ready(function () {
       return;
     }
     showCompanyModalContent(matchedCompany);
+  });
+
+  $('#addCompany').click(function () {
+    showCompanyModalContent();
   });
 
   function hasChanges(updatedCompany, originalCompany) {
@@ -594,7 +577,7 @@ $(document).ready(function () {
     );
   }
 
-  $('#companyEditModal').on('click', '#saveEditedCompany', function () {
+  function editCompanies() {
     const parentId = $('#parentIdInput').val().trim();
     const entityId = $('#entityIdInput').val().trim();
     const _id = $('#_idInput').val().trim();
@@ -630,21 +613,25 @@ $(document).ready(function () {
     if (hasChanges(updatedCompany, matchedCompany)) {
       Swal.fire({
         title: 'Are you sure?',
-        text: 'The company will be updated with the provided data.',
+        text: this.value
+          ? 'The company will be updated with the provided data.'
+          : 'The new company will be added with the provided data.',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Yes, update',
         cancelButtonText: 'Cancel',
       }).then((result) => {
-        if (result.isConfirmed) {
-          performCompanyUpdate(updatedCompany);
-        }
+        if (result.isConfirmed) performCompanyUpdate(updatedCompany);
       });
     } else {
       performCompanyUpdate(updatedCompany);
     }
+  }
+  $('#companyModal').on('click', '#saveEditedCompany', function (e) {
+    e.preventDefault();
+    if (this.value == 'true') editCompanies();
+    else saveCompanies();
   });
-
   function performCompanyUpdate(updatedCompany) {
     $.ajax({
       url: '/newcompanies/edit-companies',

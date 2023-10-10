@@ -34,6 +34,7 @@ function saveCompanies(req, res) {
   req.body.isEnabled = (req.body.isEnabled === 'true' || req.body.isEnabled === true);
   companies.push(req.body);
   guardarCompanias(companies);
+  console.log("Agregado")
   res.status(200).json({ code: "OK", object: companies, message: "Compañía agregada con éxito." });
 }
 

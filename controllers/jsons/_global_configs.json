@@ -1,0 +1,143 @@
+{
+"availabilityZones" : [
+    {
+      "identifier": "ohe",
+      "name": "OHE",
+      "isEnabled": true
+    },
+    {
+      "identifier": "vmware",
+      "name": "VMware",
+      "isEnabled": true
+    }
+    
+  ],
+  
+  "haList" : [
+    {
+      "identifier": "ohe",
+      "name": "OHE",
+      "isEnabled": true,
+      "skuSoftware": "SKU 1"
+    },
+    {
+      "identifier": "vmware",
+      "name": "VMware",
+      "isEnabled": true,
+      "skuSoftware": "SKU 2"
+    }
+    
+  ],
+  
+  "metalByTenantList" : [
+    {
+      "identifier": "Bronze",
+      "name": "Bronze",
+      "isEnabled": true,
+      "skuSoftware": "SKU 3"
+    },
+    {
+      "identifier": "Silver",
+      "name": "Silver",
+      "isEnabled": true,
+      "skuSoftware": "SKU 4"
+    }
+    
+  ],
+  
+  "clusterTypes" : [
+    {
+      "identifier": "Multicluster",
+      "name": "Multicluster",
+      "isEnabled": true
+    },
+    {
+      "identifier": "Stretched",
+      "name": "Stretched",
+      "isEnabled": true
+    }
+    
+  ],
+  
+  "networkRegions" : [
+    {
+      "identifier": "TIER 1",
+      "name": "TIER1",
+      "isEnabled": true
+    },
+    {
+      "identifier": "TIER 2",
+      "name": "TIER2",
+      "isEnabled": true
+    }
+    
+  ],
+  
+  "disabledProducts" : [
+    "product1",
+    "product2"
+    
+  ],
+  
+  "otherSoftwareProducts" : [
+    "software_product1",
+    "software_product2"
+    
+  ],
+  
+  "activeDirectories" : [
+    {
+      "domain": "domain1",
+      "hidden - environment": "env1",
+      "companlyAlias": "alias1"
+    },
+    {
+      "domain": "domain2",
+      "hidden - environment": "env2",
+      "companlyAlias": "alias2"
+    }
+    
+  ],
+  
+  "nasList" : [
+    {
+      "name": "NAS 1",
+      "ip": "192.168.1.1",
+      "isEnabled": true
+    },
+    {
+      "name": "NAS 2",
+      "ip": "192.168.1.2",
+      "isEnabled": true
+    }
+    
+  ],
+  
+  "clusterClasses" : [
+    {
+      "identifier": "Class 1",
+      "name": "Cluster Class 1",
+      "isEnabled": true
+    },
+    {
+      "identifier": "Class 2",
+      "name": "Cluster Class 2",
+      "isEnabled": true
+    }
+    
+  ],
+  
+  "businessTypes" : [
+    {
+      "identifier": "Type 1",
+      "name": "Business Type 1",
+      "isEnabled": true
+    },
+    {
+      "identifier": "Type 2",
+      "name": "Business Type 2",
+      "isEnabled": true
+    }
+    
+  ]
+}
