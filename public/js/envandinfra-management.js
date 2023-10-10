@@ -15,25 +15,36 @@ function updateCard(envId, infraId) {
     // If the user confirms, switch to the 'env-and-infra' tab
     if (result.isConfirmed) {
       $('#config-tab').tab('show');
-          // Try to update the entity logo
+      // Try to update the entity logo
     }
   });
+}
 
+// Function to update the entity card's content
+function updateEntityCard(entities) {
+  // Ensure that the entity data is complete and valid
+  if (!entities.flag) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: 'Entity data is incomplete or invalid.',
+    });
+    return; // Exit the function if the data is invalid
+  }
 
-  // Actualiza el logo de la entidad
+  // Try to update the entity logo
   const imgElement = $('#infraIMG');
-  if (imgElement.length) {
-    imgElement.attr('src', entities.flag);
-  } else {
+  if (!imgElement.length) {
     Swal.fire({
       icon: 'error',
       title: 'Oops...',
       text: 'Could not find the element for the image.',
     });
-    imgElement.attr("src", entities.flag);
+    return; // Exit the function if the element is not found
   }
+  imgElement.attr('src', entities.flag);
 
-  // Actualiza el nombre de la entidad
+  // Refreshes the entity name
   const nameElement = $('#selectedEntityName');
   if (nameElement.length) {
     nameElement.text(entities.companyName);
@@ -45,15 +56,22 @@ function updateCard(envId, infraId) {
     });
   }
 
-  // Actualiza el nombre de la compañía
+  // Updates company name
   const companyNameElement = $('#company-nameEI');
   if (matchedCompany && matchedCompany.Company) {
     companyNameElement.text(matchedCompany.Company);
   } else {
     companyNameElement.text('Company not selected');
   }
+  
+  const regionNameElement = $('#regionName');
+  if (matchedRegion && matchedRegion.Region) {
+    regionNameElement.text(matchedRegion.Region);
+  } else {
+    regionNameElement.text('Company not selected');
+  }
 }
-
+// Updates the status of the environment object
 function updateEnvironmentStatusE(envId, isEnabled) {
   const url = '/newenvironments/toggleEnvironmentsStatus';
   console.log(
@@ -82,10 +100,8 @@ function updateEnvironmentStatusE(envId, isEnabled) {
           text: 'Environment status updated successfully.',
         });
         const listItem = $('#environment' + envId);
-        listItem.css(
-          'background-color',
-          isEnabled ? '#colorForActivated' : '#d3d3d3',
-        );
+        listItem.css('background-color', isEnabled ? '' : '#d3d3d3');
+        listItem.children('input')[0].checked = isEnabled;
       } else {
         Swal.fire({
           icon: 'error',
@@ -103,7 +119,7 @@ function updateEnvironmentStatusE(envId, isEnabled) {
     },
   });
 }
-
+// Display the environments objects from the catalog
 function displayEnvironmentsFromCatalog() {
   $.ajax({
     url: '/newenvironments/obtenerEnvironments',
@@ -132,7 +148,7 @@ function displayEnvironmentsFromCatalog() {
               text: data.message,
             });
           }
-
+          console.log(data.object);
           envList.innerHTML = '';
           data.object.forEach(function (env) {
             let listItem = $('<li>')
@@ -151,13 +167,14 @@ function displayEnvironmentsFromCatalog() {
                   actEnv._id === env._id &&
                   actEnv.parent_id === matchedRegion._id,
               );
+              listItem.css('background-color', isActive ? '' : '#d3d3d3');
             }
 
             let checkbox = $('<input>')
               .attr('type', 'checkbox')
               .prop('checked', isActive);
 
-            // Función del checkbox
+            // Checkbox function
             checkbox.on('click', function (event) {
               event.preventDefault();
               Swal.fire({
@@ -173,7 +190,6 @@ function displayEnvironmentsFromCatalog() {
               }).then((result) => {
                 if (result.isConfirmed) {
                   updateEnvironmentStatusE(env._id, !this.checked);
-                  this.checked = !this.checked;
                 }
               });
             });
@@ -200,7 +216,7 @@ function displayEnvironmentsFromCatalog() {
     },
   });
 }
-
+// When clicking an environment object, fetch the infrastructures from the catalog
 $(document).on('click', 'li.env-object', (event) => {
   matchedEnvironment = event.currentTarget.id.replace('environment', '');
   event.preventDefault();
@@ -241,13 +257,14 @@ $(document).on('click', 'li.env-object', (event) => {
                   actInfra.parent_id === matchedEnvironment &&
                   actInfra.region_id === matchedRegion._id,
               );
+              listItem.css('background-color', isActive ? '' : '#d3d3d3');
             }
 
             let checkbox = $('<input>')
               .attr('type', 'checkbox')
               .prop('checked', isActive);
 
-            // Función del checkbox
+            // Checkbox function
             checkbox.on('click', function (event) {
               event.preventDefault();
               Swal.fire({
@@ -263,7 +280,6 @@ $(document).on('click', 'li.env-object', (event) => {
               }).then((result) => {
                 if (result.isConfirmed) {
                   updateInfrastructureStatus(infra._id, !this.checked);
-                  this.checked = !this.checked;
                 }
               });
             });
@@ -290,7 +306,7 @@ $(document).on('click', 'li.env-object', (event) => {
     },
   });
 });
-
+// When clicking the checkbox, change the status of the infrastructure object
 function updateInfrastructureStatus(infraId, isEnabled) {
   const url = '/newinfrastructure/toggleInfrastructureStatus';
   console.log(
@@ -320,10 +336,8 @@ function updateInfrastructureStatus(infraId, isEnabled) {
           text: 'Infrastructure status updated successfully.',
         });
         const listItem = $('#infrastructure' + infraId);
-        listItem.css(
-          'background-color',
-          isEnabled ? '#colorForActivated' : '#d3d3d3',
-        );
+        listItem.css('background-color', isEnabled ? '' : '#d3d3d3');
+        listItem.children('input')[0].checked = isEnabled;
       } else {
         Swal.fire({
           icon: 'error',
@@ -341,22 +355,48 @@ function updateInfrastructureStatus(infraId, isEnabled) {
     },
   });
 }
-
+// When clicking an infrastructrue object, save the ID of the selected infrastructure
 $(document).on('click', 'li.infra-object', (event) => {
   event.preventDefault();
   matchedInfrastructure = event.currentTarget.id.replace('infrastructure', '');
 });
 
+// Check if the selection is disabled
+// If it is, display an error message and abort the operation
+function checkIfSelectionDisabled() {
+  if (
+    !$(document)
+      .find('#environment' + matchedEnvironment)
+      .children('input')[0].checked ||
+    !$(document)
+      .find('#infrastructure' + matchedInfrastructure)
+      .children('input')[0].checked
+  )
+    return false;
+
+  return true;
+}
+
 $(document).ready(function () {
+  // When the user clicks the 'Confirm' button, check if an environment and an infrastructure have been selected
   $('#confirmInfraAndEnvnBtn').on('click', function (e) {
     e.preventDefault();
-    console.log(!matchedEnvironment || !matchedInfrastructure);
     if (!matchedEnvironment || !matchedInfrastructure) {
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
         text: 'Please, select a card before confirming.',
       });
-    } else updateCard(matchedEnvironment, matchedInfrastructure);
+      return;
+    }
+    if (!checkIfSelectionDisabled()) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Please, select an active environment and/or infrastructure.',
+      });
+      return;
+    }
+    updateCard(matchedEnvironment, matchedInfrastructure);
   });
 });

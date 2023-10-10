@@ -54,7 +54,6 @@ function fetchAndRenderEntities() {
 $(document).ready(function () {
   fetchAndRenderEntities();
 });
-
 // Add entity
 $(document).ready(function () {
   // Add click event to the button

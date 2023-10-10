@@ -34,6 +34,41 @@
             "_id": "pre",
             "parent_id": "696601789537",
             "isEnabled": true
+        },
+        {
+            "_id": "dev",
+            "parent_id": "696873286284",
+            "isEnabled": true
+        },
+        {
+            "_id": "pre",
+            "parent_id": "696873286284",
+            "isEnabled": false
+        },
+        {
+            "_id": "prod",
+            "parent_id": "696873286284",
+            "isEnabled": true
+        },
+        {
+            "_id": "dmz",
+            "parent_id": "696873286284",
+            "isEnabled": false
+        },
+        {
+            "_id": "dev",
+            "parent_id": "696940866576",
+            "isEnabled": true
+        },
+        {
+            "_id": "dmz",
+            "parent_id": "696940866576",
+            "isEnabled": true
+        },
+        {
+            "_id": "prod",
+            "parent_id": "696940866576",
+            "isEnabled": true
         }
     ]
 }

@@ -284,7 +284,7 @@ $(document).ready(function () {
 
   // Add a click event listener to the "confirmRegionBtn" button
   $("#confirmRegionBtn").click(function () {
-
+    
     // Check if a region has been matched/selected
     if (matchedRegion) {
 
@@ -310,6 +310,7 @@ $(document).ready(function () {
       }).then((result) => {
         // If the user confirms, switch to the 'env-and-infra' tab
         if (result.isConfirmed) {
+          updateEntityCard(matchedEntity);
           $('#env-and-infra-tab').tab('show');
           displayEnvironmentsFromCatalog();
         }
@@ -430,7 +431,7 @@ $(document).ready(function () {
           "isEnabled": isEnabled,
           "parent_id": matchedCompany ? matchedCompany._id : null
         };
-
+        console.log(newRegion);
         $.ajax({
           url: "/newregions/saveRegions",
           type: "POST",

@@ -257,113 +257,6 @@ $(document).ready(function () {
 $('#addCompany').click(function () {
   let currentTimestamp = new Date().getTime();
   let _idValueCompany = (currentTimestamp + '').substr(1);
-  $.ajax({
-    method: 'GET',
-    url: '/newoptions/getDeliveryOptions',
-    success: function (deliveryOptions) {
-      $.ajax({
-        method: 'GET',
-        url: '/newoptions/getVdcOptions',
-        success: function (vdcOptions) {
-          const modalContent = `
-            <div class="modal-header">
-                <h5 class="modal-title">Add New Company</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="companyForm">
-                <input type="hidden" id="parentIdInput" value="${
-                  matchedEntity ? matchedEntity._id : ''
-                }">
-
-                    <div class="row">
-                        <div class="col-md-6"> <!-- First column -->
-                            <div class="form-group">
-                                <label for="_idInput">Identifier:</label>
-                                <input type="text" class="form-control" id="_idInput" value="${_idValueCompany}" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label for="companyInput">Company:</label>
-                                <input type="text" class="form-control" id="companyInput" placeholder="Enter company name" value="">
-                            </div>
-                            <div class="form-group">
-                                <label for="hostnamePrefixInput">Hostname Prefix:</label>
-                                <input type="text" class="form-control" id="hostnamePrefixInput" placeholder="Enter hostname prefix" maxlength="4">
-                            </div>
-                            <div class="form-group">
-                                <label for="regionClientCodeInput">Region or Client Code:</label>
-                                <input type="text" class="form-control" id="regionClientCodeInput" placeholder="Enter region or client code">
-                            </div>
-                            <div class="form-group">
-                            <label for="deliveryInput">Delivery:</label>
-                            <select class="form-control" id="deliveryInput">
-                                <option value="" disabled selected>Select a delivery option</option>
-                                ${deliveryOptions
-                                  .map(
-                                    (option) =>
-                                      `<option value="${option.id}">${option.value}</option>`,
-                                  )
-                                  .join('')}
-                            </select>
-
-                            </div>
-
-                            <div class="form-group">
-                            <label for="vdcInput">VDC:</label>
-                            <select class="form-control" id="vdcInput">
-                                <option value="" disabled selected>Select a VDC option</option>
-                                ${vdcOptions
-                                  .map(
-                                    (option) =>
-                                      `<option value="${option.id}">${option.value}</option>`,
-                                  )
-                                  .join('')}
-                            </select>
-
-
-                            </div>
-                        </div>
-                        <div class="col-md-6"> <!-- Second column -->
-                            <div class="form-group">
-                                <label for="cmdbCompanyInput">CMDB Company:</label>
-                                <input type="text" class="form-control" id="cmdbCompanyInput" placeholder="Enter CMDB_company">
-                            </div>
-                            <div class="custom-control custom-checkbox mb-3">
-                                <input type="checkbox" class="custom-control-input" id="isEnabledInputCAdd" checked>
-                                <label class="custom-control-label" for="isEnabledInputCAdd">Enabled</label>
-                            </div>
-                            <div class="form-group">
-                                <label for="shortNameInput">Short Name:</label>
-                                <input type="text" class="form-control" id="shortNameInput" placeholder="Enter short name">
-                            </div>
-                            <div class="form-group">
-                                <label for="nicNameInput">Nic Name:</label>
-                                <input type="text" class="form-control" id="nicNameInput" placeholder="Enter Nic Name">
-                            </div>
-                            <div class="form-group">
-                                <label for="regionInput">Region:</label>
-                                <input type="text" class="form-control" id="regionInput" placeholder="Enter region">
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-outline-primary" id="saveCompany">Accept</button>
-            </div>
-        `;
-
-          // Add content to modal
-          $('#companyModal .modal-content').html(modalContent);
-          // Open modal
-          $('#companyModal').modal('show');
-          // Add event listener to _idInput
-          $('#_idInput').focus(function () {
-            // Prevent the input from being focused
-            $(this).blur();
 
             // Show a notification in English
             Swal.fire({
@@ -372,11 +265,8 @@ $('#addCompany').click(function () {
               text: 'The code is automatically generated and cannot be modified.',
             });
           });
-        },
-      });
-    },
-  });
-});
+        });
+
 
   $('#hostnamePrefixInput').on('paste', function (e) {
     var pastedData = e.originalEvent.clipboardData.getData('text');
@@ -504,10 +394,6 @@ $('#companyModal').on('click', '#saveCompany', function () {
     }
   }
 });
-
-
-
-
 
 // Modal to edit company
 $(document).ready(function () {
@@ -652,11 +538,33 @@ $(document).ready(function () {
 
             $('#companyEditModal .modal-content').html(modalContent);
             $('#companyEditModal').modal('show');
+
+            // Add event listener to _idInput
+          $('#_idInput').focus(function () {
+            // Prevent the input from being focused
+            $(this).blur();
+          });
           },
         });
       },
     });
   }
+
+  $('#hostnamePrefixInput').on('paste', function (e) {
+    var pastedData = e.originalEvent.clipboardData.getData('text');
+
+    if (pastedData.length > 4) {
+      e.preventDefault();
+      Swal.fire({
+        icon: 'error',
+        title: 'Too Long',
+        text: 'You can only enter up to 4 characters for the Hostname Prefix.',
+      });
+    }
+  });
+  $("#addCompany").click(function () {
+    
+  });
   $('#editCompanyBtn').click(function () {
     if (!matchedCompany) {
       Swal.fire({
