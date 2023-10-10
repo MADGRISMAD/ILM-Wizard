@@ -294,135 +294,31 @@
     <div class="tab-pane fade" id="config" role="tabpanel" aria-labelledby="config-tab">
       <h3 class="text-start">Config</h3>
       <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-          <ol class="breadcrumb">
-              <li class="breadcrumb-item"><a href="#entity">Env and Infra</a></li>
-              <li class="breadcrumb-item active" aria-current="page">Config</li>
-          </ol>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#entity">Env and Infra</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Config</li>
+        </ol>
       </nav>
 
       <!-- Container for the dropdowns -->
       <div class="container" id="configDropdownContainer">
-          <!-- Dropdowns will be added here dynamically -->
+        <!-- Dropdowns will be added here dynamically -->
       </div>
 
       <div class="row">
-          <div class="col text-center">
-              <button class="btn btn-primary mt-4" id="confirmConfig">Confirm</button>
-          </div>
-      </div>
-  </div>
-
-
-
-
-
-
-
-
-
-
-    <div class="tab-pane fade" id="summary" role="tabpanel" aria-labelledby="summary-tab">
-      <h3 class="text-start">Summary</h3>
-      <div class="container mt-4">
-        <h2 class="mb-4">Resumen de configuración</h2>
-        <a href="#">Home ></a>
-        <!-- Location Section -->
-        <div class="row mt-4">
-          <div class="col-md-6">
-            <h4>Location <a href="#">(edit)</a></h4>
-            <table class="table">
-              <tbody>
-                <tr>
-                  <td>ENTITY</td>
-                  <td id="location-entity"></td>
-                </tr>
-                <tr>
-                  <td>REGION</td>
-                  <td id="location-region"></td>
-                </tr>
-                <tr>
-                  <td>COMPANY</td>
-                  <td id="location-company"></td>
-                </tr>
-
-              </tbody>
-            </table>
-          </div>
-          <!-- Environments & Infra Section -->
-          <div class="col-md-6">
-            <h4>Enviroments & Infra <a href="#">(edit)</a></h4>
-            <table class="table">
-              <tbody>
-                <tr>
-                  <td>DEV</td>
-                  <td>OHE</td>
-                  <td>VMWare</td>
-                </tr>
-                <tr>
-                  <td>QA</td>
-                  <td>OHE</td>
-                  <td>VMWare</td>
-                </tr>
-                <!-- ... -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <!-- Settings Section -->
-        <div class="row mt-4">
-          <div class="col-md-6">
-            <h4>Settings <a href="#">(edit)</a></h4>
-            <table class="table">
-              <tbody>
-                <!-- Puedes seguir este formato para las otras filas -->
-                <tr>
-                  <td>Ha List</td>
-                  <td>OHE</td>
-                </tr>
-                <!-- ... -->
-              </tbody>
-            </table>
-          </div>
-          <!-- Metal By Tenant List Section -->
-          <div class="col-md-6">
-            <h4>Metal By Tenant List <a href="#">(edit)</a></h4>
-            <table class="table">
-              <tbody>
-                <tr>
-                  <td>BRONZE</td>
-                  <td>GOLD</td>
-                </tr>
-                <!-- ... -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <!-- Disable Products Section -->
-        <div class="row mt-4">
-          <div class="col-md-12">
-            <h4>Disable Products <a href="#">(edit)</a></h4>
-            <table class="table">
-              <tbody>
-                <tr>
-                  <td>product1</td>
-                  <td>product2</td>
-                </tr>
-                <!-- ... -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <!-- Buttons at the bottom -->
-        <div class="row mt-4">
-          <div class="col-md-6 text-left">
-            <button class="btn btn-primary">GO BACK</button>
-          </div>
-          <div class="col-md-6 text-right">
-            <button class="btn btn-danger">Confirmar</button>
-          </div>
+        <div class="col text-center">
+          <button class="btn btn-primary mt-4" id="confirmConfig">Confirm</button>
         </div>
       </div>
     </div>
+
+    <div class="tab-pane fade" id="summary" role="tabpanel" aria-labelledby="summary-tab">
+      <h3 class="text-start">Summary</h3>
+      <!-- El contenedor principal donde se insertará el contenido dinámico -->
+      <div class="container mt-4"></div>
+  </div>
+
+
 </body>
 <script src="assets/js/jquery-3.3.1.min.js"></script>
 <script src="assets/js/popper.min.js"></script>
@@ -430,7 +326,6 @@
 <script src="assets/js/underscore-min.js"></script>
 
 <script src="assets/js/sweetalert2@11.js"></script>
-<script src="js/entities-managment-util.js"></script>
 <script src="js/new-entities.js"></script>
 <script src="js/entities-managment.js"></script>
 <script src="js/companies-manegment.js"></script>
@@ -438,6 +333,7 @@
 <script src="js/regions-managment.js"></script>
 <script src="js/envandinfra-management.js"> </script>
 <script src="js/config-managment.js"></script>
+<script src="js/summary-manegment.js"></script>
 </body>
 
 </html>

@@ -11,6 +11,7 @@ routes.get('/getConfigs', newConfigController.getConfigs);
 
 
 
+
 module.exports = routes;
 
 

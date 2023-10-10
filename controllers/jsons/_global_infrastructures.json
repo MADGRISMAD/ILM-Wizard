@@ -65,6 +65,18 @@
             "parent_id": "cert",
             "region_id": "696873286284",
             "isEnabled": true
+        },
+        {
+            "_id": "ohe",
+            "parent_id": "dev",
+            "region_id": "696872792319",
+            "isEnabled": true
+        },
+        {
+            "_id": "vmware",
+            "parent_id": "dev",
+            "region_id": "696872792319",
+            "isEnabled": true
         }
     ]
 }
