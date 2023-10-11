@@ -74,6 +74,16 @@
             "_id": "dev",
             "parent_id": "696872792319",
             "isEnabled": true
+        },
+        {
+            "_id": "dev",
+            "parent_id": "697044196001",
+            "isEnabled": true
+        },
+        {
+            "_id": "prod",
+            "parent_id": "697044196001",
+            "isEnabled": true
         }
     ]
 }

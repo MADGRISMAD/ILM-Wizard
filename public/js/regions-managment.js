@@ -300,22 +300,24 @@ $(document).ready(function () {
       }
 
       // Prompt the user to confirm their selection of the region
-      Swal.fire({
-        title: 'Are you sure?',
-        text: `You are about to confirm the selection of ${matchedRegion.Region.toUpperCase()}. Do you want to proceed?`,
-        icon: 'warning',
-        showCancelButton: true,  // Display a cancel button
-        confirmButtonText: 'Yes, confirm',
-        cancelButtonText: 'Cancel'
-      }).then((result) => {
-        // If the user confirms, switch to the 'env-and-infra' tab
-        if (result.isConfirmed) {
-          updateEntityCard(matchedEntity);
-          $('#env-and-infra-tab').tab('show');
-          displayEnvironmentsFromCatalog();
-        }
-      });
-
+      // Swal.fire({
+      //   title: 'Are you sure?',
+      //   text: `You are about to confirm the selection of ${matchedRegion.Region.toUpperCase()}. Do you want to proceed?`,
+      //   icon: 'warning',
+      //   showCancelButton: true,  // Display a cancel button
+      //   confirmButtonText: 'Yes, confirm',
+      //   cancelButtonText: 'Cancel'
+      // }).then((result) => {
+      //   // If the user confirms, switch to the 'env-and-infra' tab
+      //   if (result.isConfirmed) {
+      //     updateEntityCard(matchedEntity);
+      //     $('#env-and-infra-tab').tab('show');
+      //     displayEnvironmentsFromCatalog();
+      //   }
+      // });
+      updateEntityCard(matchedEntity);
+      $('#env-and-infra-tab').tab('show');
+      displayEnvironmentsFromCatalog();
       // If there are other actions you wish to perform after confirming the selection, they would be placed here
 
     } else {

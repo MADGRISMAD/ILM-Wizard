@@ -260,17 +260,17 @@ $(document).ready(function () {
       }
 
       // Ask if the user really wants to confirm the selection
-      Swal.fire({
-        title: 'Are you sure?',
-        text: `You are about to confirm the selection of ${matchedEntity.companyName}. Do you wish to continue?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, confirm',
-        cancelButtonText: 'Cancel',
-      }).then((result) => {
-        $('#company-tab').tab('show');
-      });
-
+      // Swal.fire({
+      //   title: 'Are you sure?',
+      //   text: `You are about to confirm the selection of ${matchedEntity.companyName}. Do you wish to continue?`,
+      //   icon: 'warning',
+      //   showCancelButton: true,
+      //   confirmButtonText: 'Yes, confirm',
+      //   cancelButtonText: 'Cancel',
+      // }).then((result) => {
+      //   
+      // });
+      $('#company-tab').tab('show');
       // Other actions you might want to perform after confirming the selection
     } else {
       // Show a message if no card is selected

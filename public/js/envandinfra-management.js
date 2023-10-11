@@ -4,20 +4,22 @@ var envList = document.getElementById('environment-list');
 var infraList = document.getElementById('infrastructure-list');
 function updateCard(envId, infraId) {
   // Prompt the user to confirm their selection of the region
-  Swal.fire({
-    title: 'Are you sure?',
-    text: `You are about to confirm the selection of ${envId} and ${infraId}. Do you want to proceed?`,
-    icon: 'warning',
-    showCancelButton: true, // Display a cancel button
-    confirmButtonText: 'Yes, confirm',
-    cancelButtonText: 'Cancel',
-  }).then((result) => {
-    // If the user confirms, switch to the 'env-and-infra' tab
-    if (result.isConfirmed) {
-      $('#config-tab').tab('show');
-      // Try to update the entity logo
-    }
-  });
+  // Swal.fire({
+  //   title: 'Are you sure?',
+  //   text: `You are about to confirm the selection of ${envId} and ${infraId}. Do you want to proceed?`,
+  //   icon: 'warning',
+  //   showCancelButton: true, // Display a cancel button
+  //   confirmButtonText: 'Yes, confirm',
+  //   cancelButtonText: 'Cancel',
+  // }).then((result) => {
+  //   // If the user confirms, switch to the 'env-and-infra' tab
+  //   if (result.isConfirmed) {
+  //     $('#config-tab').tab('show');
+  //     // Try to update the entity logo
+  //   }
+  // });
+  loadOptions();
+  $('#config-tab').tab('show');
 }
 
 // Function to update the entity card's content
@@ -148,7 +150,6 @@ function displayEnvironmentsFromCatalog() {
               text: data.message,
             });
           }
-          console.log(data.object);
           envList.innerHTML = '';
           data.object.forEach(function (env) {
             let listItem = $('<li>')

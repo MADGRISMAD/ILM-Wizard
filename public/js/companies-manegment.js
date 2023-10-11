@@ -752,19 +752,19 @@ $(document).ready(function () {
       }
 
       // Ask if the user really wants to confirm the selection
-      Swal.fire({
-        title: 'Are you sure?',
-        text: `You are about to confirm the selection of ${matchedCompany.Company}. Do you want to continue?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, confirm',
-        cancelButtonText: 'Cancel',
-      }).then((result) => {
-        if (result.isConfirmed) {
-          $('#region-tab').tab('show');
-        }
-      });
-
+      // Swal.fire({
+      //   title: 'Are you sure?',
+      //   text: `You are about to confirm the selection of ${matchedCompany.Company}. Do you want to continue?`,
+      //   icon: 'warning',
+      //   showCancelButton: true,
+      //   confirmButtonText: 'Yes, confirm',
+      //   cancelButtonText: 'Cancel',
+      // }).then((result) => {
+      //   if (result.isConfirmed) {
+      //     $('#region-tab').tab('show');
+      //   }
+      // });
+      $('#region-tab').tab('show');
       // Other actions you might want to perform after confirming the selection
     } else {
       // Show a message if no company is selected
