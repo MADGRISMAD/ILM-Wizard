@@ -2,11 +2,18 @@
 const VMWareConfigs = [
   ['Other Software', 'multiList', 'otherSoftwareProducts'],
   ['HA', 'list', 'haList'],
-  ['Site', 'addList', 'sites'],
   ['Network Type', 'list', 'networkTypes'],
-  ['Bridge Domain', 'list', 'bridgeDomains', 'networkTypes', 'ACI'],
-  ['Distribution', 'addList', 'distributions'],
+  ['Site', 'addList', 'sites'],
+  ['Distribution', 'addList', 'distributions', { parent: 'sites' }],
+  [
+    'Bridge Domain',
+    'list',
+    'bridgeDomains',
+    { parent: 'distributions', parentValue: 'ACI', url: '/newconfig/getBD' },
+  ],
   ['Available Deployment', 'checkbox', 'availableDeployment'],
+  ['Deployable in ILM', 'checkbox', 'deployableInILM'],
+  ['Deployable in Alexa', 'checkbox', 'deployableInAlexa', { disabled: true }],
 ];
 
 const OHEConfigs = [
@@ -15,13 +22,25 @@ const OHEConfigs = [
   ['Business Service', 'addList', 'businessServices'],
   ['Cluster Class', 'list', 'clusterClasses'],
   ['Business Type', 'list', 'businessTypes'],
-  ['Service Class', 'list', 'serviceClasses'],
-  ['Cluster Type', 'list', 'clusterTypes', 'serviceClasses'],
-  ['Availabitity Set', 'list', 'availabilitySets', 'serviceClasses', 'Gold'],
-  ['AZ', 'list', 'availabilityZones', 'clusterTypes'],
   ['Network', 'list', 'network'],
-  ['Deployable in Alexa', 'checkbox', 'deployableInAlexa'],
+  ['Service Class', 'list', 'serviceClasses'],
+  [
+    'Availabitity Set',
+    'list',
+    'availabilitySets',
+    { parent: 'serviceClasses', parentValue: 'Gold' },
+  ],
+  ['Cluster Type', 'list', 'clusterTypes', { parent: 'serviceClasses' }],
+  [
+    'AZ',
+    'list',
+    'availabilityZones',
+    { parent: 'clusterTypes', url: '/newconfig/getAZ', default: true },
+  ],
+
   ['Available Deployment', 'checkbox', 'availableDeployment'],
+  ['Deployable in ILM', 'checkbox', 'deployableInILM'],
+  ['Deployable in Alexa', 'checkbox', 'deployableInAlexa'],
 ];
 function loadOptions() {
   $('#configDropdownContainer').empty();
@@ -37,27 +56,42 @@ function loadOptions() {
   container.appendChild(subtitle);
 
   var configs;
-
+  var checkboxes = false;
+  // Use vmware configs if the infrastructure is vmware
   if (matchedInfrastructure == 'vmware') configs = VMWareConfigs;
+  // Else use OHE configs
   else configs = OHEConfigs;
   const url = matchedInfrastructure == 'vmware' ? '/vmware' : '/ohe';
+
   $.ajax({
     url: '/newConfig/getConfigs' + url,
     type: 'GET',
-    success: function (resp) {
-      for (let i = 0; i < configs.length; i += 3) {
-        const row = document.createElement('div');
-        row.classList.add('form-row', 'mb-4');
 
+    success: function (resp) {
+      // Creates rows every 3 inputs
+      for (let i = 0; i < configs.length; i += 3) {
+        var row = document.createElement('div');
+        row.classList.add('form-row', 'mb-4');
+        // Creates 3 inputs per row
         for (let j = 0; j < 3 && i + j < configs.length; j++) {
           const col = document.createElement('div');
           col.classList.add('col-4', 'd-flex', 'flex-column', 'pr-3', 'pl-3');
           const title = configs[i + j][0];
           const type = configs[i + j][1];
           const configName = configs[i + j][2] || false;
-          const parent = configs[i + j][3] || false;
-          const parentValue = configs[i + j][4] || false;
+          const options = configs[i + j][3] || false;
+          const parent = options.parent || false;
+          const parentValue = options.parentValue || false;
           const label = document.createElement('label');
+          // Creates a new row if its a checkbox (checkbox section)
+          if (type == 'checkbox' && !checkboxes) {
+            row.appendChild(col);
+            container.appendChild(row);
+            row = document.createElement('div');
+            row.classList.add('form-row', 'mb-4');
+            addDivider(container);
+            checkboxes = true;
+          }
 
           if (parent) col.setAttribute('style', 'display:none');
           label.textContent = title;
@@ -100,12 +134,53 @@ function loadOptions() {
 
             // If it has a parent, creates a listener to enable/disable the select
             if (parent) {
-              console.log(parent, parentValue);
               select.setAttribute('disabled', true);
               $(document).on('change', '#' + parent, function () {
                 // If it has a parent value to enable, enable it
-                if (!parentValue || $(this).val() == parentValue)
+                if (!parentValue || $(this).val() == parentValue) {
                   select.removeAttribute('disabled');
+                  const url = options.url || false;
+                  if (options.url) {
+                    var data = {};
+                    const parentValue = $('#' + parent).val();
+                    $.extend(data, { [parent]: parentValue });
+
+                    for (let l = 0; l < configs.length; l++) {
+                      if (configs[l][2] == parent) {
+                        const parentParent = configs[l][3].parent;
+                        $.extend(data, {
+                          [parentParent]: $('#' + parentParent).val(),
+                        });
+                      }
+                    }
+                    console.log(data);
+                    $.ajax({
+                      method: 'post',
+                      url: url,
+                      data: data,
+                      success: function (res) {
+                        const object = res.object;
+                        $('#' + configName).html('');
+                        const option = document.createElement('option');
+                        option.textContent = title;
+                        option.setAttribute('disabled', true);
+                        option.setAttribute('selected', true);
+                        $('#' + configName).append(option);
+                        for (let m = 0; m < object.length; m++) {
+                          const option = document.createElement('option');
+                          option.textContent = object[m].value;
+                          option.value = object[m].value;
+
+                          if (options.default && object[m].default) {
+                            option.setAttribute('selected', true);
+                          }
+                          $('#' + configName).append(option);
+                        }
+                      },
+                    });
+                  }
+                }
+
                 if (parentValue && $(this).val() != parentValue) {
                   select.setAttribute('disabled', true);
                   $('#' + configName).val(
@@ -129,6 +204,8 @@ function loadOptions() {
             checkbox.setAttribute('type', 'checkbox');
             checkbox.setAttribute('id', configName);
             checkbox.setAttribute('value', configName);
+            if (options.disabled) checkbox.setAttribute('disabled', true);
+
             element.appendChild(checkbox);
           }
           col.appendChild(element);
@@ -138,12 +215,16 @@ function loadOptions() {
         container.appendChild(row);
 
         if (i === 0) {
-          const divider = document.createElement('hr');
-          container.appendChild(divider);
+          addDivider(container);
         }
       }
     },
   });
+
+  const addDivider = (container) => {
+    const divider = document.createElement('hr');
+    container.appendChild(divider);
+  };
 
   // Styles
   const style = document.createElement('style');
@@ -198,7 +279,6 @@ function loadOptions() {
       const selectElement = parentDiv.querySelector('select');
       const inputElement = parentDiv.querySelector('input');
 
-      
       let currentValue;
       if (selectElement) {
         currentValue = selectElement.options[selectElement.selectedIndex].text;
@@ -235,12 +315,11 @@ function loadOptions() {
   });
   $('#confirmConfig').on('click', function (e) {
     e.preventDefault();
-    
+
     const valid = validateInputs();
-    console.log("Entra", valid);
+    console.log('Entra', valid);
     var data = getValues();
     if (valid) {
-        
     } else {
       Swal.fire({
         title: 'error',
@@ -251,7 +330,7 @@ function loadOptions() {
     return;
   });
 
-//   Gets the values of the inputs
+  //   Gets the values of the inputs
   function getValues() {
     var data = [];
     const config = matchedInfrastructure ? VMWareConfigs : OHEConfigs;
@@ -269,24 +348,22 @@ function loadOptions() {
       return true;
     }
   }
-//   Validates the inputs if they are empty
+  //   Validates the inputs if they are empty
   function validateInputs() {
-    const config = matchedInfrastructure =='vmware' ? VMWareConfigs : OHEConfigs;
+    const config =
+      matchedInfrastructure == 'vmware' ? VMWareConfigs : OHEConfigs;
     var validated = true;
     for (let i = 0; i < config.length; i++) {
       const id = '#' + config[i][2];
       const type = config[i][1];
-      if (type == 'list' || type == 'addList' || type == 'multiList'){
-        console.log($(id)[0].selectedIndex);
+      if (type == 'list' || type == 'addList' || type == 'multiList') {
         if ($(id)[0].selectedIndex == 0 && !$(id).is(':disabled')) {
           $(id).addClass('error-input');
           validated = false;
-        }
-        else
-            $(id).removeClass('error-input');
+        } else $(id).removeClass('error-input');
       }
-        
-      if (type == 'checkbox') console.log($(id).is(':checked')	);
+
+      if (type == 'checkbox') console.log($(id).is(':checked'));
     }
     return validated;
   }

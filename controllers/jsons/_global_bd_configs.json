@@ -1,0 +1,19 @@
+{
+"bridgeDomains" : [
+    {
+      "identifier": "ACI",
+      "value": "ACI",
+      "sites": "Gold",
+      "distributions": "ACI",
+      "isEnabled": true
+    },
+    {
+      "identifier": "Traditional",
+      "value": "Traditional",
+      "sites": "Gold",
+      "distributions": "ACI",
+      "isEnabled": true
+    }
+    
+  ]
+}

@@ -27,7 +27,7 @@
     "font-awesome": "^4.7.0",
     "jquery": "^3.7.0",
     "mongodb": "^4.14.0",
-    "mongoose": "^7.4.3",
+    "mongoose": "^7.6.1",
     "sweetalert2": "^11.7.23",
     "underscore": "^1.13.6"
   }

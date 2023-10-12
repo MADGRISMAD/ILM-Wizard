@@ -7,7 +7,8 @@ routes.get('/getConfigs/vmware', newConfigController.getConfigsVMWare);
 
 routes.get('/getConfigs/ohe', newConfigController.getConfigsOHE);
 
-
+routes.post ("/getAZ", newConfigController.getAZ);
+routes.post ("/getBD", newConfigController.getBridgeDomain);
 
 
 
