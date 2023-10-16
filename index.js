@@ -12,6 +12,7 @@ const newOptionsRoutes = require('./routes/new-options.routes');
 const cockieParser = require('cookie-parser');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const mongoService = require('./services/mongodb.service.js');
 
 //crea la ruta inciia y conectala a un html
 app.use(express.static(__dirname + '/public'));
@@ -19,7 +20,7 @@ app.use(express.static(__dirname + '/public/assets'));
 app.use(express.static(__dirname + '/public/js'));
 const path = require('path');
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '/public/index.html'));
+  res.sendFile(path.join(__dirname, '/public/entities-management.html'));
 });
 
 
@@ -56,11 +57,8 @@ app.use('/newinfrastructure', newInfrastructureRoutes);
 app.use('/newconfig', newConfigRoutes);
 app.use('/newoptions', newOptionsRoutes);
 
-
+mongoService.setUrl("mongodb://admin:OSA2Q3pavCB4V1rg@0.0.0.0:27017/", "ilmappdata", false);
 
 http.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
-
-
-

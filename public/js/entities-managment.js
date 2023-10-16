@@ -1,6 +1,7 @@
 var entities = [];
 let matchedEntity = null;
 
+
 function fetchAndRenderEntities() {
   NewEntities.getEntitites().done(function (data) {
     var cardRow = document.querySelector('#card-container .row');
@@ -268,7 +269,7 @@ $(document).ready(function () {
       //   confirmButtonText: 'Yes, confirm',
       //   cancelButtonText: 'Cancel',
       // }).then((result) => {
-      //   
+      //
       // });
       $('#company-tab').tab('show');
       // Other actions you might want to perform after confirming the selection
