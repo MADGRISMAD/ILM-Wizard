@@ -191,11 +191,13 @@ function loadOptions() {
             }
             // Appends the element to the container
             element.appendChild(select);
-            //   Creates the modify button its an addList
+            //   Creates the modify button if its an addList
             if (type == 'addList') {
               const button = document.createElement('button');
               button.classList.add('btn', 'btn-secondary', 'config-button');
               button.innerHTML = '<i class="fas fa-cog"></i>';
+              button.setAttribute('value', configName);
+              if(parent) button.setAttribute('disabled', true);
               element.appendChild(button);
             }
             // Creates the checkbox if its a checkbox
@@ -260,7 +262,19 @@ function loadOptions() {
                           </button>
                       </div>
                       <div class="modal-body">
-                          <input type="text" class="form-control" id="editInput" placeholder="Edit option...">
+                          <table class="table">
+                          <thead>
+                            <tr>
+                              <th scope="col" hidden>Id</th>
+                              <th scope="col">Option</th>
+                              <th scope="col">Enabled</th>
+                              <th scope="col">Actions...</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                          </tbody>
+                          </table>
+                          <button type="button" class="btn btn-primary" id="addOption">Add Option</button>
                       </div>
                       <div class="modal-footer">
                           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -273,46 +287,156 @@ function loadOptions() {
   document.body.insertAdjacentHTML('beforeend', modalHTML);
 
   // Edit Modal Event
-  document.addEventListener('click', function (event) {
-    if (event.target.classList.contains('config-button')) {
-      const parentDiv = event.target.parentNode;
-      const selectElement = parentDiv.querySelector('select');
-      const inputElement = parentDiv.querySelector('input');
+  $(document).on('click', '.config-button', function (event) {
+    event.preventDefault();
+    $('#editmodal .modal-footer #saveChanges').attr('value', this.value);
+    $.ajax({
+      url: '/newConfig/getCustomConfigs/' + this.value,
+      type: 'GET',
+      success: function (res) {
+        const object = res.object || [];
+        console.log(object);
+        const tbody = $('#editModal tbody');
+        tbody.html('');
+        for (let i = 0; i < object.length; i++) {
+          const element = object[i];
+          if(element.envId === matchedEnvironment && element.regionId === matchedRegion._id && element.envId === matchedInfrastructure)
+            continue;
+          const tr = createRow(
+            element.identifier,
+            element.name,
+            element.isEnabled,
+          );
+          tbody.append(tr);
+        }
+      },
+    });
+    const createRow = (id = Date.now(), name = '', isEnabled = false) => {
+      const tr = $('<tr></tr>');
+      const tdId = $('<td hidden></td>');
+      const tdOption = $('<td></td>');
+      const tdEnabled = $('<td></td>');
+      const tdActions = $('<td></td>');
 
-      let currentValue;
-      if (selectElement) {
-        currentValue = selectElement.options[selectElement.selectedIndex].text;
-      } else if (inputElement) {
-        currentValue = inputElement.value;
-      }
+      const checkbox = document.createElement('input');
+      checkbox.setAttribute('type', 'checkbox');
+      checkbox.setAttribute('id', id);
+      checkbox.setAttribute('value', id);
+      if (isEnabled) checkbox.setAttribute('checked', true);
 
-      document.getElementById('editInput').value = currentValue;
-      $('#editModal').modal('show');
-    }
+      // const editButton = document.createElement('button');
+      // editButton.setAttribute('type', 'button');
+      // editButton.setAttribute('class', 'btn btn-primary');
+      // editButton.setAttribute('data-toggle', 'modal');
+      // editButton.setAttribute('data-target', '#editModal');
+      // editButton.setAttribute('data-id', object[i].identifier);
+      // editButton.innerHTML = '<i class="fas fa-edit"></i>';
+
+      const deleteButton = document.createElement('button');
+      deleteButton.setAttribute('type', 'button');
+      deleteButton.setAttribute('class', 'btn btn-danger');
+      deleteButton.setAttribute('data-toggle', 'modal');
+      deleteButton.setAttribute('data-target', '#editModal');
+      deleteButton.setAttribute('data-id', id);
+      deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+
+      tdId.attr('hidden', true);
+      tdId.text(id);
+      tdOption.text(name);
+      tdEnabled.append(checkbox);
+      // tdActions.append(editButton);
+      tdActions.append(deleteButton);
+
+      tr.append(tdId, tdOption, tdEnabled, tdActions);
+
+      return tr;
+    };
+    $(document).on('click', '#addOption', (e) => {
+      e.preventDefault();
+      const tbody = $('#editModal tbody');
+      const tr = createRow();
+
+      tbody.append(tr);
+    });
+    // Makes the name capable of editing
+    $('#editModal tbody').on('click', 'td:nth-child(2)', function () {
+      const input = $('<input></input>');
+      input.val($(this).text());
+      $(this).html(input);
+      input.focus();
+    });
+
+    // When clicking outside the input, it becomes a text again
+    $('#editModal tbody').on('focusout', 'td:nth-child(2) input', function () {
+      const input = $(this);
+      const td = $(this).parent();
+      td.text(input.val());
+    });
+
+    // When clicking the delete button, it deletes the row
+    $('#editModal tbody').on('click', 'td:nth-child(4) button', function () {
+      const tr = $(this).parent().parent();
+      tr.remove();
+    });
+
+    // if (event.target.classList.contains('config-button')) {
+    //   const parentDiv = event.target.parentNode;
+    //   const selectElement = parentDiv.querySelector('select');
+    //   const inputElement = parentDiv.querySelector('input');
+
+    //   let currentValue;
+    //   if (selectElement) {
+    //     currentValue = selectElement.options[selectElement.selectedIndex].text;
+    //   } else if (inputElement) {
+    //     currentValue = inputElement.value;
+    //   }
+
+    // document.getElementById('editInput').value = currentValue;
+
+    $('#saveChanges').attr('value', this.value);
+    $('#editModal').modal('show');
   });
 
   // Save Changes Event
   document.getElementById('saveChanges').addEventListener('click', function () {
-    const newValue = document.getElementById('editInput').value;
-    const activeConfigButton = document.querySelector('.config-button:focus');
-
-    if (activeConfigButton) {
-      const parentDiv = activeConfigButton.parentNode;
-      const selectElement = parentDiv.querySelector('select');
-      const inputElement = parentDiv.querySelector('input');
-
-      if (selectElement) {
-        const selectedOption =
-          selectElement.options[selectElement.selectedIndex];
-        selectedOption.textContent = newValue;
-        selectedOption.value = newValue.toLowerCase().replace(/ /g, '_');
-      } else if (inputElement) {
-        inputElement.value = newValue;
-      }
-    }
+    var data = [];
+    // For every row in the table, it gets the values and creates a JSON
+    $('#editModal tbody tr').each(function () {
+      const id = $(this).find('td:nth-child(1)').text();
+      const name = $(this).find('td:nth-child(2)').text();
+      const enabled = $(this).find('td:nth-child(3) input').is(':checked');
+      const object = {
+        identifier: id,
+        name: name,
+        isEnabled: enabled,
+        envId: matchedEnvironment,
+        infId: matchedInfrastructure,
+        regionId: matchedRegion._id,
+      };
+      data.push(object);
+    });
+    const url =
+      '/newConfig/setCustomConfigs/' + $('#saveChanges').attr('value');
+    $.ajax({
+      url: url,
+      type: 'PUT',
+      data: {data: JSON.stringify(data)},
+      dataType: 'json',
+      success: function (res) {
+        Swal.fire({
+          title: 'Success',
+          text: 'The options has been updated',
+          icon: 'success',
+          confirmButtonText: 'Ok',
+        });
+      },
+    });
 
     $('#editModal').modal('hide');
   });
+
+  const loadOptions = () => {};
+
   $('#confirmConfig').on('click', function (e) {
     e.preventDefault();
 

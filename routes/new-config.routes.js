@@ -10,6 +10,8 @@ routes.get('/getConfigs/ohe', newConfigController.getConfigsOHE);
 routes.post ("/getAZ", newConfigController.getAZ);
 routes.post ("/getBD", newConfigController.getBridgeDomain);
 
+routes.get ("/getCustomConfigs/:id", newConfigController.getCustomConfigs);
+routes.put ("/setCustomConfigs/:id", newConfigController.setCustomConfigs);
 
 
 

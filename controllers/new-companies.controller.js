@@ -1,24 +1,24 @@
 const fs = require('fs');
 const path = require('path');
-
+const {db} = require("../services/mongodb.service");
 // Función para cargar compañías del archivo
-function cargarCompanias() {
-  const rawData = fs.readFileSync(path.join(__dirname, 'jsons/_global_companies.json'));
-  return JSON.parse(rawData).companies;
+async function cargarCompanias() {
+  const rawData = await db.collection('_global_companies').find().toArray();
+  return rawData[0].companies;
 }
 
 // Función para guardar compañías en el archivo
-function guardarCompanias(companies) {
+async function guardarCompanias(companies) {
   fs.writeFileSync(path.join(__dirname, 'jsons/_global_companies.json'), JSON.stringify({ companies }));
 }
 
-function getCompanies(req, res) {
-  const companies = cargarCompanias();
+async function getCompanies(req, res) {
+  const companies = await cargarCompanias();
   res.status(200).json({ code: "OK", object: companies, message: "" });
 }
 
-function getCompanyById(req, res) {
-  const companies = cargarCompanias();
+async function getCompanyById(req, res) {
+  const companies = await cargarCompanias();
   const companyId = req.query._id;
   const company = companies.find(c => c._id === companyId);
 
@@ -29,7 +29,7 @@ function getCompanyById(req, res) {
   }
 }
 
-function saveCompanies(req, res) {
+async function saveCompanies(req, res) {
   const companies = cargarCompanias();
   req.body.isEnabled = (req.body.isEnabled === 'true' || req.body.isEnabled === true);
   companies.push(req.body);
@@ -38,7 +38,7 @@ function saveCompanies(req, res) {
   res.status(200).json({ code: "OK", object: companies, message: "Compañía agregada con éxito." });
 }
 
-function editCompanies(req, res) {
+async function editCompanies(req, res) {
   const companies = cargarCompanias();
   const matchedCompanyIndex = companies.findIndex(company => company._id === req.body._id);
 
@@ -56,7 +56,7 @@ function editCompanies(req, res) {
   res.status(200).json({ code: "OK", object: companies, message: "Compañía editada con éxito." });
 }
 
-function deleteCompany(req, res) {
+async function deleteCompany(req, res) {
   const companies = cargarCompanias();
   const companyIdentifier = req.params._id;
   const matchedCompanyIndex = companies.findIndex(company => company._id === companyIdentifier);
@@ -71,7 +71,7 @@ function deleteCompany(req, res) {
   res.status(200).json({ code: "OK", object: companies, message: "Compañía eliminada con éxito." });
 }
 
-function toggleCompanyStatus(req, res) {
+async function toggleCompanyStatus(req, res) {
   const companies = cargarCompanias();
 
   if (typeof req.body !== 'object' || req.body === null) {
