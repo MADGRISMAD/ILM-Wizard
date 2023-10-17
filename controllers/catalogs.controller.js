@@ -36,13 +36,29 @@ const loadBridgeDomainConfigs = () => {
 
 // Get all configs from json file
 const getConfigsOHE = (req, res) => {
-  const configs = loadOheConfigs();
+  var configs = loadOheConfigs();
+  const customConfig = loadCustomConfigs();
+
+  const keys = Object.keys(customConfig);
+  for (var index in keys) {
+    const key = keys[index];
+    configs[key] = customConfig[key];
+  }
+
   res.status(200).json({ code: 'OK', object: configs, message: '' });
 };
 
 // Get all Vmware configs from json file
 const getConfigsVMWare = (req, res) => {
   const configs = loadVmwareConfigs();
+  const customConfig = loadCustomConfigs();
+
+  const keys = Object.keys(customConfig);
+  for (var index in keys) {
+    const key = keys[index];
+    configs[key] = customConfig[key];
+  }
+
   res.status(200).json({ code: 'OK', object: configs, message: '' });
 };
 
@@ -51,8 +67,10 @@ const getAZ = (req, res) => {
   const configs = loadAZConfigs().availabilityZones;
   const serviceClasses = req.body.serviceClasses;
   const clusterTypes = req.body.clusterTypes;
+  console.log(serviceClasses, clusterTypes)
   var data = [];
   configs.forEach((option) => {
+    console.log(option);
     if (
       option.serviceClasses === serviceClasses &&
       option.clusterTypes === clusterTypes
@@ -87,7 +105,7 @@ const loadCustomConfigs = () => {
 
 const getCustomConfigs = (req, res) => {
   const id = req.params.id;
-  const data = loadCustomConfigs(id);
+  const data = loadCustomConfigs()[id];
 
   res.status(200).json({ code: 'OK', object: data, message: '' });
 };
@@ -97,7 +115,19 @@ const setCustomConfigs = (req, res) => {
   const data = JSON.parse(req.body.data);
   const rawData = loadCustomConfigs();
 
-  rawData[id] = data;
+  const rawDataLength = rawData[id] ? rawData[id].length : 0;
+  if (rawDataLength === 0) {
+    rawData[id] = data;
+  } else {
+    for (let i = 0; i < rawDataLength; i++) {
+      for (let j = 0; j < data.length; j++) {
+        console.log(rawData[id][i].identifier, data[j].identifier);
+        if (rawData[id][i].identifier === data[j].identifier) {
+          rawData[id][i] = data[j];
+        }
+      }
+    }
+  }
 
   // write the new data in the JSON file
   fs.writeFileSync(
@@ -108,6 +138,26 @@ const setCustomConfigs = (req, res) => {
   res.status(200).json({ code: 'OK', object: rawData[id], message: '' });
 };
 
+const loadDistributions = (req, res) => {
+  const rawData = fs.readFileSync(
+    path.join(__dirname, 'jsons/_global_distribution_configs.json'),
+  );
+  return JSON.parse(rawData);
+};
+
+const getDistributions = (req, res) => {
+  const configs = loadDistributions().distributions;
+  const sites = req.body.sites;
+
+  var data = [];
+  configs.forEach((option) => {
+    if (option.sites === sites) {
+      data.push(option);
+    }
+  });
+  res.status(200).json({ code: 'OK', object: data, message: '' });
+};
+
 module.exports = {
   getConfigsOHE,
   getConfigsVMWare,
@@ -115,4 +165,5 @@ module.exports = {
   getBridgeDomain,
   getCustomConfigs,
   setCustomConfigs,
+  getDistributions,
 };

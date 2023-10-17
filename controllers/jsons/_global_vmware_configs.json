@@ -33,18 +33,6 @@
     }
     
   ],
-  "sites": [
-    {
-      "identifier": "Bronze",
-      "value": "Bronze",
-      "isEnabled": true
-    },
-    {
-      "identifier": "Gold",
-      "value": "Gold",
-      "isEnabled": true
-    }
-  ],
   "clusterTypes" : [
     {
       "identifier": "Multicluster",
@@ -73,11 +61,6 @@
     
   ],
   
-  "disabledProducts" : [
-    "product1",
-    "product2"
-    
-  ],
   "bridgeDomains" : [
     {
       "identifier": "ACI",
@@ -104,9 +87,16 @@
     }
     
   ],
-  "otherSoftwareProducts" : [
-    "software_product1",
-    "software_product2"
-    
+  "otherSoftwareProducts": [
+    {
+      "identifier": "software_product1",
+      "value": "Oracle database",
+      "isEnabled": true,
+      "isAlexa": true
+    },
+    { "identifier": "software_product2",
+    "value": "Linux",
+    "isEnabled": true,
+    "isAlexa": false }
   ]
 }

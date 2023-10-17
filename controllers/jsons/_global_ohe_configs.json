@@ -81,9 +81,18 @@
     }
   ],
 
-  "disabledProducts": ["product1", "product2"],
-
-  "otherSoftwareProducts": ["software_product1", "software_product2"],
+  "otherSoftwareProducts": [
+    {
+      "identifier": "software_product1",
+      "value": "Oracle database",
+      "isEnabled": true,
+      "isAlexa": true
+    },
+    { "identifier": "software_product2",
+    "value": "Linux",
+    "isEnabled": true,
+    "isAlexa": false }
+  ],
 
   "clusterClasses": [
     {
@@ -107,19 +116,6 @@
     {
       "identifier": "Type 2",
       "value": "Business Type 2",
-      "isEnabled": true
-    }
-  ],
-
-  "businessServices": [
-    {
-      "identifier": "Service 1",
-      "value": "Business Service 1",
-      "isEnabled": true
-    },
-    {
-      "identifier": "Service 2",
-      "value": "Business Service 2",
       "isEnabled": true
     }
   ]

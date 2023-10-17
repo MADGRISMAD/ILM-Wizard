@@ -4,7 +4,7 @@ const VMWareConfigs = [
   ['HA', 'list', 'haList'],
   ['Network Type', 'list', 'networkTypes'],
   ['Site', 'addList', 'sites'],
-  ['Distribution', 'addList', 'distributions', { parent: 'sites' }],
+  ['Distribution', 'addList', 'distributions', { parent: 'sites', url: "newconfig/getDistributions" }],
   [
     'Bridge Domain',
     'list',
@@ -118,15 +118,14 @@ function loadOptions() {
                 option.textContent = title;
                 option.setAttribute('disabled', true);
                 option.setAttribute('selected', true);
-              } else if (typeof config === 'object') {
+              } else {
                 // Creates options with values of the JSON
+                option.setAttribute("id", config.identifier);
                 option.textContent = config.value
                   ? config.value
                   : config.companlyAlias;
-              } else {
-                // if its not object, use the value as text
-                option.textContent = config;
               }
+              if (!config.isEnabled) option.setAttribute('disabled', true);
               select.append(option);
             }
             // Sets the id
@@ -139,21 +138,24 @@ function loadOptions() {
                 // If it has a parent value to enable, enable it
                 if (!parentValue || $(this).val() == parentValue) {
                   select.removeAttribute('disabled');
+
                   const url = options.url || false;
                   if (options.url) {
                     var data = {};
-                    const parentValue = $('#' + parent).val();
+                    const parentValue = $('#' + parent).find(":selected").attr("id");
                     $.extend(data, { [parent]: parentValue });
 
+                  
                     for (let l = 0; l < configs.length; l++) {
-                      if (configs[l][2] == parent) {
-                        const parentParent = configs[l][3].parent;
+                      // If it has a parent, add the parent value to the data
+                      
+                      if (configs[l][2] == parent && configs[l][3] && configs[l][3].parent) {
+                        const parentParent = configs[l][3].parent || false;
                         $.extend(data, {
                           [parentParent]: $('#' + parentParent).val(),
                         });
                       }
                     }
-                    console.log(data);
                     $.ajax({
                       method: 'post',
                       url: url,
@@ -165,6 +167,10 @@ function loadOptions() {
                         option.textContent = title;
                         option.setAttribute('disabled', true);
                         option.setAttribute('selected', true);
+                        $(select)
+                          .parent()
+                          .children('.config-button')
+                          .attr('disabled', true);
                         $('#' + configName).append(option);
                         for (let m = 0; m < object.length; m++) {
                           const option = document.createElement('option');
@@ -197,7 +203,18 @@ function loadOptions() {
               button.classList.add('btn', 'btn-secondary', 'config-button');
               button.innerHTML = '<i class="fas fa-cog"></i>';
               button.setAttribute('value', configName);
-              if(parent) button.setAttribute('disabled', true);
+              // If it has a parent, disable the button
+              if (parent){
+                button.attr('disabled', true);
+                // Creates a listener to enable/disable the button when the parent changes
+                $(document).on('change', '#' + parent, function () {
+                  if (!parentValue || $(this).val() == parentValue) {
+                    $(button).removeAttr('disabled');
+                  } else {
+                    $(button).attr('disabled', true);
+                  }
+                });
+              }
               element.appendChild(button);
             }
             // Creates the checkbox if its a checkbox
@@ -295,16 +312,19 @@ function loadOptions() {
       type: 'GET',
       success: function (res) {
         const object = res.object || [];
-        console.log(object);
         const tbody = $('#editModal tbody');
         tbody.html('');
         for (let i = 0; i < object.length; i++) {
           const element = object[i];
-          if(element.envId === matchedEnvironment && element.regionId === matchedRegion._id && element.envId === matchedInfrastructure)
+          if (
+            element.envId === matchedEnvironment &&
+            element.regionId === matchedRegion._id &&
+            element.envId === matchedInfrastructure
+          )
             continue;
           const tr = createRow(
             element.identifier,
-            element.name,
+            element.value,
             element.isEnabled,
           );
           tbody.append(tr);
@@ -312,7 +332,7 @@ function loadOptions() {
       },
     });
     const createRow = (id = Date.now(), name = '', isEnabled = false) => {
-      const tr = $('<tr></tr>');
+      let tr = $('<tr></tr>');
       const tdId = $('<td hidden></td>');
       const tdOption = $('<td></td>');
       const tdEnabled = $('<td></td>');
@@ -335,8 +355,6 @@ function loadOptions() {
       const deleteButton = document.createElement('button');
       deleteButton.setAttribute('type', 'button');
       deleteButton.setAttribute('class', 'btn btn-danger');
-      deleteButton.setAttribute('data-toggle', 'modal');
-      deleteButton.setAttribute('data-target', '#editModal');
       deleteButton.setAttribute('data-id', id);
       deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
 
@@ -351,13 +369,6 @@ function loadOptions() {
 
       return tr;
     };
-    $(document).on('click', '#addOption', (e) => {
-      e.preventDefault();
-      const tbody = $('#editModal tbody');
-      const tr = createRow();
-
-      tbody.append(tr);
-    });
     // Makes the name capable of editing
     $('#editModal tbody').on('click', 'td:nth-child(2)', function () {
       const input = $('<input></input>');
@@ -378,20 +389,13 @@ function loadOptions() {
       const tr = $(this).parent().parent();
       tr.remove();
     });
-
-    // if (event.target.classList.contains('config-button')) {
-    //   const parentDiv = event.target.parentNode;
-    //   const selectElement = parentDiv.querySelector('select');
-    //   const inputElement = parentDiv.querySelector('input');
-
-    //   let currentValue;
-    //   if (selectElement) {
-    //     currentValue = selectElement.options[selectElement.selectedIndex].text;
-    //   } else if (inputElement) {
-    //     currentValue = inputElement.value;
-    //   }
-
-    // document.getElementById('editInput').value = currentValue;
+    $('#editModal').off('click', '#addOption');
+    $('#editModal').on('click', '#addOption', (e) => {
+      e.preventDefault();
+      const tbody = $('#editModal tbody');
+      const tr = createRow();
+      tbody.append(tr);
+    });
 
     $('#saveChanges').attr('value', this.value);
     $('#editModal').modal('show');
@@ -403,11 +407,11 @@ function loadOptions() {
     // For every row in the table, it gets the values and creates a JSON
     $('#editModal tbody tr').each(function () {
       const id = $(this).find('td:nth-child(1)').text();
-      const name = $(this).find('td:nth-child(2)').text();
+      const value = $(this).find('td:nth-child(2)').text();
       const enabled = $(this).find('td:nth-child(3) input').is(':checked');
       const object = {
         identifier: id,
-        name: name,
+        value: value,
         isEnabled: enabled,
         envId: matchedEnvironment,
         infId: matchedInfrastructure,
@@ -420,7 +424,7 @@ function loadOptions() {
     $.ajax({
       url: url,
       type: 'PUT',
-      data: {data: JSON.stringify(data)},
+      data: { data: JSON.stringify(data) },
       dataType: 'json',
       success: function (res) {
         Swal.fire({
@@ -429,14 +433,31 @@ function loadOptions() {
           icon: 'success',
           confirmButtonText: 'Ok',
         });
+        const select = $('#' + this.value);
+        select.empty();
+        for (let i = -1; i < data.length; i++) {
+          const option = document.createElement('option');
+          const config = i === -1 ? select.find('label').text() : data[i];
+
+          option.textContent = config;
+          if (i === -1) {
+            option.setAttribute('disabled', true);
+            option.setAttribute('selected', true);
+          } else if (data[i].isEnabled) option.setAttribute('disabled', true);
+        }
+
+        $('#editModal').modal('hide');
+      },
+      error: function (err) {
+        Swal.fire({
+          title: 'Error',
+          text: 'There was an error updating the options',
+          icon: 'error',
+          confirmButtonText: 'Ok',
+        });
       },
     });
-
-    $('#editModal').modal('hide');
   });
-
-  const loadOptions = () => {};
-
   $('#confirmConfig').on('click', function (e) {
     e.preventDefault();
 

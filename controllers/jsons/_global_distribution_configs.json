@@ -1,0 +1,10 @@
+{
+    "distributions":[
+        {
+            "identifier":"dist_1",
+            "name":"Distribution 1",
+            "sites":"Gold",
+            "isEnabled":true
+        }
+    ]
+}

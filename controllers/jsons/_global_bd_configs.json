@@ -3,14 +3,14 @@
     {
       "identifier": "ACI",
       "value": "ACI",
-      "sites": "Gold",
+      "sites": "1697544736378",
       "distributions": "ACI",
       "isEnabled": true
     },
     {
       "identifier": "Traditional",
       "value": "Traditional",
-      "sites": "Gold",
+      "sites": "1697544736378",
       "distributions": "ACI",
       "isEnabled": true
     }
