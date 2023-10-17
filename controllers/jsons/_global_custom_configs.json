@@ -53,13 +53,13 @@
   ],
   "distributions": [
     {
-      "identifier": "1697563033161",
-      "value": "A",
-      "isEnabled": false,
+      "identifier": "ACI",
+      "value": "ACI",
+      "isEnabled": true,
       "envId": "pre",
       "infId": "vmware",
       "regionId": "696873286284",
-      "parentId": "sites"
+      "parentId": "false"
     }
   ],
   "bridgeDomains": [
@@ -76,32 +76,6 @@
       "sites": "1697544736378",
       "distributions": "ACI",
       "isEnabled": true
-    }
-  ],
-  "availabilityZones": [
-    {
-      "id": "AZ",
-      "value": "AZ",
-      "isEnabled": true,
-      "serviceClasses": "Gold",
-      "clusterTypes": "Multicluster",
-      "default": true
-    },
-    {
-      "id": "IDER",
-      "value": "IDER",
-      "isEnabled": true,
-      "serviceClasses": "Gold",
-      "clusterTypes": "Stretched",
-      "default": false
-    },
-    {
-      "id": "AZ",
-      "value": "AZ",
-      "isEnabled": true,
-      "serviceClasses": "Gold",
-      "clusterTypes": "Stretched",
-      "default": true
     }
   ]
 }

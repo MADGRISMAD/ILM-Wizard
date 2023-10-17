@@ -67,7 +67,7 @@ const getAZ = (req, res) => {
   const configs = loadAZConfigs().availabilityZones;
   const serviceClasses = req.body.serviceClasses;
   const clusterTypes = req.body.clusterTypes;
-  console.log(serviceClasses, clusterTypes)
+  console.log(serviceClasses, clusterTypes);
   var data = [];
   configs.forEach((option) => {
     console.log(option);
@@ -122,13 +122,12 @@ const setCustomConfigs = (req, res) => {
     for (let i = 0; i < rawDataLength; i++) {
       for (let j = 0; j < data.length; j++) {
         console.log(rawData[id][i].identifier, data[j].identifier);
-        if (rawData[id][i].identifier === data[j].identifier) {
+        if (rawData[id][i].identifier === data[j].identifier)
           rawData[id][i] = data[j];
-        }
+        else rawData[id].push = data[j];
       }
     }
   }
-
   // write the new data in the JSON file
   fs.writeFileSync(
     path.join(__dirname, 'jsons/_global_custom_configs.json'),

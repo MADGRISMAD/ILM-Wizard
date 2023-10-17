@@ -8,13 +8,13 @@ const VMWareConfigs = [
     'Distribution',
     'addList',
     'distributions',
-    { parent: 'sites', url: 'newconfig/getDistributions' },
+    { parent: 'sites' },
   ],
   [
     'Bridge Domain',
     'list',
     'bridgeDomains',
-    { parent: 'distributions', parentValue: 'ACI', url: '/newconfig/getBD' },
+    { parent: 'distributions', parentValue: 'ACI' },
   ],
   ['Available Deployment', 'checkbox', 'availableDeployment'],
   ['Deployable in ILM', 'checkbox', 'deployableInILM'],
@@ -40,7 +40,7 @@ const OHEConfigs = [
     'AZ',
     'list',
     'availabilityZones',
-    { parent: 'clusterTypes', url: '/newconfig/getAZ', default: true },
+    { parent: 'clusterTypes', default: true },
   ],
 
   ['Available Deployment', 'checkbox', 'availableDeployment'],
@@ -331,7 +331,7 @@ function loadOptions() {
           )
             continue;
           const tr = createRow(
-            this.attr("parentId"),
+            $(this).attr("parentId"),
             element.identifier,
             element.value,
             element.isEnabled
