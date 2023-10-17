@@ -4,7 +4,12 @@ const VMWareConfigs = [
   ['HA', 'list', 'haList'],
   ['Network Type', 'list', 'networkTypes'],
   ['Site', 'addList', 'sites'],
-  ['Distribution', 'addList', 'distributions', { parent: 'sites', url: "newconfig/getDistributions" }],
+  [
+    'Distribution',
+    'addList',
+    'distributions',
+    { parent: 'sites', url: 'newconfig/getDistributions' },
+  ],
   [
     'Bridge Domain',
     'list',
@@ -120,7 +125,7 @@ function loadOptions() {
                 option.setAttribute('selected', true);
               } else {
                 // Creates options with values of the JSON
-                option.setAttribute("id", config.identifier);
+                option.setAttribute('id', config.identifier);
                 option.textContent = config.value
                   ? config.value
                   : config.companlyAlias;
@@ -142,14 +147,19 @@ function loadOptions() {
                   const url = options.url || false;
                   if (options.url) {
                     var data = {};
-                    const parentValue = $('#' + parent).find(":selected").attr("id");
+                    const parentValue = $('#' + parent)
+                      .find(':selected')
+                      .attr('id');
                     $.extend(data, { [parent]: parentValue });
 
-                  
                     for (let l = 0; l < configs.length; l++) {
                       // If it has a parent, add the parent value to the data
-                      
-                      if (configs[l][2] == parent && configs[l][3] && configs[l][3].parent) {
+
+                      if (
+                        configs[l][2] == parent &&
+                        configs[l][3] &&
+                        configs[l][3].parent
+                      ) {
                         const parentParent = configs[l][3].parent || false;
                         $.extend(data, {
                           [parentParent]: $('#' + parentParent).val(),
@@ -167,10 +177,6 @@ function loadOptions() {
                         option.textContent = title;
                         option.setAttribute('disabled', true);
                         option.setAttribute('selected', true);
-                        $(select)
-                          .parent()
-                          .children('.config-button')
-                          .attr('disabled', true);
                         $('#' + configName).append(option);
                         for (let m = 0; m < object.length; m++) {
                           const option = document.createElement('option');
@@ -203,15 +209,16 @@ function loadOptions() {
               button.classList.add('btn', 'btn-secondary', 'config-button');
               button.innerHTML = '<i class="fas fa-cog"></i>';
               button.setAttribute('value', configName);
+              button.setAttribute('parentId', parent);
               // If it has a parent, disable the button
-              if (parent){
-                button.attr('disabled', true);
+              if (parent) {
+                button.setAttribute('disabled', false);
                 // Creates a listener to enable/disable the button when the parent changes
                 $(document).on('change', '#' + parent, function () {
                   if (!parentValue || $(this).val() == parentValue) {
-                    $(button).removeAttr('disabled');
+                    button.removeAttribute('disabled');
                   } else {
-                    $(button).attr('disabled', true);
+                    button.setAttribute('disabled', true);
                   }
                 });
               }
@@ -283,6 +290,7 @@ function loadOptions() {
                           <thead>
                             <tr>
                               <th scope="col" hidden>Id</th>
+                              <th scope="col" hidden>Parent</th>	
                               <th scope="col">Option</th>
                               <th scope="col">Enabled</th>
                               <th scope="col">Actions...</th>
@@ -323,17 +331,19 @@ function loadOptions() {
           )
             continue;
           const tr = createRow(
+            this.attr("parentId"),
             element.identifier,
             element.value,
-            element.isEnabled,
+            element.isEnabled
           );
           tbody.append(tr);
         }
       },
     });
-    const createRow = (id = Date.now(), name = '', isEnabled = false) => {
+    const createRow = (parentId = false, id = Date.now(), name = '', isEnabled = false) => {
       let tr = $('<tr></tr>');
       const tdId = $('<td hidden></td>');
+      const tdParent = $('<td hidden></td>');
       const tdOption = $('<td></td>');
       const tdEnabled = $('<td></td>');
       const tdActions = $('<td></td>');
@@ -360,17 +370,18 @@ function loadOptions() {
 
       tdId.attr('hidden', true);
       tdId.text(id);
+      tdParent.text(parentId);
       tdOption.text(name);
       tdEnabled.append(checkbox);
       // tdActions.append(editButton);
       tdActions.append(deleteButton);
 
-      tr.append(tdId, tdOption, tdEnabled, tdActions);
+      tr.append(tdId, tdParent, tdOption, tdEnabled, tdActions);
 
       return tr;
     };
     // Makes the name capable of editing
-    $('#editModal tbody').on('click', 'td:nth-child(2)', function () {
+    $('#editModal tbody').on('click', 'td:nth-child(3)', function () {
       const input = $('<input></input>');
       input.val($(this).text());
       $(this).html(input);
@@ -378,14 +389,14 @@ function loadOptions() {
     });
 
     // When clicking outside the input, it becomes a text again
-    $('#editModal tbody').on('focusout', 'td:nth-child(2) input', function () {
+    $('#editModal tbody').on('focusout', 'td:nth-child(3) input', function () {
       const input = $(this);
       const td = $(this).parent();
       td.text(input.val());
     });
 
     // When clicking the delete button, it deletes the row
-    $('#editModal tbody').on('click', 'td:nth-child(4) button', function () {
+    $('#editModal tbody').on('click', 'td:nth-child(5) button', function () {
       const tr = $(this).parent().parent();
       tr.remove();
     });
@@ -393,11 +404,12 @@ function loadOptions() {
     $('#editModal').on('click', '#addOption', (e) => {
       e.preventDefault();
       const tbody = $('#editModal tbody');
-      const tr = createRow();
+      const tr = createRow($(this).attr("parentId"));
       tbody.append(tr);
     });
 
     $('#saveChanges').attr('value', this.value);
+    $("#addOption").attr("parentId", $(this).attr("parentId"));
     $('#editModal').modal('show');
   });
 
@@ -407,8 +419,11 @@ function loadOptions() {
     // For every row in the table, it gets the values and creates a JSON
     $('#editModal tbody tr').each(function () {
       const id = $(this).find('td:nth-child(1)').text();
-      const value = $(this).find('td:nth-child(2)').text();
-      const enabled = $(this).find('td:nth-child(3) input').is(':checked');
+      const parentId = $(this).find('td:nth-child(2)').text();
+      const value = $(this).find('td:nth-child(3)').text();
+      const enabled = $(this).find('td:nth-child(4) input').is(':checked');
+
+
       const object = {
         identifier: id,
         value: value,
@@ -416,13 +431,12 @@ function loadOptions() {
         envId: matchedEnvironment,
         infId: matchedInfrastructure,
         regionId: matchedRegion._id,
+        parentId: parentId
       };
       data.push(object);
     });
-    const url =
-      '/newConfig/setCustomConfigs/' + $('#saveChanges').attr('value');
     $.ajax({
-      url: url,
+      url: '/newConfig/setCustomConfigs/' + this.value,
       type: 'PUT',
       data: { data: JSON.stringify(data) },
       dataType: 'json',
