@@ -749,4 +749,3 @@ function isDeletable(isDeletable, rowId) {
 function deleteRow(element) {
     $(element).remove();
 }
-

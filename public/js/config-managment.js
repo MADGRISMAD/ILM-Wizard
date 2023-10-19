@@ -1,20 +1,17 @@
+const DEFAULTMESSAGE = 'Select an option';
+
 // List of configuration titles
 const VMWareConfigs = [
   ['Other Software', 'multiList', 'otherSoftwareProducts'],
   ['HA', 'list', 'haList'],
   ['Network Type', 'list', 'networkTypes'],
   ['Site', 'addList', 'sites'],
-  [
-    'Distribution',
-    'addList',
-    'distributions',
-    { parent: 'sites' },
-  ],
+  ['Distribution', 'addList', 'distributions', { parent: 'sites' }],
   [
     'Bridge Domain',
     'list',
     'bridgeDomains',
-    { parent: 'distributions', parentValue: 'ACI' },
+    { parent: 'networkTypes', parentValue: 'ACI' },
   ],
   ['Available Deployment', 'checkbox', 'availableDeployment'],
   ['Deployable in ILM', 'checkbox', 'deployableInILM'],
@@ -24,16 +21,16 @@ const VMWareConfigs = [
 const OHEConfigs = [
   ['Other Software', 'multiList', 'otherSoftwareProducts'],
   ['HA', 'list', 'haList'],
-  ['Business Service', 'addList', 'businessServices'],
-  ['Cluster Class', 'list', 'clusterClasses'],
-  ['Business Type', 'list', 'businessTypes'],
-  ['Network', 'list', 'network'],
-  ['Service Class', 'list', 'serviceClasses'],
+  ['Business Service', 'list', 'businessServices'],
+  ['Cluster Class', 'list', 'clusterClasses', { editable: true }],
+  ['Business Type', 'list', 'businessTypes', { editable: true }],
+  ['Network', 'addList', 'network'],
+  ['Service Class', 'list', 'serviceClasses', { editable: true }],
   [
     'Availabitity Set',
     'list',
     'availabilitySets',
-    { parent: 'serviceClasses', parentValue: 'Gold' },
+    { parent: 'serviceClasses', parentValue: 'Gold', editable: true },
   ],
   ['Cluster Type', 'list', 'clusterTypes', { parent: 'serviceClasses' }],
   [
@@ -49,16 +46,16 @@ const OHEConfigs = [
 ];
 function loadOptions() {
   $('#configDropdownContainer').empty();
-  const container = document.getElementById('configDropdownContainer');
+  const container = $('#configDropdownContainer');
 
   // Adding title and subtitle
-  const title = document.createElement('h2');
-  title.textContent = 'Derived Configurations';
-  container.appendChild(title);
+  const title = $('<h2></h2>');
+  title.text('Derived Configurations');
+  container.append(title);
 
-  const subtitle = document.createElement('p');
-  subtitle.textContent = 'Choose the appropriate option';
-  container.appendChild(subtitle);
+  const subtitle = $('<p></p>');
+  subtitle.text('Choose the appropriate option');
+  container.append(subtitle);
 
   var configs;
   var checkboxes = false;
@@ -67,82 +64,100 @@ function loadOptions() {
   // Else use OHE configs
   else configs = OHEConfigs;
   const url = matchedInfrastructure == 'vmware' ? '/vmware' : '/ohe';
-
-  $.ajax({
-    url: '/newConfig/getConfigs' + url,
-    type: 'GET',
-
-    success: function (resp) {
+  HelperService.postRequest(
+    '/newConfig/getConfigs' + url,
+    {
+      envId: matchedEnvironment,
+      infId: matchedInfrastructure,
+      regionId: matchedRegion._id,
+    },
+    function (resp) {
       // Creates rows every 3 inputs
       for (let i = 0; i < configs.length; i += 3) {
-        var row = document.createElement('div');
-        row.classList.add('form-row', 'mb-4');
+        var row = $('<div></div>');
+        row.addClass('form-row', 'mb-4');
         // Creates 3 inputs per row
         for (let j = 0; j < 3 && i + j < configs.length; j++) {
-          const col = document.createElement('div');
-          col.classList.add('col-4', 'd-flex', 'flex-column', 'pr-3', 'pl-3');
+          const col = $('<div></div>');
+          col.addClass('col-4', 'd-flex', 'flex-column', 'pr-3', 'pl-3');
           const title = configs[i + j][0];
           const type = configs[i + j][1];
           const configName = configs[i + j][2] || false;
           const options = configs[i + j][3] || false;
+          const editable = options.editable || false;
           const parent = options.parent || false;
           const parentValue = options.parentValue || false;
           const label = document.createElement('label');
+          label.classList.add('mt-2');
           // Creates a new row if its a checkbox (checkbox section)
           if (type == 'checkbox' && !checkboxes) {
-            row.appendChild(col);
-            container.appendChild(row);
-            row = document.createElement('div');
-            row.classList.add('form-row', 'mb-4');
+            row.append(col);
+            container.append(row);
+            row = $('<div></div>');
+            row.addClass('form-row mb-4');
             addDivider(container);
             checkboxes = true;
           }
-
-          if (parent) col.setAttribute('style', 'display:none');
           label.textContent = title;
-          col.appendChild(label);
+          col.append(label);
 
-          const element = document.createElement('div');
-          element.classList.add(
-            'd-flex',
-            'align-items-center',
-            'dropdown-container',
-          );
-          element.setAttribute('id', 'configList');
+          const element = $('<div> </div>');
+          element.addClass('d-flex align-items-center dropdown-container');
+          element.attr('id', 'configList');
           if (type == 'list' || type == 'addList' || type == 'multiList') {
-            const select = document.createElement('select');
-            select.classList.add('form-control', 'with-button');
-            if (type == 'multiList') select.setAttribute('multiple', true);
+            const select = $('<select></select>');
+            if (type === 'multiList') select.attr('multiple', true);
+            select.addClass(
+              'form-control with-button d-flex align-self-center my-1',
+            );
 
             for (let k = -1; k < resp.object[configName].length; k++) {
-              const option = document.createElement('option');
-              const config = k === -1 ? title : resp.object[configName][k];
+              const option = $('<option></option>');
+              const config =
+                k === -1 ? 'Select an option' : resp.object[configName][k];
 
               // Marks a first option as disabled and selected
               if (k === -1) {
-                option.textContent = title;
-                option.setAttribute('disabled', true);
-                option.setAttribute('selected', true);
+                option.text(config);
+                option.attr('disabled', true);
+                if (type != 'multiList') option.attr('selected', true);
               } else {
+                const envId = config.envId || false;
+                const infId = config.infId || false;
+                const regionId = config.regionId || false;
+
+                console.log(
+                  !(envId === false),
+                  envId != matchedEnvironment ||
+                    infId != matchedInfrastructure ||
+                    regionId != matchedRegion._id,
+                );
+                if (
+                  (envId || infId || regionId) &&
+                  (envId != matchedEnvironment ||
+                    infId != matchedInfrastructure ||
+                    regionId != matchedRegion._id)
+                )
+                  continue;
                 // Creates options with values of the JSON
-                option.setAttribute('id', config.identifier);
-                option.textContent = config.value
-                  ? config.value
-                  : config.companlyAlias;
+                option.val(config.identifier);
+                option.text(config.value ? config.value : config.companlyAlias);
               }
-              if (!config.isEnabled) option.setAttribute('disabled', true);
+              if (!config.isEnabled) option.attr('disabled', true);
               select.append(option);
             }
             // Sets the id
-            select.setAttribute('id', configName);
+            select.attr('id', configName);
 
             // If it has a parent, creates a listener to enable/disable the select
             if (parent) {
-              select.setAttribute('disabled', true);
+              select.attr('disabled', true);
               $(document).on('change', '#' + parent, function () {
+                if (type == 'multiList') select.attr('multiple', true);
+
                 // If it has a parent value to enable, enable it
                 if (!parentValue || $(this).val() == parentValue) {
-                  select.removeAttribute('disabled');
+                  select.removeAttr('disabled');
 
                   const url = options.url || false;
                   if (options.url) {
@@ -166,35 +181,10 @@ function loadOptions() {
                         });
                       }
                     }
-                    $.ajax({
-                      method: 'post',
-                      url: url,
-                      data: data,
-                      success: function (res) {
-                        const object = res.object;
-                        $('#' + configName).html('');
-                        const option = document.createElement('option');
-                        option.textContent = title;
-                        option.setAttribute('disabled', true);
-                        option.setAttribute('selected', true);
-                        $('#' + configName).append(option);
-                        for (let m = 0; m < object.length; m++) {
-                          const option = document.createElement('option');
-                          option.textContent = object[m].value;
-                          option.value = object[m].value;
-
-                          if (options.default && object[m].default) {
-                            option.setAttribute('selected', true);
-                          }
-                          $('#' + configName).append(option);
-                        }
-                      },
-                    });
                   }
                 }
-
                 if (parentValue && $(this).val() != parentValue) {
-                  select.setAttribute('disabled', true);
+                  select.attr('disabled', true);
                   $('#' + configName).val(
                     $('#' + configName + ' option:first').val(),
                   );
@@ -202,56 +192,118 @@ function loadOptions() {
               });
             }
             // Appends the element to the container
-            element.appendChild(select);
+            element.append(select);
+            select.select2(SELECT2CONFIG);
+
+            // Creates a listener to enable/disable the option when you click the checkbox
+            select.on('select2:select', function (e) {
+              const triggerElement = e.params.originalEvent.target;
+              const element = $(triggerElement);
+              const select = $(this);
+              // When the input trigger
+              if (element.attr('type') == 'checkbox') {
+                e.preventDefault();
+                const url =
+                  '/newConfig/toggleCustomConfig/' + select.attr('id');
+                HelperService.postRequest(
+                  url,
+                  {
+                    value: element.attr('id'),
+                  },
+                  function (res) {
+                    console.log('EnTRA', element.parent('option'));
+                    if (!res) {
+                      element.parent('option').attr('disabled', true);
+                      select.select2(SELECT2CONFIG);
+                    } else element.parent('option').attr('disabled', false);
+                    select.select2(SELECT2CONFIG);
+                    console.log('Chido');
+                  },
+                  function (err) {
+                    console.log('Mal' + err);
+                  },
+                );
+              }
+              // When the span triggers
+              else console.log('Sigue');
+            });
+
             //   Creates the modify button if its an addList
             if (type == 'addList') {
-              const button = document.createElement('button');
-              button.classList.add('btn', 'btn-secondary', 'config-button');
-              button.innerHTML = '<i class="fas fa-cog"></i>';
-              button.setAttribute('value', configName);
-              button.setAttribute('parentId', parent);
+              const button = $('<button></button>');
+              button.addClass('btn btn-secondary config-button');
+              button.html('<i class="fas fa-cog"></i>');
+              button.attr('value', configName);
+              button.attr('parentId', parent);
               // If it has a parent, disable the button
               if (parent) {
-                button.setAttribute('disabled', false);
+                button.attr('disabled', false);
                 // Creates a listener to enable/disable the button when the parent changes
                 $(document).on('change', '#' + parent, function () {
                   if (!parentValue || $(this).val() == parentValue) {
-                    button.removeAttribute('disabled');
+                    button.removeAttr('disabled');
                   } else {
-                    button.setAttribute('disabled', true);
+                    button.attr('disabled', true);
                   }
                 });
               }
-              element.appendChild(button);
+              element.append(button);
             }
             // Creates the checkbox if its a checkbox
           } else if (type == 'checkbox') {
-            const checkbox = document.createElement('input');
-            checkbox.setAttribute('type', 'checkbox');
-            checkbox.setAttribute('id', configName);
-            checkbox.setAttribute('value', configName);
-            if (options.disabled) checkbox.setAttribute('disabled', true);
+            const checkbox = $('<input></input>');
+            checkbox.attr('type', 'checkbox');
+            checkbox.attr('id', configName);
+            checkbox.attr('value', configName);
+            if (options.disabled) checkbox.attr('disabled', true);
 
-            element.appendChild(checkbox);
+            element.append(checkbox);
           }
-          col.appendChild(element);
-          row.appendChild(col);
+          col.append(element);
+          row.append(col);
         }
 
-        container.appendChild(row);
+        container.append(row);
 
         if (i === 0) {
           addDivider(container);
         }
       }
     },
-  });
+    function (err) {
+      alert(err);
+    },
+  );
 
-  const addDivider = (container) => {
-    const divider = document.createElement('hr');
-    container.appendChild(divider);
+  const templateResult = (state) => {
+    if (state.text == DEFAULTMESSAGE) {
+      return $(`<span class="d-flex">
+      <span  class="d-flex w-100 align-self-center">${state.text}</span>
+      </span>`);
+    }
+
+    const template = $(
+      `<span class="d-flex">
+      <span  class="d-flex w-100 align-self-center">${state.text}</span>
+      <input type = "checkbox" class="d-flex flex-shrink-1 align-self-center toggleEnable"  id = '${state.id}' value = '${state.text}'>
+        </span>`,
+    );
+    template.children('input').prop('checked', !state.disabled);
+    return template;
   };
+  const matcher = (params, data) => {
+    // If there are no search terms, return all of the data
+    if ($.trim(params.term) === '') {
+      return data;
+    }
 
+    // Return `null` if the term should not be displayed
+    return null;
+  };
+  const addDivider = (container) => {
+    const divider = $('<hr></hr>');
+    container.append(divider);
+  };
   // Styles
   const style = document.createElement('style');
   style.innerHTML = `
@@ -272,7 +324,7 @@ function loadOptions() {
               color: white;
           }
       `;
-  document.head.appendChild(style);
+  document.head.append(style);
 
   // Modal HTML
   const modalHTML = `
@@ -315,10 +367,15 @@ function loadOptions() {
   $(document).on('click', '.config-button', function (event) {
     event.preventDefault();
     $('#editmodal .modal-footer #saveChanges').attr('value', this.value);
-    $.ajax({
-      url: '/newConfig/getCustomConfigs/' + this.value,
-      type: 'GET',
-      success: function (res) {
+
+    HelperService.postRequest(
+      '/newConfig/getCustomConfigs/' + this.value,
+      {
+        envId: matchedEnvironment,
+        infId: matchedInfrastructure,
+        regionId: matchedRegion._id,
+      },
+      function (res) {
         const object = res.object || [];
         const tbody = $('#editModal tbody');
         tbody.html('');
@@ -331,16 +388,24 @@ function loadOptions() {
           )
             continue;
           const tr = createRow(
-            $(this).attr("parentId"),
+            $(this).attr('parentId'),
             element.identifier,
             element.value,
-            element.isEnabled
+            element.isEnabled,
           );
           tbody.append(tr);
         }
       },
-    });
-    const createRow = (parentId = false, id = Date.now(), name = '', isEnabled = false) => {
+      function (err) {
+        alert(err);
+      },
+    );
+    const createRow = (
+      parentId = false,
+      id = Date.now(),
+      name = '',
+      isEnabled = false,
+    ) => {
       let tr = $('<tr></tr>');
       const tdId = $('<td hidden></td>');
       const tdParent = $('<td hidden></td>');
@@ -348,25 +413,25 @@ function loadOptions() {
       const tdEnabled = $('<td></td>');
       const tdActions = $('<td></td>');
 
-      const checkbox = document.createElement('input');
-      checkbox.setAttribute('type', 'checkbox');
-      checkbox.setAttribute('id', id);
-      checkbox.setAttribute('value', id);
-      if (isEnabled) checkbox.setAttribute('checked', true);
+      const checkbox = $('<input></input>');
+      checkbox.attr('type', 'checkbox');
+      checkbox.attr('id', id);
+      checkbox.attr('value', id);
+      if (isEnabled) checkbox.attr('checked', true);
 
       // const editButton = document.createElement('button');
-      // editButton.setAttribute('type', 'button');
-      // editButton.setAttribute('class', 'btn btn-primary');
-      // editButton.setAttribute('data-toggle', 'modal');
-      // editButton.setAttribute('data-target', '#editModal');
-      // editButton.setAttribute('data-id', object[i].identifier);
+      // editButton.attr('type', 'button');
+      // editButton.attr('class', 'btn btn-primary');
+      // editButton.attr('data-toggle', 'modal');
+      // editButton.attr('data-target', '#editModal');
+      // editButton.attr('data-id', object[i].identifier);
       // editButton.innerHTML = '<i class="fas fa-edit"></i>';
 
-      const deleteButton = document.createElement('button');
-      deleteButton.setAttribute('type', 'button');
-      deleteButton.setAttribute('class', 'btn btn-danger');
-      deleteButton.setAttribute('data-id', id);
-      deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+      const deleteButton = $('<button></button>');
+      deleteButton.attr('type', 'button');
+      deleteButton.attr('class', 'btn btn-danger');
+      deleteButton.attr('data-id', id);
+      deleteButton.html('<i class="fas fa-trash-alt"></i>');
 
       tdId.attr('hidden', true);
       tdId.text(id);
@@ -382,9 +447,12 @@ function loadOptions() {
     };
     // Makes the name capable of editing
     $('#editModal tbody').on('click', 'td:nth-child(3)', function () {
+      const td = $(this);
       const input = $('<input></input>');
-      input.val($(this).text());
-      $(this).html(input);
+      input.attr('type', 'text');
+      input.attr('value', td.text());
+      td.text('');
+      td.append(input);
       input.focus();
     });
 
@@ -404,17 +472,17 @@ function loadOptions() {
     $('#editModal').on('click', '#addOption', (e) => {
       e.preventDefault();
       const tbody = $('#editModal tbody');
-      const tr = createRow($(this).attr("parentId"));
+      const tr = createRow($(this).attr('parentId'));
       tbody.append(tr);
     });
 
     $('#saveChanges').attr('value', this.value);
-    $("#addOption").attr("parentId", $(this).attr("parentId"));
+    $('#addOption').attr('parentId', $(this).attr('parentId'));
     $('#editModal').modal('show');
   });
 
   // Save Changes Event
-  document.getElementById('saveChanges').addEventListener('click', function () {
+  $('#saveChanges').on('click', function () {
     var data = [];
     // For every row in the table, it gets the values and creates a JSON
     $('#editModal tbody tr').each(function () {
@@ -423,6 +491,15 @@ function loadOptions() {
       const value = $(this).find('td:nth-child(3)').text();
       const enabled = $(this).find('td:nth-child(4) input').is(':checked');
 
+      if (!value) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Please fill the values correctly',
+          icon: 'error',
+          confirmButtonText: 'Ok',
+        });
+        return;
+      }
 
       const object = {
         identifier: id,
@@ -431,7 +508,7 @@ function loadOptions() {
         envId: matchedEnvironment,
         infId: matchedInfrastructure,
         regionId: matchedRegion._id,
-        parentId: parentId
+        parentId: parentId,
       };
       data.push(object);
     });
@@ -447,18 +524,29 @@ function loadOptions() {
           icon: 'success',
           confirmButtonText: 'Ok',
         });
-        const select = $('#' + this.value);
-        select.empty();
+        const data = res.object;
+        const value = res.value;
+        const select = $('select#' + value);
+
+        select.html('');
         for (let i = -1; i < data.length; i++) {
-          const option = document.createElement('option');
-          const config = i === -1 ? select.find('label').text() : data[i];
+          const option = $('<option></option>');
+          const config = i === -1 ? DEFAULTMESSAGE : data[i].value;
 
           option.textContent = config;
           if (i === -1) {
-            option.setAttribute('disabled', true);
-            option.setAttribute('selected', true);
-          } else if (data[i].isEnabled) option.setAttribute('disabled', true);
+            option.text(config);
+            option.attr('disabled', true);
+            option.attr('selected', true);
+            select.append(option);
+            continue;
+          }
+          if (!data[i].isEnabled) option.attr('disabled', true);
+          option.text(config);
+          option.val(data[i].identifier);
+          select.append(option);
         }
+        select.select2(SELECT2CONFIG);
 
         $('#editModal').modal('hide');
       },
@@ -526,4 +614,10 @@ function loadOptions() {
     }
     return validated;
   }
+  const SELECT2CONFIG = {
+    templateResult: templateResult,
+    dropdownAutoWidth: true,
+    closeOnSelect: false,
+    matcher: matcher,
+  };
 }

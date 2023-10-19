@@ -33,13 +33,18 @@
   ],
   "availabilitySets": [
     {
-      "identifier": "morning",
-      "value": "Morning",
+      "identifier": "a",
+      "value": "A",
       "isEnabled": true
     },
     {
-      "identifier": "noon",
-      "value": "Noon",
+      "identifier": "b",
+      "value": "B",
+      "isEnabled": true
+    },
+    {
+      "identifier": "c",
+      "value": "C",
       "isEnabled": true
     }
   ],
@@ -56,6 +61,24 @@
       "isEnabled": true
     }
   ],
+  "businessServices": [
+    {
+      "identifier": "1697547238895",
+      "value": "AWD",
+      "isEnabled": true,
+      "envId": "dev",
+      "infId": "ohe",
+      "regionId": "696873286284"
+    },
+    {
+      "identifier": "1697547238896",
+      "value": "B",
+      "isEnabled": false,
+      "envId": "dev",
+      "infId": "ohe",
+      "regionId": "696873286284"
+    }
+  ],
   "serviceClasses": [
     {
       "identifier": "Gold",
@@ -63,8 +86,13 @@
       "isEnabled": true
     },
     {
-      "identifier": "Traditional",
-      "value": "Traditional",
+      "identifier": "Silver",
+      "value": "Silver",
+      "isEnabled": true
+    },
+    {
+      "identifier": "Bronze",
+      "value": "Bronze",
       "isEnabled": true
     }
   ],
@@ -97,12 +125,12 @@
   "clusterClasses": [
     {
       "identifier": "Class 1",
-      "value": "Cluster Class 1",
+      "value": "Shared",
       "isEnabled": true
     },
     {
       "identifier": "Class 2",
-      "value": "Cluster Class 2",
+      "value": "Dedicated",
       "isEnabled": true
     }
   ],
@@ -110,12 +138,12 @@
   "businessTypes": [
     {
       "identifier": "Type 1",
-      "value": "Business Type 1",
+      "value": "Standard",
       "isEnabled": true
     },
     {
       "identifier": "Type 2",
-      "value": "Business Type 2",
+      "value": "Enforce Security",
       "isEnabled": true
     }
   ]

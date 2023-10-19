@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const {db} = require("../services/mongodb.service");
 // Función para cargar compañías del archivo
-async function cargarCompanias() {
+async function cargarCompanias(req, res, next) {
   const rawData = await db.collection('_global_companies').find().toArray();
   return rawData[0].companies;
 }
@@ -34,7 +34,6 @@ async function saveCompanies(req, res) {
   req.body.isEnabled = (req.body.isEnabled === 'true' || req.body.isEnabled === true);
   companies.push(req.body);
   guardarCompanias(companies);
-  console.log("Agregado")
   res.status(200).json({ code: "OK", object: companies, message: "Compañía agregada con éxito." });
 }
 

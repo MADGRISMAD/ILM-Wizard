@@ -3,19 +3,14 @@ const express = require('express')
 const newConfigController = require('../controllers/catalogs.controller')
 const routes = express.Router()
 
-routes.get('/getConfigs/vmware', newConfigController.getConfigsVMWare);
+routes.post('/getConfigs/vmware', newConfigController.getConfigsVMWare);
 
-routes.get('/getConfigs/ohe', newConfigController.getConfigsOHE);
+routes.post('/getConfigs/ohe', newConfigController.getConfigsOHE);
 
-routes.post ("/getAZ", newConfigController.getAZ);
-routes.post ("/getBD", newConfigController.getBridgeDomain);
-routes.post ("/getDistributions", newConfigController.getDistributions);
 
-routes.get ("/getCustomConfigs/:id", newConfigController.getCustomConfigs);
+routes.post ("/getCustomConfigs/:id", newConfigController.getCustomConfigs);
 routes.put ("/setCustomConfigs/:id", newConfigController.setCustomConfigs);
-
-
-
+routes.post("/toggleCustomConfig/:id", newConfigController.toggleCustomConfig)
 
 module.exports = routes;
 
