@@ -56,22 +56,24 @@ const getCustomConfigs = (req, res) => {
   const id = req.params.id;
   const data = loadCustomConfigs()[id];
   const { envId, infId, regionId } = req.body;
-  const response = checkIds(data, envId, infId, regionId);
-
+  const parentId = req.params.parentId || false;
+  const response = checkIds(data, envId, infId, regionId, parentId);
   res.status(200).json({ code: 'OK', object: response, message: '' });
 };
 
-const checkIds = (data, envId, infId, regionId) => {
+const checkIds = (data, envId, infId, regionId, parentId = false) => {
   var response = [];
   for (let i = 0; i < data.length; i++) {
-    if (
+    let cond =
       data[i].envId === envId &&
       data[i].infId === infId &&
-      data[i].regionId === regionId
-    )
-      response.push(data[i]);
+      data[i].regionId === regionId;
+
+    if (parentId) cond = cond && data[i].parentId === parentId;
+
+    if (cond) response.push(data[i]);
+    return response;
   }
-  return response;
 };
 
 const setCustomConfigs = (req, res) => {

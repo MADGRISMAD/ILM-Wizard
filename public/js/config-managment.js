@@ -146,7 +146,19 @@ function loadOptions() {
             // If it has a parent, creates a listener to enable/disable the select
             if (parent) {
               select.attr('disabled', true);
-              $(document).on('change', '#' + parent, function () {
+              $(document).on('change', '#' + parent, function (e) {
+                e.preventDefault();
+                const parentSelect = $(e.target);
+                const parentValue = parentSelect.val();
+                const properties = {
+                  envId: matchedEnvironment,
+                  infId: matchedInfrastructure,
+                  regionId: matchedRegion._id,
+                  parentId: parentValue,
+                };
+                loadSelect(select, configName, properties);
+                select.attr('parentId', parentValue);
+                select.select2(SELECT2CONFIG);
                 if (type == 'multiList') select.attr('multiple', true);
 
                 // If it has a parent value to enable, enable it
@@ -205,7 +217,6 @@ function loadOptions() {
                     value: element.attr('id'),
                   },
                   function (res) {
-                    console.log('EnTRA', element.parent('option'));
                     if (!res) {
                       element.parent('option').attr('disabled', true);
                       select.select2(SELECT2CONFIG);
@@ -289,6 +300,44 @@ function loadOptions() {
     const divider = $('<hr></hr>');
     container.append(divider);
   };
+
+  const loadSelect = (select, id, properties) => {
+    select.html('');
+    const parentId = properties.parentId || '';
+    HelperService.postRequest(
+      '/newConfig/getCustomConfigs/' + id + '/' + parentId,
+      { ...properties },
+      function (res) {
+        const object = res.object;
+        for (let i = -1; i < object.length; i++) {
+          const option = $('<option></option>');
+          const config = i === -1 ? DEFAULTMESSAGE : object[i].value;
+          option.textContent = config;
+          if (i === -1) {
+            option.text(config);
+            option.attr('disabled', true);
+            option.attr('selected', true);
+            select.append(option);
+            continue;
+          }
+          if (!object[i].isEnabled) option.attr('disabled', true);
+          option.text(config);
+          option.val(object[i].identifier);
+          select.append(option);
+        }
+      },
+      function (err) {
+        Swal.fire({
+          title: 'Error',
+          text: 'There was an error getting the options',
+          icon: 'error',
+          confirmButtonText: 'Ok',
+        });
+        return [];
+      },
+    );
+  };
+
   // Styles
   const style = document.createElement('style');
   style.innerHTML = `
@@ -352,39 +401,35 @@ function loadOptions() {
   $(document).on('click', '.config-button', function (event) {
     event.preventDefault();
     $('#editmodal .modal-footer #saveChanges').attr('value', this.value);
-
-    HelperService.postRequest(
-      '/newConfig/getCustomConfigs/' + this.value,
-      {
-        envId: matchedEnvironment,
-        infId: matchedInfrastructure,
-        regionId: matchedRegion._id,
-      },
-      function (res) {
-        const object = res.object || [];
-        const tbody = $('#editModal tbody');
-        tbody.html('');
-        for (let i = 0; i < object.length; i++) {
-          const element = object[i];
-          if (
-            element.envId === matchedEnvironment &&
-            element.regionId === matchedRegion._id &&
-            element.envId === matchedInfrastructure
-          )
-            continue;
-          const tr = createRow(
-            $(this).attr('parentId'),
-            element.identifier,
-            element.value,
-            element.isEnabled,
-          );
-          tbody.append(tr);
-        }
-      },
-      function (err) {
-        alert(err);
-      },
-    );
+    const button = $(this);
+    const select = button.parent().find('select');
+    const id = select.attr('id');
+    const properties = {
+      envId: matchedEnvironment,
+      infId: matchedInfrastructure,
+      regionId: matchedRegion._id,
+      parentId: select.attr('parentId'),
+    };
+    const object = getCustomConfigs(id, properties);
+    const tbody = $('#editModal tbody');
+    tbody.html('');
+    console.log(object);
+    for (let i = 0; i < object.length; i++) {
+      const element = object[i];
+      if (
+        element.envId === matchedEnvironment &&
+        element.regionId === matchedRegion._id &&
+        element.envId === matchedInfrastructure
+      )
+        continue;
+      const tr = createRow(
+        $(this).attr('parentId'),
+        element.identifier,
+        element.value,
+        element.isEnabled,
+      );
+      tbody.append(tr);
+    }
     const createRow = (
       parentId = false,
       id = Date.now(),
@@ -465,6 +510,27 @@ function loadOptions() {
     $('#addOption').attr('parentId', $(this).attr('parentId'));
     $('#editModal').modal('show');
   });
+
+  const getCustomConfigs = (id, properties) => {
+    const parentId = properties.parentId || '';
+    var obj;
+    HelperService.postRequest(
+      '/newConfig/getCustomConfigs/' + id + '/' + parentId,
+      { ...properties },
+      function (res) {
+        obj = res;
+      },
+      function (err) {
+        Swal.fire({
+          title: 'Error',
+          text: 'There was an error getting the options',
+          icon: 'error',
+          confirmButtonText: 'Ok',
+        });
+        return [];
+      },
+    );
+  };
 
   // Save Changes Event
   $('#saveChanges').on('click', function () {
@@ -600,37 +666,6 @@ function loadOptions() {
     return validated;
   }
 
-  const loadSelect = (select, properties) => {
-    select.html('');
-    console.log(properties);
-    const url = '/newConfig/getCustomConfigs/' + properties.identifier;
-    HelperService.postRequest(
-      url,
-      { properties },
-      function (res) {
-        for (let i = -1; i < res.length; i++) {
-          const option = $('<option></option>');
-          const config = i === -1 ? DEFAULTMESSAGE : data[i].value;
-
-          option.textContent = config;
-          if (i === -1) {
-            option.text(config);
-            option.attr('disabled', true);
-            option.attr('selected', true);
-            select.append(option);
-            continue;
-          }
-          if (!data[i].isEnabled) option.attr('disabled', true);
-          option.text(config);
-          option.val(data[i].identifier);
-          select.append(option);
-        }
-      },
-      function (err) {
-        alert(err);
-      },
-    );
-  };
   const SELECT2CONFIG = {
     templateResult: templateResult,
     dropdownAutoWidth: true,

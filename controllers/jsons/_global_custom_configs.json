@@ -1,1 +1,76 @@
-{"sites":[{"identifier":"1697723293154","value":"A","isEnabled":true,"envId":"pre","infId":"vmware","regionId":"696873286284","parentId":"false"},{"identifier":"1697723295705","value":"C","isEnabled":true,"envId":"pre","infId":"vmware","regionId":"696873286284","parentId":"false"},{"identifier":"1697729996198","value":"DA","isEnabled":false,"envId":"pre","infId":"vmware","regionId":"696873286284","parentId":"false"}],"distributions":[{"identifier":"1697735984678","value":"AWAD","isEnabled":true,"envId":"pre","infId":"vmware","regionId":"696873286284","parentId":"false"},{"identifier":"1697736044521","value":"HOLA MUNDO","isEnabled":true,"envId":"pre","infId":"vmware","regionId":"696873286284","parentId":"sites"}],"bridgeDomains":[{"identifier":"ACI","value":"ACI","sites":"1697544736378","distributions":"ACI","isEnabled":true},{"identifier":"Traditional","value":"Traditional","sites":"1697544736378","distributions":"ACI","isEnabled":true}]}
+{
+  "sites": [
+    {
+      "identifier": "1697723293154",
+      "value": "A",
+      "isEnabled": true,
+      "envId": "pre",
+      "infId": "vmware",
+      "regionId": "696873286284",
+      "parentId": "false"
+    },
+    {
+      "identifier": "1697723295705",
+      "value": "C",
+      "isEnabled": true,
+      "envId": "pre",
+      "infId": "vmware",
+      "regionId": "696873286284",
+      "parentId": "false"
+    },
+    {
+      "identifier": "1697729996198",
+      "value": "DA",
+      "isEnabled": false,
+      "envId": "pre",
+      "infId": "vmware",
+      "regionId": "696873286284",
+      "parentId": "false"
+    }
+  ],
+  "distributions": [
+    {
+      "identifier": "1697735984678",
+      "value": "AWAD",
+      "isEnabled": true,
+      "envId": "pre",
+      "infId": "vmware",
+      "regionId": "696873286284",
+      "parentId": "sites"
+    },
+    {
+      "identifier": "1697736044521",
+      "value": "HOLA MUNDO",
+      "isEnabled": true,
+      "envId": "pre",
+      "infId": "vmware",
+      "regionId": "696873286284",
+      "parentId": "sites"
+    },
+    {
+      "identifier": "1697808962025",
+      "value": "HOLA ADIOS",
+      "isEnabled": true,
+      "envId": "pre",
+      "infId": "vmware",
+      "regionId": "696873286284",
+      "parentId": "sites"
+    }
+  ],
+  "bridgeDomains": [
+    {
+      "identifier": "ACI",
+      "value": "ACI",
+      "sites": "1697544736378",
+      "distributions": "ACI",
+      "isEnabled": true
+    },
+    {
+      "identifier": "Traditional",
+      "value": "Traditional",
+      "sites": "1697544736378",
+      "distributions": "ACI",
+      "isEnabled": true
+    }
+  ]
+}

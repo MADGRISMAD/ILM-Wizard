@@ -9,6 +9,7 @@ routes.post('/getConfigs/ohe', newConfigController.getConfigsOHE);
 
 
 routes.post ("/getCustomConfigs/:id", newConfigController.getCustomConfigs);
+routes.post ("/getCustomConfigs/:id/:parent", newConfigController.getCustomConfigs);
 routes.put ("/setCustomConfigs/:id", newConfigController.setCustomConfigs);
 routes.post("/toggleCustomConfig/:id", newConfigController.toggleCustomConfig)
 
