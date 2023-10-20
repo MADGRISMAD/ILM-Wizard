@@ -110,42 +110,36 @@ function loadOptions() {
             select.addClass(
               'form-control with-button d-flex align-self-center my-1',
             );
+            // Creates the options
+            const firstOption = $('<option></option>');
+            firstOption.text(DEFAULTMESSAGE);
+            firstOption.attr('disabled', true);
+            if (type != 'multiList') firstOption.attr('selected', true);
+            select.append(firstOption);
 
-            for (let k = -1; k < resp.object[configName].length; k++) {
+            for (let k = 0; k < resp.object[configName].length; k++) {
               const option = $('<option></option>');
-              const config =
-                k === -1 ? 'Select an option' : resp.object[configName][k];
+              const config = resp.object[configName][k];
 
-              // Marks a first option as disabled and selected
-              if (k === -1) {
-                option.text(config);
-                option.attr('disabled', true);
-                if (type != 'multiList') option.attr('selected', true);
-              } else {
-                const envId = config.envId || false;
-                const infId = config.infId || false;
-                const regionId = config.regionId || false;
+              const envId = config.envId || false;
+              const infId = config.infId || false;
+              const regionId = config.regionId || false;
 
-                console.log(
-                  !(envId === false),
-                  envId != matchedEnvironment ||
-                    infId != matchedInfrastructure ||
-                    regionId != matchedRegion._id,
-                );
-                if (
-                  (envId || infId || regionId) &&
-                  (envId != matchedEnvironment ||
-                    infId != matchedInfrastructure ||
-                    regionId != matchedRegion._id)
-                )
-                  continue;
-                // Creates options with values of the JSON
-                option.val(config.identifier);
-                option.text(config.value ? config.value : config.companlyAlias);
-              }
+              if (
+                (envId || infId || regionId) &&
+                (envId != matchedEnvironment ||
+                  infId != matchedInfrastructure ||
+                  regionId != matchedRegion._id)
+              )
+                continue;
+              // Creates options with values of the JSON
+              option.val(config.identifier);
+              option.text(config.value ? config.value : config.companlyAlias);
+
               if (!config.isEnabled) option.attr('disabled', true);
               select.append(option);
             }
+
             // Sets the id
             select.attr('id', configName);
 
@@ -290,15 +284,6 @@ function loadOptions() {
     );
     template.children('input').prop('checked', !state.disabled);
     return template;
-  };
-  const matcher = (params, data) => {
-    // If there are no search terms, return all of the data
-    if ($.trim(params.term) === '') {
-      return data;
-    }
-
-    // Return `null` if the term should not be displayed
-    return null;
   };
   const addDivider = (container) => {
     const divider = $('<hr></hr>');
@@ -614,10 +599,41 @@ function loadOptions() {
     }
     return validated;
   }
+
+  const loadSelect = (select, properties) => {
+    select.html('');
+    console.log(properties);
+    const url = '/newConfig/getCustomConfigs/' + properties.identifier;
+    HelperService.postRequest(
+      url,
+      { properties },
+      function (res) {
+        for (let i = -1; i < res.length; i++) {
+          const option = $('<option></option>');
+          const config = i === -1 ? DEFAULTMESSAGE : data[i].value;
+
+          option.textContent = config;
+          if (i === -1) {
+            option.text(config);
+            option.attr('disabled', true);
+            option.attr('selected', true);
+            select.append(option);
+            continue;
+          }
+          if (!data[i].isEnabled) option.attr('disabled', true);
+          option.text(config);
+          option.val(data[i].identifier);
+          select.append(option);
+        }
+      },
+      function (err) {
+        alert(err);
+      },
+    );
+  };
   const SELECT2CONFIG = {
     templateResult: templateResult,
     dropdownAutoWidth: true,
     closeOnSelect: false,
-    matcher: matcher,
   };
 }
