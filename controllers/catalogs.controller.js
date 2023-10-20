@@ -2,47 +2,17 @@ const fs = require('fs');
 const path = require('path');
 
 // Loads VMWare configs from json file
-const loadVmwareConfigs = () => {
+const loadConfigs = () => {
   const rawData = fs.readFileSync(
     path.join(__dirname, 'jsons/_global_vmware_configs.json'),
   );
   return JSON.parse(rawData);
 };
 
-// Loads VMWare configs from json file
-const loadOheConfigs = () => {
-  const rawData = fs.readFileSync(
-    path.join(__dirname, 'jsons/_global_ohe_configs.json'),
-  );
-  return JSON.parse(rawData);
-};
-
-// Get all configs from json file
-const getConfigsOHE = (req, res) => {
-  var configs = loadOheConfigs();
-  const customConfig = loadCustomConfigs();
-
-  const keys = Object.keys(customConfig);
-  for (var index in keys) {
-    const key = keys[index];
-    configs[key] = customConfig[key];
-  }
-
-  res.status(200).json({ code: 'OK', object: configs, message: '' });
-};
-
 // Get all Vmware configs from json file
-const getConfigsVMWare = (req, res) => {
-  const configs = loadVmwareConfigs();
+const getConfigs = (req, res) => {
   const customConfig = loadCustomConfigs();
-
-  const keys = Object.keys(customConfig);
-  for (var index in keys) {
-    const key = keys[index];
-    configs[key] = customConfig[key];
-  }
-
-  res.status(200).json({ code: 'OK', object: configs, message: '' });
+  res.status(200).json({ code: 'OK', object: customConfig, message: '' });
 };
 
 const loadCustomConfigs = () => {
@@ -70,10 +40,9 @@ const checkIds = (data, envId, infId, regionId, parentId = false) => {
       data[i].regionId === regionId;
 
     if (parentId) cond = cond && data[i].parentId === parentId;
-
     if (cond) response.push(data[i]);
-    return response;
   }
+  return response;
 };
 
 const setCustomConfigs = (req, res) => {
@@ -82,7 +51,7 @@ const setCustomConfigs = (req, res) => {
   const rawData = loadCustomConfigs();
 
   const rawDataLength = rawData[id] ? rawData[id].length : 0;
-
+  const response = []
   // If it is a new config, then add it
   if (rawDataLength === 0) {
     rawData[id] = data;
@@ -100,6 +69,7 @@ const setCustomConfigs = (req, res) => {
         // If it exists, then update
         if (rawData[id][i].identifier === data[j].identifier) {
           rawData[id][i] = data[j];
+          response.push(data[j]);
           data.splice(j, 1);
           break;
         }
@@ -109,12 +79,13 @@ const setCustomConfigs = (req, res) => {
     }
     // The remaining data is new, so add it
     rawData[id].push(...data);
+    response.push(...data);
   }
   saveCustomConfigs(rawData);
   // return the new data
   res
     .status(200)
-    .json({ code: 'OK', value: id, object: rawData[id], message: '' });
+    .json({ code: 'OK', value: id, object: response, message: '' });
 };
 
 const saveCustomConfigs = (rawData) => {
@@ -145,8 +116,7 @@ const toggleCustomConfig = (req, res) => {
 };
 
 module.exports = {
-  getConfigsOHE,
-  getConfigsVMWare,
+  getConfigs,
   getCustomConfigs,
   setCustomConfigs,
   toggleCustomConfig,

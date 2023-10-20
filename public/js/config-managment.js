@@ -63,9 +63,8 @@ function loadOptions() {
   if (matchedInfrastructure == 'vmware') configs = VMWareConfigs;
   // Else use OHE configs
   else configs = OHEConfigs;
-  const url = matchedInfrastructure == 'vmware' ? '/vmware' : '/ohe';
   HelperService.postRequest(
-    '/newConfig/getConfigs' + url,
+    '/newConfig/getConfigs',
     {
       envId: matchedEnvironment,
       infId: matchedInfrastructure,
@@ -427,7 +426,7 @@ function loadOptions() {
           )
             continue;
           const tr = createRow(
-            $(this).attr('parentId'),
+            parentId,
             element.identifier,
             element.value,
             element.isEnabled,
@@ -517,35 +516,14 @@ function loadOptions() {
     $('#editModal').on('click', '#addOption', (e) => {
       e.preventDefault();
       const tbody = $('#editModal tbody');
-      const tr = createRow($(this).attr('parentId'));
+      const tr = createRow(parentId);
       tbody.append(tr);
     });
 
     $('#saveChanges').attr('value', this.value);
-    $('#addOption').attr('parentId', $(this).attr('parentId'));
+    $('#addOption').attr('parentId', parentId);
     $('#editModal').modal('show');
   });
-
-  const getCustomConfigs = (id, properties) => {
-    const parentId = properties.parentId || '';
-    var obj;
-    HelperService.postRequest(
-      '/newConfig/getCustomConfigs/' + id + '/' + parentId,
-      { ...properties },
-      function (res) {
-        obj = res;
-      },
-      function (err) {
-        Swal.fire({
-          title: 'Error',
-          text: 'There was an error getting the options',
-          icon: 'error',
-          confirmButtonText: 'Ok',
-        });
-        return [];
-      },
-    );
-  };
 
   // Save Changes Event
   $('#saveChanges').on('click', function () {
@@ -554,6 +532,7 @@ function loadOptions() {
     $('#editModal tbody tr').each(function () {
       const id = $(this).find('td:nth-child(1)').text();
       const parentId = $(this).find('td:nth-child(2)').text();
+      console.log(parentId);
       const value = $(this).find('td:nth-child(3)').text();
       const enabled = $(this).find('td:nth-child(4) input').is(':checked');
 
