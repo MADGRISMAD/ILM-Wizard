@@ -147,46 +147,22 @@ function loadOptions() {
               select.attr('disabled', true);
               $(document).on('change', '#' + parent, function (e) {
                 e.preventDefault();
-                const parentSelect = $(e.target);
-                const parentValue = parentSelect.val();
-                const properties = {
-                  envId: matchedEnvironment,
-                  infId: matchedInfrastructure,
-                  regionId: matchedRegion._id,
-                  parentId: parentValue,
-                };
-                loadSelect(select, configName, properties);
-                select.attr('parentId', parentValue);
-                select.select2(SELECT2CONFIG);
                 if (type == 'multiList') select.attr('multiple', true);
-
+                
                 // If it has a parent value to enable, enable it
                 if (!parentValue || $(this).val() == parentValue) {
                   select.removeAttr('disabled');
-
-                  const url = options.url || false;
-                  if (options.url) {
-                    var data = {};
-                    const parentValue = $('#' + parent)
-                      .find(':selected')
-                      .attr('id');
-                    $.extend(data, { [parent]: parentValue });
-
-                    for (let l = 0; l < configs.length; l++) {
-                      // If it has a parent, add the parent value to the data
-
-                      if (
-                        configs[l][2] == parent &&
-                        configs[l][3] &&
-                        configs[l][3].parent
-                      ) {
-                        const parentParent = configs[l][3].parent || false;
-                        $.extend(data, {
-                          [parentParent]: $('#' + parentParent).val(),
-                        });
-                      }
-                    }
-                  }
+                  const parentSelect = $(e.target);
+                  const parentValue = parentSelect.val();
+                  const properties = {
+                    envId: matchedEnvironment,
+                    infId: matchedInfrastructure,
+                    regionId: matchedRegion._id,
+                    parentId: parentValue,
+                  };
+                  loadSelect(select, configName, properties);
+                  select.attr('parentId', parentValue);
+                  select.select2(SELECT2CONFIG);
                 }
                 if (parentValue && $(this).val() != parentValue) {
                   select.attr('disabled', true);
