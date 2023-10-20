@@ -404,32 +404,47 @@ function loadOptions() {
     const button = $(this);
     const select = button.parent().find('select');
     const id = select.attr('id');
+    const parentId = select.attr('parentId') || '';
     const properties = {
       envId: matchedEnvironment,
       infId: matchedInfrastructure,
       regionId: matchedRegion._id,
-      parentId: select.attr('parentId'),
+      parentId: parentId,
     };
-    const object = getCustomConfigs(id, properties);
-    const tbody = $('#editModal tbody');
-    tbody.html('');
-    console.log(object);
-    for (let i = 0; i < object.length; i++) {
-      const element = object[i];
-      if (
-        element.envId === matchedEnvironment &&
-        element.regionId === matchedRegion._id &&
-        element.envId === matchedInfrastructure
-      )
-        continue;
-      const tr = createRow(
-        $(this).attr('parentId'),
-        element.identifier,
-        element.value,
-        element.isEnabled,
-      );
-      tbody.append(tr);
-    }
+    HelperService.postRequest(
+      '/newConfig/getCustomConfigs/' + id + '/' + parentId,
+      { ...properties },
+      function (res) {
+        const object = res.object;
+        const tbody = $('#editModal tbody');
+        tbody.html('');
+        for (let i = 0; i < object.length; i++) {
+          const element = object[i];
+          if (
+            element.envId === matchedEnvironment &&
+            element.regionId === matchedRegion._id &&
+            element.envId === matchedInfrastructure
+          )
+            continue;
+          const tr = createRow(
+            $(this).attr('parentId'),
+            element.identifier,
+            element.value,
+            element.isEnabled,
+          );
+          tbody.append(tr);
+        }
+      },
+      function (err) {
+        Swal.fire({
+          title: 'Error',
+          text: 'There was an error getting the options',
+          icon: 'error',
+          confirmButtonText: 'Ok',
+        });
+        return [];
+      },
+    );
     const createRow = (
       parentId = false,
       id = Date.now(),
