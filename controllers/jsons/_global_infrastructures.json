@@ -125,6 +125,12 @@
             "parent_id": "dmz",
             "region_id": "696873286284",
             "isEnabled": true
+        },
+        {
+            "_id": "vmware",
+            "parent_id": "cert",
+            "region_id": "696873286284",
+            "isEnabled": true
         }
     ]
 }

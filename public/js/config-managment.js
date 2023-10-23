@@ -87,6 +87,7 @@ function loadOptions() {
           const parent = options.parent || false;
           const parentValue = options.parentValue || false;
           const label = document.createElement('label');
+          const value = resp.object[configName];
           label.classList.add('mt-2');
           // Creates a new row if its a checkbox (checkbox section)
           if (type == 'checkbox' && !checkboxes) {
@@ -116,9 +117,9 @@ function loadOptions() {
             if (type != 'multiList') firstOption.attr('selected', true);
             select.append(firstOption);
 
-            for (let k = 0; k < resp.object[configName].length; k++) {
+            for (let k = 0; k < value.length; k++) {
               const option = $('<option></option>');
-              const config = resp.object[configName][k];
+              const config = value[k];
 
               const envId = config.envId || false;
               const infId = config.infId || false;
@@ -148,7 +149,7 @@ function loadOptions() {
               $(document).on('change', '#' + parent, function (e) {
                 e.preventDefault();
                 if (type == 'multiList') select.attr('multiple', true);
-                
+
                 // If it has a parent value to enable, enable it
                 if (!parentValue || $(this).val() == parentValue) {
                   select.removeAttr('disabled');
@@ -190,17 +191,25 @@ function loadOptions() {
                   url,
                   {
                     value: element.attr('id'),
+                    envId: matchedEnvironment,
+                    infId: matchedInfrastructure,
+                    regionId: matchedRegion._id,
+                    parentId: select.attr('parentId') || '',
                   },
                   function (res) {
-                    if (!res) {
-                      element.parent('option').attr('disabled', true);
-                      select.select2(SELECT2CONFIG);
-                    } else element.parent('option').attr('disabled', false);
+                    element.parent('option').attr('disabled', !res);
+                    element.prop('checked', res);
                     select.select2(SELECT2CONFIG);
-                    console.log('Chido');
+                    select.val(null).trigger('change');
+                    select.select2('open');
                   },
                   function (err) {
-                    console.log('Mal' + err);
+                    Swal.fire({
+                      title: 'Error',
+                      text: 'There was an error updating the options',
+                      icon: 'error',
+                      confirmButtonText: 'Ok',
+                    });
                   },
                 );
               }
@@ -381,7 +390,6 @@ function loadOptions() {
     const id = select.attr('id');
     const parentId = select.attr('parentId') || '';
 
-
     const properties = {
       envId: matchedEnvironment,
       infId: matchedInfrastructure,
@@ -512,8 +520,8 @@ function loadOptions() {
       const parentId = $(this).find('td:nth-child(2)').text();
       const value = $(this).find('td:nth-child(3)').text().trim();
       const enabled = $(this).find('td:nth-child(4) input').is(':checked');
-      console.log(value == "");
-      if (value == "") {
+      console.log(value == '');
+      if (value == '') {
         Swal.fire({
           title: 'Error',
           text: 'Please fill the values correctly',
@@ -537,7 +545,12 @@ function loadOptions() {
     $.ajax({
       url: '/newConfig/setCustomConfigs/' + this.value,
       type: 'PUT',
-      data: { data: JSON.stringify(data), envId: matchedEnvironment, infId: matchedInfrastructure, regionId: matchedRegion._id },
+      data: {
+        data: JSON.stringify(data),
+        envId: matchedEnvironment,
+        infId: matchedInfrastructure,
+        regionId: matchedRegion._id,
+      },
       dataType: 'json',
       success: function (res) {
         Swal.fire({
