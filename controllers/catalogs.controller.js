@@ -56,25 +56,33 @@ const setCustomConfigs = (req, res) => {
   if (rawDataLength === 0) {
     rawData[id] = data;
   } else {
-    for (let i = 0; i < rawData[id].length; i++) {
+  rawDataLoop:  for (let i = 0; i < rawData[id].length; i++) {
+    const envId = rawData[id][i].envId;
+    const infId = rawData[id][i].infId;
+    const regionId = rawData[id][i].regionId;
+    const parentId = rawData[id][i].parentId;
       for (let j = 0; j < data.length; j++) {
         // If its not the actual config, then skips it
         if (
-          rawData[id][i].envId != data[j].envId ||
-          rawData[id][i].infraId != data[j].infraId ||
-          rawData[id][i].regionId != data[j].regionId
+          envId != data[j].envId ||
+          infId != data[j].infId ||
+          regionId != data[j].regionId ||
+          parentId != data[j].parentId
         )
-          break;
+          continue rawDataLoop;
 
         // If it exists, then update
         if (rawData[id][i].identifier === data[j].identifier) {
           rawData[id][i] = data[j];
           response.push(data[j]);
           data.splice(j, 1);
-          break;
+          continue rawDataLoop;
         }
         // If it does not exist, then delete
-        if (j === data.length - 1) rawData[id].splice(i, 1);
+        if (j === data.length - 1){
+          rawData[id].splice(i, 1);
+          i--;
+        } 
       }
     }
     // The remaining data is new, so add it

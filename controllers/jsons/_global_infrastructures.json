@@ -113,6 +113,18 @@
             "parent_id": "prod",
             "region_id": "696873286284",
             "isEnabled": true
+        },
+        {
+            "_id": "ohe",
+            "parent_id": "pre",
+            "region_id": "696873286284",
+            "isEnabled": true
+        },
+        {
+            "_id": "vmware",
+            "parent_id": "dmz",
+            "region_id": "696873286284",
+            "isEnabled": true
         }
     ]
 }

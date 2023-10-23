@@ -1,87 +1,168 @@
 {
   "sites": [
     {
-      "identifier": "1697723293154",
+      "identifier": "1698063669466",
+      "value": "E",
+      "isEnabled": true,
+      "envId": "pre",
+      "infId": "vmware",
+      "regionId": "696873286284",
+      "parentId": ""
+    },
+    {
+      "identifier": "1698065282612",
       "value": "A",
       "isEnabled": true,
       "envId": "pre",
       "infId": "vmware",
       "regionId": "696873286284",
-      "parentId": "false"
+      "parentId": ""
     },
     {
-      "identifier": "1697723295705",
+      "identifier": "1698065286389",
+      "value": "B",
+      "isEnabled": true,
+      "envId": "pre",
+      "infId": "vmware",
+      "regionId": "696873286284",
+      "parentId": ""
+    },
+    {
+      "identifier": "1698065294600",
       "value": "C",
       "isEnabled": true,
       "envId": "pre",
       "infId": "vmware",
       "regionId": "696873286284",
-      "parentId": "false"
+      "parentId": ""
     },
     {
-      "identifier": "1697729996198",
-      "value": "DA",
-      "isEnabled": false,
+      "identifier": "1698065301333",
+      "value": "D",
+      "isEnabled": true,
       "envId": "pre",
       "infId": "vmware",
       "regionId": "696873286284",
-      "parentId": "false"
-    },
-    {
-      "identifier": "1697817559265",
-      "value": "SI",
-      "isEnabled": true,
-      "envId": "prod",
-      "infId": "vmware",
-      "regionId": "696873286284",
-      "parentId": "false"
-    },
-    {
-      "identifier": "1697817694355",
-      "value": "NO",
-      "isEnabled": true,
-      "envId": "prod",
-      "infId": "vmware",
-      "regionId": "696873286284",
-      "parentId": "false"
+      "parentId": ""
     }
   ],
   "distributions": [
     {
-      "identifier": "1697817783008",
-      "value": "NO NO",
-      "isEnabled": true,
-      "envId": "prod",
-      "infId": "vmware",
-      "regionId": "696873286284",
-      "parentId": "1697817694355"
-    },
-    {
-      "identifier": "1697818123099",
-      "value": "C OPTION 3",
+      "identifier": "1698065562463",
+      "value": "A",
       "isEnabled": true,
       "envId": "pre",
       "infId": "vmware",
       "regionId": "696873286284",
-      "parentId": "1697723295705"
+      "parentId": "1698065294600"
     },
     {
-      "identifier": "1697818527729",
-      "value": "NONONO",
-      "isEnabled": true,
-      "envId": "prod",
+      "identifier": "1698065563279",
+      "value": "B",
+      "isEnabled": false,
+      "envId": "pre",
       "infId": "vmware",
       "regionId": "696873286284",
-      "parentId": "1697817694355"
+      "parentId": "1698065294600"
     },
     {
-      "identifier": "1697818631190",
-      "value": "AAA",
+      "identifier": "1698065564282",
+      "value": "C",
       "isEnabled": true,
       "envId": "pre",
       "infId": "vmware",
       "regionId": "696873286284",
-      "parentId": "1697723293154"
+      "parentId": "1698065294600"
+    },
+    {
+      "identifier": "1698065776038",
+      "value": "A",
+      "isEnabled": false,
+      "envId": "pre",
+      "infId": "vmware",
+      "regionId": "696873286284",
+      "parentId": "1698065282612"
+    },
+    {
+      "identifier": "1698065777366",
+      "value": "V",
+      "isEnabled": true,
+      "envId": "pre",
+      "infId": "vmware",
+      "regionId": "696873286284",
+      "parentId": "1698065282612"
+    },
+    {
+      "identifier": "1698065779525",
+      "value": "Z",
+      "isEnabled": true,
+      "envId": "pre",
+      "infId": "vmware",
+      "regionId": "696873286284",
+      "parentId": "1698065282612"
+    },
+    {
+      "identifier": "1698065805584",
+      "value": "A",
+      "isEnabled": false,
+      "envId": "pre",
+      "infId": "vmware",
+      "regionId": "696873286284",
+      "parentId": "1698065286389"
+    },
+    {
+      "identifier": "1698065806891",
+      "value": "BV",
+      "isEnabled": true,
+      "envId": "pre",
+      "infId": "vmware",
+      "regionId": "696873286284",
+      "parentId": "1698065286389"
+    },
+    {
+      "identifier": "1698065808880",
+      "value": "AD",
+      "isEnabled": false,
+      "envId": "pre",
+      "infId": "vmware",
+      "regionId": "696873286284",
+      "parentId": "1698065286389"
+    },
+    {
+      "identifier": "1698065810412",
+      "value": "ZZ",
+      "isEnabled": true,
+      "envId": "pre",
+      "infId": "vmware",
+      "regionId": "696873286284",
+      "parentId": "1698065286389"
+    },
+    {
+      "identifier": "1698067570768",
+      "value": "A",
+      "isEnabled": false,
+      "envId": "pre",
+      "infId": "vmware",
+      "regionId": "696873286284",
+      "parentId": "1698063669466"
+    },
+    {
+      "identifier": "1698067572016",
+      "value": "B",
+      "isEnabled": false,
+      "envId": "pre",
+      "infId": "vmware",
+      "regionId": "696873286284",
+      "parentId": "1698063669466"
+    },
+    {
+      "identifier": "1698067592693",
+      "value": "C",
+      "isEnabled": false,
+      "envId": "pre",
+      "infId": "vmware",
+      "regionId": "696873286284",
+      "parentId": "1698063669466"
     }
   ],
   "bridgeDomains": [
@@ -101,23 +182,10 @@
     }
   ],
   "availabilityZones": [
-    {
-      "identifier": "az1",
-      "value": "AZ1",
-      "isEnabled": true
-    },
-    {
-      "identifier": "az2",
-      "value": "AZ2",
-      "isEnabled": true
-    },
-    {
-      "identifier": "ider",
-      "value": "IDER",
-      "isEnabled": true
-    }
+    { "identifier": "az1", "value": "AZ1", "isEnabled": true },
+    { "identifier": "az2", "value": "AZ2", "isEnabled": true },
+    { "identifier": "ider", "value": "IDER", "isEnabled": true }
   ],
-
   "haList": [
     {
       "identifier": "ohe",
@@ -133,77 +201,31 @@
     }
   ],
   "availabilitySets": [
-    {
-      "identifier": "a",
-      "value": "A",
-      "isEnabled": true
-    },
-    {
-      "identifier": "b",
-      "value": "B",
-      "isEnabled": true
-    },
-    {
-      "identifier": "c",
-      "value": "C",
-      "isEnabled": true
-    }
+    { "identifier": "a", "value": "A", "isEnabled": true },
+    { "identifier": "b", "value": "B", "isEnabled": true },
+    { "identifier": "c", "value": "C", "isEnabled": true }
   ],
-
   "clusterTypes": [
     {
       "identifier": "Multicluster",
       "value": "Multicluster",
       "isEnabled": true
     },
-    {
-      "identifier": "Stretched",
-      "value": "Stretched",
-      "isEnabled": true
-    }
+    { "identifier": "Stretched", "value": "Stretched", "isEnabled": true }
   ],
   "businessServices": [
-    {
-      "identifier": "1697547238895",
-      "value": "AWD",
-      "isEnabled": true
-    },
-    {
-      "identifier": "1697547238896",
-      "value": "B",
-      "isEnabled": true
-    }
+    { "identifier": "1697547238895", "value": "AWD", "isEnabled": true },
+    { "identifier": "1697547238896", "value": "B", "isEnabled": true }
   ],
   "serviceClasses": [
-    {
-      "identifier": "Gold",
-      "value": "Gold",
-      "isEnabled": true
-    },
-    {
-      "identifier": "Silver",
-      "value": "Silver",
-      "isEnabled": true
-    },
-    {
-      "identifier": "Bronze",
-      "value": "Bronze",
-      "isEnabled": true
-    }
+    { "identifier": "Gold", "value": "Gold", "isEnabled": true },
+    { "identifier": "Silver", "value": "Silver", "isEnabled": true },
+    { "identifier": "Bronze", "value": "Bronze", "isEnabled": true }
   ],
   "network": [
-    {
-      "identifier": "ACI",
-      "value": "ACI",
-      "isEnabled": true
-    },
-    {
-      "identifier": "Traditional",
-      "value": "Traditional",
-      "isEnabled": true
-    }
+    { "identifier": "ACI", "value": "ACI", "isEnabled": true },
+    { "identifier": "Traditional", "value": "Traditional", "isEnabled": true }
   ],
-
   "otherSoftwareProducts": [
     {
       "identifier": "software_product1",
@@ -211,49 +233,23 @@
       "isEnabled": true,
       "isAlexa": true
     },
-    { "identifier": "software_product2",
-    "value": "Linux",
-    "isEnabled": true,
-    "isAlexa": false }
+    {
+      "identifier": "software_product2",
+      "value": "Linux",
+      "isEnabled": true,
+      "isAlexa": false
+    }
   ],
-
   "clusterClasses": [
-    {
-      "identifier": "Class 1",
-      "value": "Shared",
-      "isEnabled": true
-    },
-    {
-      "identifier": "Class 2",
-      "value": "Dedicated",
-      "isEnabled": true
-    }
+    { "identifier": "Class 1", "value": "Shared", "isEnabled": true },
+    { "identifier": "Class 2", "value": "Dedicated", "isEnabled": true }
   ],
-
   "businessTypes": [
-    {
-      "identifier": "Type 1",
-      "value": "Standard",
-      "isEnabled": true
-    },
-    {
-      "identifier": "Type 2",
-      "value": "Enforce Security",
-      "isEnabled": true
-    }
-  ],    
-    
-    "networkTypes" : [
-      {
-        "identifier": "ACI",
-        "value": "ACI",
-        "isEnabled": true
-      },
-      {
-        "identifier": "Traditional",
-        "value": "Traditional",
-        "isEnabled": true
-      }
-      
-    ]
+    { "identifier": "Type 1", "value": "Standard", "isEnabled": true },
+    { "identifier": "Type 2", "value": "Enforce Security", "isEnabled": true }
+  ],
+  "networkTypes": [
+    { "identifier": "ACI", "value": "ACI", "isEnabled": true },
+    { "identifier": "Traditional", "value": "Traditional", "isEnabled": true }
+  ]
 }

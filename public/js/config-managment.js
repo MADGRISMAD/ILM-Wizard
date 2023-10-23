@@ -380,6 +380,8 @@ function loadOptions() {
     const select = button.parent().find('select');
     const id = select.attr('id');
     const parentId = select.attr('parentId') || '';
+
+
     const properties = {
       envId: matchedEnvironment,
       infId: matchedInfrastructure,
@@ -508,11 +510,10 @@ function loadOptions() {
     $('#editModal tbody tr').each(function () {
       const id = $(this).find('td:nth-child(1)').text();
       const parentId = $(this).find('td:nth-child(2)').text();
-      console.log(parentId);
-      const value = $(this).find('td:nth-child(3)').text();
+      const value = $(this).find('td:nth-child(3)').text().trim();
       const enabled = $(this).find('td:nth-child(4) input').is(':checked');
-
-      if (!value) {
+      console.log(value == "");
+      if (value == "") {
         Swal.fire({
           title: 'Error',
           text: 'Please fill the values correctly',
@@ -536,7 +537,7 @@ function loadOptions() {
     $.ajax({
       url: '/newConfig/setCustomConfigs/' + this.value,
       type: 'PUT',
-      data: { data: JSON.stringify(data) },
+      data: { data: JSON.stringify(data), envId: matchedEnvironment, infId: matchedInfrastructure, regionId: matchedRegion._id },
       dataType: 'json',
       success: function (res) {
         Swal.fire({
@@ -640,5 +641,6 @@ function loadOptions() {
     templateResult: templateResult,
     dropdownAutoWidth: true,
     closeOnSelect: false,
+    placeholder: DEFAULTMESSAGE,
   };
 }

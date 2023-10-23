@@ -433,7 +433,7 @@ $(document).ready(function () {
 
               <div class="row">
                   <div class="col-md-6"> <!-- First column -->
-                      <div class="form-group">
+                      <div class="form-group" hidden>
                           <label for="_idInput">Identifier:</label>
                           <input type="text" class="form-control" id="_idInput" placeholder="Enter _id" value="${
                             isEditing ? editCompany._id : _idValueCompany

@@ -71,7 +71,7 @@ $(document).ready(function () {
         </div>
         <div class="modal-body">
             <form id="entityForm">
-                <div class="form-group">
+                <div class="form-group" hidden>
                     <label for="_id">Identifier:</label>
                     <input type="text" class="form-control" id="_idInput" value="${_idValue}" readonly>
                 </div>
@@ -299,7 +299,7 @@ $(document).ready(function () {
         </div>
         <div class="modal-body">
             <form id="entityForm">
-            <div class="form-group">
+            <div class="form-group" hidden>
             <label for="_id">Identifier:</label>
             <input type="text" class="form-control" id="_idInput" placeholder="Enter _id" value="${
               isEditing ? editEntity._id : ''
