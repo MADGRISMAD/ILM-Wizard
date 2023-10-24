@@ -1,7 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
-
+//database client
+const {db} = require("../services/mongodb.service");
+const { CANCELLED } = require('dns');
 
 // Función para cargar el JSON principal de infraestructuras
 function cargarInfraestructuras() {
@@ -21,10 +23,27 @@ function guardarInfraestructurasData(infraTypes) {
 }
 
 // Obtener todas las infraestructuras
-function obtenerInfraestructuras(req, res) {
-  const infrastructures = cargarInfraestructuras();
-  res.status(200).json({ code: "OK", object: infrastructures, message: "" });
+async function obtenerInfraestructuras(req, res) {
+  try{
+    const infrastructures = await loadInfrastructures();
+    if(infrastructures)
+      res.status(200).json({ code: "OK", object: infrastructures, message: "" });
+    else
+      res.status(404).json({ code: "NOT_FOUND", message: "Couldn't retrieve infrastructures" });
+  }
+  catch (err) {
+    res.status(505).json({message: "ERROR", error: err });
+  }
 }
+
+//Eventualmente reemplazara a cargarInfraestructuras
+async function loadInfrastructures()
+{
+  const rawInfrastructureData = await db.collection('_global_infrastructures').find().toArray();
+  const InfrastructureFirstIndex = 0;
+  return rawInfrastructureData[InfrastructureFirstIndex].infraTypes;
+}
+
 
 // Obtener el catálogo de infraestructuras
 function obtenerCatalogoInfraestructuras(req, res) {
