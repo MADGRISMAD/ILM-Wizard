@@ -166,6 +166,7 @@ const toggleCustomConfig = (req, res) => {
       break;
     }
   }
+  // console.log(jsonData);
   saveCustomConfigs(jsonData);
 
   res.send(response);
