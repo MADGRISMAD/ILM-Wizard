@@ -1,7 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
-// Función para cargar regiones del archivo
+const {db} = require("../services/mongodb.service");
+
+// Función para cargar regiones del archivo 
 function cargarRegiones() {
   const rawData = fs.readFileSync(path.join(__dirname, 'jsons/_global_regions.json'));
   return JSON.parse(rawData).regions;
@@ -12,23 +14,63 @@ function guardarRegiones(regions) {
   fs.writeFileSync(path.join(__dirname, 'jsons/_global_regions.json'), JSON.stringify({ regions }));
 }
 
-function fetchRegions(req, res) {
-  const regions = cargarRegiones();
-  res.status(200).json({ code: "OK", object: regions, message: "" });
+async function fetchRegions(req, res) {
+  try{
+    const regions = await loadRegions();
+    res.status(200).json({ code: "OK", object: regions, message: "" });
+  }
+  catch(err){
+    console.log(err);
+    res.status(500).json({message:"Couldn't retrieve regions"})
+  }
 }
 
+// Function to fetch all regions from database (eventually will replace cargarRegiones)
+async function loadRegions() {
+  const rawRegionsData = await db.collection('_global_regions').find().toArray();
+  const regionsFirstIndex = 0;
+  return rawRegionsData[regionsFirstIndex].regions;
 
+  // const rawData = fs.readFileSync(path.join(__dirname, 'jsons/_global_regions.json'));
+  // return JSON.parse(rawData).regions;
+}
 
-function fetchRegionById(req, res) {
-  const regions = cargarRegiones();
-  const regionId = req.query._id;
+async function fetchRegionById(req, res) {
+  try{
+    const mainDocumentId = await loadMainDocumentId();
+    const regionId = req.query._id;
+    console.log(regionId);
+    const query = 
+    {
+      _id: mainDocumentId,
+      regions: {
+        $elemMatch: { _id: regionId}
+      }
+    };
+    const projection = {
+      'regions.$': 1 // Include only the matching element in the result
+    };
+  
+    const filteredObject = await db.collection('_global_regions').findOne(query, {projection});
 
-  const region = regions.find(r => r._id === regionId);
-  if (region) {
-    res.status(200).json({ code: "OK", object: region, message: "" });
-  } else {
-    res.status(404).json({ code: "NOT_FOUND", message: "Región no encontrada" });
+    // const region = regions.find(r => r._id === regionId);
+    if (filteredObject) {
+      region = filteredObject.regions[0];
+      res.status(200).json({ code: "OK", object: region, message: "Region encontrada" });
+    } else {
+      res.status(404).json({ code: "NOT_FOUND", message: "Región no encontrada" });
+    }
   }
+  catch(err){
+    res.status(500).json({ code: "ERROR", message: "Region not retrieved", error: err});
+  }
+
+}
+
+async function loadMainDocumentId(){
+  const rawRegionsData = await db.collection('_global_regions').find().toArray();
+  const regionsFirstIndex = 0;
+  return rawRegionsData[regionsFirstIndex]._id;
 }
 
 function saveRegions(req, res) {

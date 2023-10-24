@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
+//database client
 const {db} = require("../services/mongodb.service");
 
 // Función para cargar entidades del archivo
@@ -11,15 +12,14 @@ async function cargarEntidades() {
   return rawData[0].entidades;
 }
 
-// Función para guardar entidades en el archivo
-async function guardarEntidades(entidades) {
-  fs.writeFileSync(path.join(__dirname, 'jsons/_global_entities.json'), JSON.stringify({ entidades }));
-  return {};
-}
-
 async function obtenerEntidades(req, res) {
-  const entidades = await cargarEntidades();
-  res.status(200).json({ code: "OK", object: entidades, message: "" });
+  try{
+    const entidades = await loadEntities();
+    res.status(200).json({ code: "OK", object: entidades, message: "" });
+  }
+  catch(err){
+    res.status(500).json({message:"Couldn't retrieve entities"})
+  }
 
   // mongoService.connectToServer(function(err) {
   //   if(err) {
@@ -50,7 +50,21 @@ async function obtenerEntidades(req, res) {
 
 }
 
-function saveEntities(req, res) {
+// function to load entities from mongoDB (eventually will replace cargarEntidades)
+async function loadEntities() {
+  const rawEntitysData = await db.collection('_global_entities').find().toArray();
+  const entitysFirstIndex = 0;
+  return rawEntitysData[entitysFirstIndex].entidades;
+}
+
+// Function to save new entities in the database
+async function guardarEntidades(entidades) {
+  fs.writeFileSync(path.join(__dirname, 'jsons/_global_entities.json'), JSON.stringify({ entidades }));
+  return {};
+}
+
+async function saveEntities(req, res) {
+
   const entidades = cargarEntidades();
   const entidadExistente = entidades.find(entity =>
     (entity._id && entity._id.toLowerCase() === req.body._id.toLowerCase()) ||
@@ -125,5 +139,5 @@ module.exports = {
   saveEntities,
   deleteEntity,
   editEntities,
-  cargarEntidades
+  loadEntities
 };
