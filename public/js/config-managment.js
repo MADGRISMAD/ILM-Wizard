@@ -45,6 +45,7 @@ const OHEConfigs = [
   ['Deployable in Alexa', 'checkbox', 'deployableInAlexa'],
 ];
 function loadOptions() {
+  $("#editModal").remove();
   $('#configDropdownContainer').empty();
   const container = $('#configDropdownContainer');
 
@@ -190,7 +191,8 @@ function loadOptions() {
                 HelperService.postRequest(
                   url,
                   {
-                    value: element.attr('id'),
+                    identifier: element.attr('id'),
+                    value: element.val(),
                     envId: matchedEnvironment,
                     infId: matchedInfrastructure,
                     regionId: matchedRegion._id,
@@ -198,6 +200,7 @@ function loadOptions() {
                   },
                   function (res) {
                     const selectedIndex = select.prop('selectedIndex');
+                    console.log(selectedIndex);
                     const option = select.children('option')[selectedIndex];
                     option.setAttribute('disabled', !res);
 
@@ -347,7 +350,7 @@ function loadOptions() {
   document.head.append(style);
 
   // Modal HTML
-  const modalHTML = `
+  const modalHTML = $(`
           <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
               <div class="modal-dialog">
                   <div class="modal-content">
@@ -380,9 +383,8 @@ function loadOptions() {
                   </div>
               </div>
           </div>
-      `;
-  document.body.insertAdjacentHTML('beforeend', modalHTML);
-
+      `);
+  $("body").append(modalHTML);
   // Edit Modal Event
   $(document).on('click', '.config-button', function (event) {
     event.preventDefault();
@@ -480,17 +482,21 @@ function loadOptions() {
     // Makes the name capable of editing
     $('#editModal tbody').on('click', 'td:nth-child(3)', function () {
       const td = $(this);
-      const input = $('<input></input>');
-      input.attr('type', 'text');
-      input.attr('value', td.text());
+
       // If its already an input, avoid deleting it
-      if (td.text() != '') {
+      if (td.children('input').length == 0) {
+        const input = $('<input></input>');
+        input.attr('type', 'text');
+        input.attr('value', td.text());
         td.text('');
         td.append(input);
         input.focus();
       }
     });
-
+    $('#editModal tbody').off('focusout', 'td:nth-child(3) input');
+    $('#editModal tbody').off('click', 'td:nth-child(5) input');
+    $('#editModal').off('click', '#addOption');
+    $('#confirmConfig').off('click');
     // When clicking outside the input, it becomes a text again
     $('#editModal tbody').on('focusout', 'td:nth-child(3) input', function () {
       const input = $(this);
@@ -503,7 +509,6 @@ function loadOptions() {
       const tr = $(this).parent().parent();
       tr.remove();
     });
-    $('#editModal').off('click', '#addOption');
     $('#editModal').on('click', '#addOption', (e) => {
       e.preventDefault();
       const tbody = $('#editModal tbody');
@@ -517,8 +522,8 @@ function loadOptions() {
   });
 
   // Save Changes Event
+  $('#saveChanges').off('click');
   $('#saveChanges').on('click', function () {
-    console.log('click');
     var data = [];
     // For every row in the table, it gets the values and creates a JSON
     $('#editModal tbody tr').each(function () {
@@ -547,7 +552,6 @@ function loadOptions() {
       };
       data.push(object);
     });
-
     $.ajax({
       url: '/newConfig/setCustomConfigs/' + this.value,
       type: 'PUT',
@@ -568,7 +572,7 @@ function loadOptions() {
         const data = res.object;
         const value = res.value;
         const select = $('select#' + value);
-
+        console.log(select);
         select.html('');
         for (let i = -1; i < data.length; i++) {
           const option = $('<option></option>');

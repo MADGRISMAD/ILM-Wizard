@@ -10,10 +10,10 @@ const getConfigs = (req, res) => {
 };
 
 const loadCustomConfigs = () => {
-  const rawData = fs.readFileSync(
+  const jsonidentifiers = fs.readFileSync(
     path.join(__dirname, 'jsons/_global_custom_configs.json'),
   );
-  return JSON.parse(rawData);
+  return JSON.parse(jsonidentifiers);
 };
 
 const sortDuplicates = (data, envId, infId, regionId, parentId = '') => {
@@ -46,7 +46,7 @@ const sortDuplicates = (data, envId, infId, regionId, parentId = '') => {
         }
       }
       let defaultCond =
-      !data[key][j].envId && !data[key][j].infId && !data[key][j].regionId;
+        !data[key][j].envId && !data[key][j].infId && !data[key][j].regionId;
       if (basicCond || defaultCond) response[key].push(data[key][j]);
     }
   }
@@ -66,22 +66,30 @@ const getCustomConfigs = (req, res) => {
 const setCustomConfigs = (req, res) => {
   const id = req.params.id;
   const data = JSON.parse(req.body.data);
+  const { envId, infId, regionId } = req.body;
+  const parentId = req.body.parentId || '';
   const rawData = loadCustomConfigs();
-
-  const rawDataLength = rawData[id] ? rawData[id].length : 0;
+  const jsonidentifiers = sortDuplicates(
+    rawData,
+    envId,
+    infId,
+    regionId,
+    parentId,
+  );
+  const jsonidentifiersLength = jsonidentifiers[id]
+    ? jsonidentifiers[id].length
+    : 0;
   var response = [];
   // If it is a new config, then add it
-  if (rawDataLength === 0) {
-    rawData[id] = data;
+  if (jsonidentifiersLength === 0) {
+    jsonidentifiers[id] = data;
+    response = data;
   } else {
-    for (let i = 0; i < rawData[id].length; i++) {
-      const envId = rawData[id][i].envId;
-      const infId = rawData[id][i].infId;
-      const regionId = rawData[id][i].regionId;
-      const parentId = rawData[id][i].parentId;
+    for (let i = 0; i < jsonidentifiers[id].length; i++) {
+      const parentId = jsonidentifiers[id][i].parentId || '';
       // If there is no data, then delete all the remaining
       if (data.length === 0) {
-        rawData[id].splice(i, rawData[id].length - i);
+        jsonidentifiers[id].splice(i, jsonidentifiers[id].length - i);
         break;
       }
       for (let j = 0; j < data.length; j++) {
@@ -94,83 +102,71 @@ const setCustomConfigs = (req, res) => {
         if (cond) break;
 
         // If it exists, then update
-        if (rawData[id][i].identifier === data[j].identifier) {
-          rawData[id][i] = data[j];
+        // console.log(i,j);
+        if (jsonidentifiers[id][i].identifier === data[j].identifier) {
+          jsonidentifiers[id][i] = data[j];
           response.push(data[j]);
           data.splice(j, 1);
           break;
         }
         // If it does not exist, then delete
         if (j === data.length - 1) {
-          rawData[id].splice(i, 1);
+          jsonidentifiers[id].splice(i, 1);
           i--;
         }
       }
     }
     // // The remaining data is new, so add it
-    rawData[id] = rawData[id].concat(data);
+    jsonidentifiers[id] = jsonidentifiers[id].concat(data);
     response = response.concat(data);
   }
-  saveCustomConfigs(rawData);
+  saveCustomConfigs(jsonidentifiers);
   // return the new data
   res
     .status(200)
     .json({ code: 'OK', value: id, object: response, message: '' });
 };
 
-const saveCustomConfigs = (rawData) => {
+const saveCustomConfigs = (jsonidentifiers) => {
   // write the new data in the JSON file
   fs.writeFileSync(
     path.join(__dirname, 'jsons/_global_custom_configs.json'),
-    JSON.stringify(rawData),
+    JSON.stringify(jsonidentifiers),
   );
   return true;
 };
 
 const toggleCustomConfig = (req, res) => {
   const id = req.params.id;
-  const { value, envId, infId, regionId, parentId } = req.body;
+  const { identifier, value, envId, infId, regionId } = req.body;
+  const parentId = req.body.parentId || '';
   const configs = loadCustomConfigs();
   var response = false;
 
-  var idSet = new Set();
-  var newConfig = [];
-  var defaultPosition;
-  var defaultDuplicated = false;
-  for (let i = 0; i < configs[id].length; i++) {
-    const hasDuplicate =
-      idSet.size === idSet.add(configs[id][i].identifier).size;
-    var jsonObject;
-    // Updates the custom option if it exists
-    if (hasDuplicate) {
-      if (configs[id][i].identifier === value) {
-        defaultDuplicated = true;
-        configs[id][i].isEnabled = !configs[id][i].isEnabled;
-      }
-      jsonObject = { ...configs[id][i], envId, infId, regionId, parentId };
-    } else {
-      // Gets the default option
-      if (configs[id][i].identifier === value) defaultPosition = i;
-      jsonObject = { ...configs[id][i] };
+  const jsonData = sortDuplicates(configs, envId, infId, regionId, parentId);
+  for (let i = 0; i < jsonData[id].length; i++) {
+    const envIdJson = jsonData[id][i].envId || false;
+    const infIdJson = jsonData[id][i].infId || false;
+    const regionIdJson = jsonData[id][i].regionId || false;
+    if (jsonData[id][i].identifier === identifier && envIdJson === envId && infIdJson === infId && regionIdJson === regionId) {
+      jsonData[id][i].isEnabled = !jsonData[id][i].isEnabled;
+      response = jsonData[id][i].isEnabled;
+      break;
     }
-
-    newConfig.push(jsonObject);
-    // If it is the last element, then it adds the new config
-    if (i === configs[id].length - 1 && !defaultDuplicated) {
-      const defaultObject = configs[id][defaultPosition];
-      defaultObject.isEnabled = false;
-      newConfig.push({
-        ...defaultObject,
+    if (i === jsonData[id].length - 1) {
+      jsonData[id].push({
+        identifier: identifier,
+        value: value,
+        isEnabled: false,
         envId: envId,
         infId: infId,
         regionId: regionId,
         parentId: parentId,
       });
+      break;
     }
   }
-
-  configs[id] = newConfig;
-  saveCustomConfigs(configs);
+  saveCustomConfigs(jsonData);
 
   res.send(response);
 };
