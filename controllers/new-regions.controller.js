@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const {db} = require("../services/mongodb.service");
+
 // Función para cargar regiones del archivo
 function cargarRegiones() {
   const rawData = fs.readFileSync(path.join(__dirname, 'jsons/_global_regions.json'));
@@ -12,12 +14,26 @@ function guardarRegiones(regions) {
   fs.writeFileSync(path.join(__dirname, 'jsons/_global_regions.json'), JSON.stringify({ regions }));
 }
 
-function fetchRegions(req, res) {
-  const regions = cargarRegiones();
-  res.status(200).json({ code: "OK", object: regions, message: "" });
+async function fetchRegions(req, res) {
+  try{
+    const regions = await loadRegions();
+    res.status(200).json({ code: "OK", object: regions, message: "" });
+  }
+  catch(err){
+    console.log(err);
+    res.status(500).json({message:"Couldn't retrieve regions"})
+  }
 }
 
+// Function to fetch all regions from database (eventually will replace cargarRegiones)
+async function loadRegions() {
+  const rawRegionsData = await db.collection('_global_regions').find().toArray();
+  const regionsFirstIndex = 0;
+  return rawRegionsData[regionsFirstIndex].regions;
 
+  // const rawData = fs.readFileSync(path.join(__dirname, 'jsons/_global_regions.json'));
+  // return JSON.parse(rawData).regions;
+}
 
 function fetchRegionById(req, res) {
   const regions = cargarRegiones();

@@ -6,6 +6,12 @@ const path = require('path');
 //database client
 const {db} = require("../services/mongodb.service");
 
+// Función para cargar entidades del archivo
+async function cargarEntidades() {
+  const rawData = await db.collection('_global_entities').find().toArray();
+  return rawData[0].entidades;
+}
+
 async function obtenerEntidades(req, res) {
   try{
     const entidades = await loadEntities();
@@ -14,7 +20,6 @@ async function obtenerEntidades(req, res) {
   catch(err){
     res.status(500).json({message:"Couldn't retrieve entities"})
   }
-
 
   // mongoService.connectToServer(function(err) {
   //   if(err) {
@@ -45,7 +50,7 @@ async function obtenerEntidades(req, res) {
 
 }
 
-// function to load entities from mongoDB
+// function to load entities from mongoDB (eventually will replace cargarEntidades)
 async function loadEntities() {
   const rawEntitysData = await db.collection('_global_entities').find().toArray();
   const entitysFirstIndex = 0;
@@ -58,7 +63,8 @@ async function guardarEntidades(entidades) {
   return {};
 }
 
-function saveEntities(req, res) {
+async function saveEntities(req, res) {
+
   const entidades = cargarEntidades();
   const entidadExistente = entidades.find(entity =>
     (entity._id && entity._id.toLowerCase() === req.body._id.toLowerCase()) ||
@@ -133,5 +139,5 @@ module.exports = {
   saveEntities,
   deleteEntity,
   editEntities,
-//  loadEntities
+  loadEntities
 };
