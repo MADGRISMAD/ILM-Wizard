@@ -72,32 +72,39 @@ const setCustomConfigs = (req, res) => {
   const rawData = loadCustomConfigs();
 
   const rawDataLength = rawData[id] ? rawData[id].length : 0;
-  const response = [];
+  var response = [];
+  console.log("Entra");
   // If it is a new config, then add it
   if (rawDataLength === 0) {
     rawData[id] = data;
   } else {
-    rawDataLoop: for (let i = 0; i < rawData[id].length; i++) {
+    for (let i = 0; i < rawData[id].length; i++) {
       const envId = rawData[id][i].envId;
       const infId = rawData[id][i].infId;
       const regionId = rawData[id][i].regionId;
       const parentId = rawData[id][i].parentId;
+
+      // If there is no data, then delete all the remaining
+      if (data.length === 0) {
+        rawData[id].splice(i, rawData[id].length - i);
+        break;
+      }
       for (let j = 0; j < data.length; j++) {
-        // If its not the actual config, then skips it
-        if (
+        const cond =
           envId != data[j].envId ||
           infId != data[j].infId ||
           regionId != data[j].regionId ||
-          parentId != data[j].parentId
-        )
-          continue rawDataLoop;
+          parentId != data[j].parentId;
+        // If its not the actual config, then skips it
+        if (cond) break;
 
         // If it exists, then update
         if (rawData[id][i].identifier === data[j].identifier) {
+          console.log(i,j);
           rawData[id][i] = data[j];
           response.push(data[j]);
           data.splice(j, 1);
-          continue rawDataLoop;
+          break;
         }
         // If it does not exist, then delete
         if (j === data.length - 1) {
@@ -106,9 +113,9 @@ const setCustomConfigs = (req, res) => {
         }
       }
     }
-    // The remaining data is new, so add it
-    rawData[id].push(...data);
-    response.push(...data);
+    // // The remaining data is new, so add it
+    rawData[id] = rawData[id].concat(data);
+    response= response.concat(data);
   }
   saveCustomConfigs(rawData);
   // return the new data

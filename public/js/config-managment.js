@@ -513,6 +513,7 @@ function loadOptions() {
 
   // Save Changes Event
   $('#saveChanges').on('click', function () {
+    console.log("click");
     var data = [];
     // For every row in the table, it gets the values and creates a JSON
     $('#editModal tbody tr').each(function () {
@@ -520,7 +521,6 @@ function loadOptions() {
       const parentId = $(this).find('td:nth-child(2)').text();
       const value = $(this).find('td:nth-child(3)').text().trim();
       const enabled = $(this).find('td:nth-child(4) input').is(':checked');
-      console.log(value == '');
       if (value == '') {
         Swal.fire({
           title: 'Error',
@@ -542,6 +542,7 @@ function loadOptions() {
       };
       data.push(object);
     });
+
     $.ajax({
       url: '/newConfig/setCustomConfigs/' + this.value,
       type: 'PUT',
