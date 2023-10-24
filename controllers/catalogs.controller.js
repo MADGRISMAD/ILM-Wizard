@@ -5,34 +5,7 @@ const path = require('path');
 const getConfigs = (req, res) => {
   const customConfig = loadCustomConfigs();
   const { envId, infId, regionId } = req.body;
-  var idSet = new Set();
-  var response = {};
-  // Check for duplicates
-  const keys = Object.keys(customConfig);
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i];
-    response[key] = [];
-    for (let j = 0; j < customConfig[key].length; j++) {
-      const hasDuplicate =
-        idSet.size === idSet.add(customConfig[key][j].identifier).size;
-      if (hasDuplicate) {
-        // Get first duplicate and eliminate it
-        for (let k = 0; k < response[key].length; k++) {
-          const cond =
-            response[key][k].identifier === customConfig[key][j].identifier &&
-            customConfig[key][j].envId === envId &&
-            customConfig[key][j].infId === infId &&
-            customConfig[key][j].regionId === regionId;
-          if (cond) {
-            response[key].splice(k, 1);
-            break;
-          }
-        }
-      }
-
-      response[key].push(customConfig[key][j]);
-    }
-  }
+  const response = sortDuplicates(customConfig, envId, infId, regionId);
   res.status(200).json({ code: 'OK', object: response, message: '' });
 };
 
@@ -43,27 +16,51 @@ const loadCustomConfigs = () => {
   return JSON.parse(rawData);
 };
 
-const getCustomConfigs = (req, res) => {
-  const id = req.params.id;
-  const data = loadCustomConfigs()[id];
-  const { envId, infId, regionId } = req.body;
-  const parentId = req.params.parentId || '';
-  const response = checkIds(data, envId, infId, regionId, parentId);
-  res.status(200).json({ code: 'OK', object: response, message: '' });
+const sortDuplicates = (data, envId, infId, regionId, parentId = '') => {
+  var idSet = new Set();
+  var response = {};
+  // Check for duplicates
+  const keys = Object.keys(data);
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    response[key] = [];
+    for (let j = 0; j < data[key].length; j++) {
+      const hasDuplicate =
+        idSet.size === idSet.add(data[key][j].identifier).size;
+      let basicCond =
+        data[key][j].envId === envId &&
+        data[key][j].infId === infId &&
+        data[key][j].regionId === regionId &&
+        data[key][j].parentId === parentId;
+
+      if (hasDuplicate) {
+        // Get first duplicate and eliminate it
+        for (let k = 0; k < response[key].length; k++) {
+          let complexCond =
+            basicCond &&
+            response[key][k].identifier === data[key][j].identifier;
+          if (complexCond) {
+            response[key].splice(k, 1);
+            break;
+          }
+        }
+      }
+      let defaultCond =
+      !data[key][j].envId && !data[key][j].infId && !data[key][j].regionId;
+      if (basicCond || defaultCond) response[key].push(data[key][j]);
+    }
+  }
+
+  return response;
 };
 
-const checkIds = (data, envId, infId, regionId, parentId = false) => {
-  var response = [];
-  for (let i = 0; i < data.length; i++) {
-    let cond =
-      data[i].envId === envId &&
-      data[i].infId === infId &&
-      data[i].regionId === regionId;
-
-    if (parentId) cond = cond && data[i].parentId === parentId;
-    if (cond) response.push(data[i]);
-  }
-  return response;
+const getCustomConfigs = (req, res) => {
+  const id = req.params.id;
+  const data = loadCustomConfigs();
+  const { envId, infId, regionId } = req.body;
+  const parentId = req.params.parentId || '';
+  const response = sortDuplicates(data, envId, infId, regionId, parentId)[id];
+  res.status(200).json({ code: 'OK', object: response, message: '' });
 };
 
 const setCustomConfigs = (req, res) => {
@@ -73,7 +70,6 @@ const setCustomConfigs = (req, res) => {
 
   const rawDataLength = rawData[id] ? rawData[id].length : 0;
   var response = [];
-  console.log("Entra");
   // If it is a new config, then add it
   if (rawDataLength === 0) {
     rawData[id] = data;
@@ -83,7 +79,6 @@ const setCustomConfigs = (req, res) => {
       const infId = rawData[id][i].infId;
       const regionId = rawData[id][i].regionId;
       const parentId = rawData[id][i].parentId;
-
       // If there is no data, then delete all the remaining
       if (data.length === 0) {
         rawData[id].splice(i, rawData[id].length - i);
@@ -100,7 +95,6 @@ const setCustomConfigs = (req, res) => {
 
         // If it exists, then update
         if (rawData[id][i].identifier === data[j].identifier) {
-          console.log(i,j);
           rawData[id][i] = data[j];
           response.push(data[j]);
           data.splice(j, 1);
@@ -115,7 +109,7 @@ const setCustomConfigs = (req, res) => {
     }
     // // The remaining data is new, so add it
     rawData[id] = rawData[id].concat(data);
-    response= response.concat(data);
+    response = response.concat(data);
   }
   saveCustomConfigs(rawData);
   // return the new data

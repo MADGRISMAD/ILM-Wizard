@@ -197,10 +197,12 @@ function loadOptions() {
                     parentId: select.attr('parentId') || '',
                   },
                   function (res) {
-                    element.parent('option').attr('disabled', !res);
-                    element.prop('checked', res);
+                    const selectedIndex = select.prop('selectedIndex');
+                    const option = select.children('option')[selectedIndex];
+                    option.setAttribute('disabled', !res);
+
                     select.select2(SELECT2CONFIG);
-                    select.val(null).trigger('change');
+                    select.val(null);
                     select.select2('open');
                   },
                   function (err) {
@@ -481,9 +483,12 @@ function loadOptions() {
       const input = $('<input></input>');
       input.attr('type', 'text');
       input.attr('value', td.text());
-      td.text('');
-      td.append(input);
-      input.focus();
+      // If its already an input, avoid deleting it
+      if (td.text() != '') {
+        td.text('');
+        td.append(input);
+        input.focus();
+      }
     });
 
     // When clicking outside the input, it becomes a text again
@@ -513,7 +518,7 @@ function loadOptions() {
 
   // Save Changes Event
   $('#saveChanges').on('click', function () {
-    console.log("click");
+    console.log('click');
     var data = [];
     // For every row in the table, it gets the values and creates a JSON
     $('#editModal tbody tr').each(function () {
