@@ -15,7 +15,10 @@ async function cargarEntidades() {
 async function obtenerEntidades(req, res) {
   try{
     const entidades = await loadEntities();
-    res.status(200).json({ code: "OK", object: entidades, message: "" });
+    if(entidades)
+      res.status(200).json({ code: "OK", object: entidades, message: "" });
+    else
+      res.status(404).json({ code: "NOT_FOUND", message: "Couldn't retrieve entities" });
   }
   catch(err){
     res.status(500).json({message:"Couldn't retrieve entities"})

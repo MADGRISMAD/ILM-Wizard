@@ -46,9 +46,24 @@ async function loadInfrastructures()
 
 
 // Obtener el catálogo de infraestructuras
-function obtenerCatalogoInfraestructuras(req, res) {
-  const catalogo = cargarCatalogoInfraestructuras();
-  res.status(200).json({ code: "OK", object: catalogo, message: "" });
+async function obtenerCatalogoInfraestructuras(req, res) {
+  try {
+    const catalogo = await loadInfrastructuresCatalogue();
+    if (catalogo)
+      res.status(200).json({ code: "OK", object: catalogo, message: "" });
+    else
+      res.status(404).json({ code: "NOT_FOUND", message: "Couldn't retrieve infrastructure catalogue" });    
+  } catch (error) {
+    res.status(505).json({message: "ERROR", error: err });
+  }
+}
+
+//Eventualmente reemplazara a cargarCatalogoInfraestructuras
+async function loadInfrastructuresCatalogue()
+{
+  const rawInfrastructureData = await db.collection('_global_cat_infrastructures').find().toArray();
+  const InfrastructureFirstIndex = 0;
+  return rawInfrastructureData[InfrastructureFirstIndex].infraTypes;
 }
 
 // Guardar una nueva infraestructura
@@ -60,23 +75,50 @@ function guardarInfraestructura(req, res) {
 }
 
 // Obtener una infraestructura por su ID
-function fetchInfrastructureById(req, res) {
-  const infrastructures = cargarInfraestructuras();
-  const infraId = req.query._id;
-
-  let infrastructure = infrastructures.find(infra => infra._id === infraId);
-
-  if (!infrastructure) {
-    infrastructure = {
-      _id: infraId,
-      // Puedes agregar propiedades iniciales para la nueva infraestructura aquí
-      isEnabled: false
-    };
-    infrastructures.push(infrastructure);
-    guardarInfraestructurasData(infrastructures);
+async function fetchInfrastructureById(req, res) {
+  try{ 
+    const infrastructureId = req.query._id;
+    const parentId = req.query.parentId;
+    const regionId = req.query.regionId;
+    if(!(infrastructureId && parentId && regionId))
+      res.status(400).json({ code: "ERROR", message: "Mandatory query parameters missing (must have _id && parentId && regionId)" });
+    else{
+      const mainDocumentId = await loadMainDocumentId();
+      const query = 
+      {
+        _id: mainDocumentId,
+        infraTypes: {
+          $elemMatch: {
+            _id: infrastructureId,
+            parent_id:parentId,
+            region_id: regionId
+          }
+        }
+      };
+  
+      const projection = {
+        'infraTypes.$': 1 // Include only the matching element in the result
+      };
+    
+      const filteredObject = await db.collection('_global_infrastructures').findOne(query, {projection});
+      if (filteredObject) {
+        const infrastructure = filteredObject.infraTypes[0];
+        res.status(200).json({ code: "OK", object: infrastructure, message: "Infraestructura encontrada" });
+      } else {
+        res.status(404).json({ code: "NOT_FOUND", message: "Infraestructura no encontrada" });
+      }
+    }
+    
   }
+  catch(err){
+    res.status(500).json({ code: "ERROR", message: "Infraestructure not retrieved", error: err});
+  }
+}
 
-  res.status(200).json({ code: "OK", object: infrastructure, message: "" });
+async function loadMainDocumentId(){
+  const rawInfrastructuresData = await db.collection('_global_infrastructures').find().toArray();
+  const infrastructuresFirstIndex = 0;
+  return rawInfrastructuresData[infrastructuresFirstIndex]._id;
 }
 
 // Cambiar el estado de una infraestructura

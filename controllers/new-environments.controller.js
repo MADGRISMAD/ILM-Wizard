@@ -1,6 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
+//database client
+const {db} = require("../services/mongodb.service");
+
 // Para cargar el JSON principal
 function cargarEnvironments() {
   const rawData = fs.readFileSync(path.join(__dirname, 'jsons/_global_environments.json'));
@@ -23,14 +26,87 @@ function guardarEnvironmentsData(environments) {
 
 
 
-function obtenerEnvironments(req, res) {
-  const environments = cargarEnvironments();
-  res.status(200).json({ code: "OK", object: environments, message: "" });
+async function obtenerEnvironments(req, res) {
+  try{
+    const environments = await loadEnvironments();
+    if(environments)
+      res.status(200).json({ code: "OK", object: environments, message: "" });
+    else
+      res.status(404).json({ code: "NOT_FOUND", message: "Couldn't retrieve environments" });
+  }
+  catch (err) {
+    res.status(505).json({message: "ERROR", error: err });
+  }
 }
 
-function obtenerCatalogoEnviroments(req, res) {
-  const catalogo = cargarCatalogoEnviroments();
-  res.status(200).json({ code: "OK", object: catalogo, message: "" });
+async function loadEnvironments(){
+  const rawEnvironmentsData = await db.collection('_global_environments').find().toArray();
+  const EnvironmentsFirstIndex = 0;
+  return rawEnvironmentsData[EnvironmentsFirstIndex].environments;
+}
+
+async function obtenerCatalogoEnviroments(req, res) {
+  try{
+    const environments = await loadEnvironmentsCatalogue();
+    if(environments)
+      res.status(200).json({ code: "OK", object: environments, message: "" });
+    else
+      res.status(404).json({ code: "NOT_FOUND", message: "Couldn't retrieve environments catalogue" });
+  }
+  catch (err) {
+    res.status(505).json({message: "ERROR", error: err });
+  }
+}
+
+async function loadEnvironmentsCatalogue(){
+  //collection name is bad spelled, should be "environments" not enviroments
+  const rawEnvironmentsData = await db.collection('_global_cat_enviroments').find().toArray();
+  const EnvironmentsFirstIndex = 0;
+  return rawEnvironmentsData[EnvironmentsFirstIndex].environments;
+}
+
+async function fetchEnvironmentById(req, res) {
+  try{ 
+    const environmentId = req.query._id;
+    const parentId = req.query.parentId;
+    if(!(environmentId && parentId))
+      res.status(400).json({ code: "ERROR", message: "Mandatory query parameters missing (must have _id && parentId)" });
+    else{
+      const mainDocumentId = await loadMainDocumentId();
+      const query = 
+      {
+        _id: mainDocumentId,
+        environments: {
+          $elemMatch: {
+            _id: environmentId,
+            parent_id:parentId
+          }
+        }
+      };
+  
+      const projection = {
+        'environments.$': 1 // Include only the matching element in the result
+      };
+    
+      const filteredObject = await db.collection('_global_environments').findOne(query, {projection});
+      if (filteredObject) {
+        const environment = filteredObject.environments[0];
+        res.status(200).json({ code: "OK", object: environment, message: "Environment encontrado" });
+      } else {
+        res.status(404).json({ code: "NOT_FOUND", message: "Environment no encontrado" });
+      }
+    }
+    
+  }
+  catch(err){
+    res.status(500).json({ code: "ERROR", message: "Environment not retrieved", error: err});
+  }
+}
+
+async function loadMainDocumentId(){
+  const rawEnvironmentsData = await db.collection('_global_environments').find().toArray();
+  const environmentsFirstIndex = 0;
+  return rawEnvironmentsData[environmentsFirstIndex]._id;
 }
 
 function guardarEnvironments(req, res) {
@@ -38,25 +114,6 @@ function guardarEnvironments(req, res) {
   environments.push(req.body);
   guardarEnvironmentsData(environments);
   res.status(200).json({ code: "OK", object: environments, message: "Entorno agregado con éxito." });
-}
-
-function fetchEnvironmentById(req, res) {
-  const environments = cargarEnvironments();
-  const envId = req.query._id;
-
-  let environment = environments.find(e => e._id === envId);
-
-  if (!environment) {
-    environment = {
-      _id: envId,
-      // Aquí puedes agregar propiedades iniciales para el nuevo entorno
-      isEnabled: false
-    };
-    environments.push(environment);
-    guardarEnvironmentsData(environments);
-  }
-
-  res.status(200).json({ code: "OK", object: environment, message: "" });
 }
 
 function toggleEnvironmentsStatus(req, res) {
