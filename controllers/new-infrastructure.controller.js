@@ -81,7 +81,7 @@ async function fetchInfrastructureById(req, res) {
     const parentId = req.query.parentId;
     const regionId = req.query.regionId;
     if(!(infrastructureId && parentId && regionId))
-      res.status(400).json({ code: "ERROR", message: "Mandatory query parameters missing (must have infrastructureId && parentId && regionId)" });
+      res.status(400).json({ code: "ERROR", message: "Mandatory query parameters missing (must have _id && parentId && regionId)" });
     else{
       const mainDocumentId = await loadMainDocumentId();
       const query = 
@@ -116,9 +116,9 @@ async function fetchInfrastructureById(req, res) {
 }
 
 async function loadMainDocumentId(){
-  const rawRegionsData = await db.collection('_global_infrastructures').find().toArray();
-  const regionsFirstIndex = 0;
-  return rawRegionsData[regionsFirstIndex]._id;
+  const rawInfrastructuresData = await db.collection('_global_infrastructures').find().toArray();
+  const infrastructuresFirstIndex = 0;
+  return rawInfrastructuresData[infrastructuresFirstIndex]._id;
 }
 
 // Cambiar el estado de una infraestructura
