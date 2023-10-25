@@ -26,7 +26,7 @@ const sortDuplicates = (data, envId, infId, regionId, parentId = '') => {
     response[key] = [];
     for (let j = 0; j < data[key].length; j++) {
       const hasDuplicate =
-        idSet.size === idSet.add(data[key][j].identifier).size;
+        idSet.size === idSet.add(data[key][j].value).size;
       let basicCond =
         data[key][j].envId === envId &&
         data[key][j].infId === infId &&
@@ -38,7 +38,7 @@ const sortDuplicates = (data, envId, infId, regionId, parentId = '') => {
         for (let k = 0; k < response[key].length; k++) {
           let complexCond =
             basicCond &&
-            response[key][k].identifier === data[key][j].identifier;
+            response[key][k].value === data[key][j].value;
           if (complexCond) {
             response[key].splice(k, 1);
             break;
@@ -103,7 +103,7 @@ const setCustomConfigs = (req, res) => {
 
         // If it exists, then update
         // console.log(i,j);
-        if (jsonidentifiers[id][i].identifier === data[j].identifier) {
+        if (jsonidentifiers[id][i].value === data[j].value) {
           jsonidentifiers[id][i] = data[j];
           response.push(data[j]);
           data.splice(j, 1);
@@ -124,7 +124,7 @@ const setCustomConfigs = (req, res) => {
   // return the new data
   res
     .status(200)
-    .json({ code: 'OK', value: id, object: response, message: '' });
+    .json({ code: 'OK', label: id, object: response, message: '' });
 };
 
 const saveCustomConfigs = (jsonidentifiers) => {
@@ -138,7 +138,7 @@ const saveCustomConfigs = (jsonidentifiers) => {
 
 const toggleCustomConfig = (req, res) => {
   const id = req.params.id;
-  const { identifier, value, envId, infId, regionId } = req.body;
+  const { value, label, envId, infId, regionId } = req.body;
   const parentId = req.body.parentId || '';
   const configs = loadCustomConfigs();
   var response = false;
@@ -148,15 +148,15 @@ const toggleCustomConfig = (req, res) => {
     const envIdJson = jsonData[id][i].envId || false;
     const infIdJson = jsonData[id][i].infId || false;
     const regionIdJson = jsonData[id][i].regionId || false;
-    if (jsonData[id][i].identifier === identifier && envIdJson === envId && infIdJson === infId && regionIdJson === regionId) {
+    if (jsonData[id][i].value === value && envIdJson === envId && infIdJson === infId && regionIdJson === regionId) {
       jsonData[id][i].isEnabled = !jsonData[id][i].isEnabled;
       response = jsonData[id][i].isEnabled;
       break;
     }
     if (i === jsonData[id].length - 1) {
       jsonData[id].push({
-        identifier: identifier,
         value: value,
+        label: label,
         isEnabled: false,
         envId: envId,
         infId: infId,

@@ -4,9 +4,15 @@ const DEFAULTMESSAGE = 'Select an option';
 const VMWareConfigs = [
   ['Other Software', 'multiList', 'otherSoftwareProducts'],
   ['HA', 'list', 'haList'],
-  ['Network Type', 'list', 'networkTypes'],
+  ['Cluster Type', 'list', 'clusterTypes'],
+  // ['Network Type', 'list', 'networkTypes'],
   ['Site', 'addList', 'sites'],
-  ['Distribution', 'addList', 'distributions', { parent: 'sites' }],
+  [
+    'Distribution',
+    'addList',
+    'distributions',
+    { parent: 'sites', customField: 'Network Type' },
+  ],
   [
     'Bridge Domain',
     'list',
@@ -45,7 +51,7 @@ const OHEConfigs = [
   ['Deployable in Alexa', 'checkbox', 'deployableInAlexa'],
 ];
 function loadOptions() {
-  $("#editModal").remove();
+  $('#editModal').remove();
   $('#configDropdownContainer').empty();
   const container = $('#configDropdownContainer');
 
@@ -84,12 +90,12 @@ function loadOptions() {
           const type = configs[i + j][1];
           const configName = configs[i + j][2] || false;
           const options = configs[i + j][3] || false;
-          const editable = options.editable || false;
           const parent = options.parent || false;
           const parentValue = options.parentValue || false;
-          const label = document.createElement('label');
-          const value = resp.object[configName];
-          label.classList.add('mt-2');
+          const text = document.createElement('label');
+          const label = resp.object[configName];
+          var template = templateResult;
+          text.classList.add('mt-2');
           // Creates a new row if its a checkbox (checkbox section)
           if (type == 'checkbox' && !checkboxes) {
             row.append(col);
@@ -99,15 +105,22 @@ function loadOptions() {
             addDivider(container);
             checkboxes = true;
           }
-          label.textContent = title;
-          col.append(label);
+          text.textContent = title;
+          col.append(text);
 
           const element = $('<div> </div>');
           element.addClass('d-flex align-items-center dropdown-container');
           element.attr('id', 'configList');
           if (type == 'list' || type == 'addList' || type == 'multiList') {
             const select = $('<select></select>');
-            if (type === 'multiList') select.attr('multiple', true);
+            if (type === 'multiList') {
+              template = multiListTemplate;
+              select.attr('multiple', true);
+              sortArray(label, 'isAlexa');
+            }
+            if (type === 'addList') {
+              template = addListTemplate;
+            }
             select.addClass(
               'form-control with-button d-flex align-self-center my-1',
             );
@@ -118,14 +131,14 @@ function loadOptions() {
             if (type != 'multiList') firstOption.attr('selected', true);
             select.append(firstOption);
 
-            for (let k = 0; k < value.length; k++) {
+            for (let k = 0; k < label.length; k++) {
               const option = $('<option></option>');
-              const config = value[k];
+              const config = label[k];
 
               const envId = config.envId || false;
               const infId = config.infId || false;
               const regionId = config.regionId || false;
-
+              option.attr('title', config.isAlexa);
               if (
                 (envId || infId || regionId) &&
                 (envId != matchedEnvironment ||
@@ -134,8 +147,8 @@ function loadOptions() {
               )
                 continue;
               // Creates options with values of the JSON
-              option.val(config.identifier);
-              option.text(config.value ? config.value : config.companlyAlias);
+              option.val(config.value);
+              option.text(config.label ? config.label : config.companlyAlias);
 
               if (!config.isEnabled) option.attr('disabled', true);
               select.append(option);
@@ -151,11 +164,11 @@ function loadOptions() {
                 e.preventDefault();
                 if (type == 'multiList') select.attr('multiple', true);
 
-                // If it has a parent value to enable, enable it
+                // If it has a parent label to enable, enable it
                 if (!parentValue || $(this).val() == parentValue) {
                   select.removeAttr('disabled');
                   const parentSelect = $(e.target);
-                  const parentValue = parentSelect.val();
+                  const parentValue = parentSelect.val() || '';
                   const properties = {
                     envId: matchedEnvironment,
                     infId: matchedInfrastructure,
@@ -164,7 +177,10 @@ function loadOptions() {
                   };
                   loadSelect(select, configName, properties);
                   select.attr('parentId', parentValue);
-                  select.select2(SELECT2CONFIG);
+                  select.select2({
+                    SELECT2CONFIG,
+                    templateResult: template,
+                  });
                 }
                 if (parentValue && $(this).val() != parentValue) {
                   select.attr('disabled', true);
@@ -176,7 +192,8 @@ function loadOptions() {
             }
             // Appends the element to the container
             element.append(select);
-            select.select2(SELECT2CONFIG);
+
+            select.select2({ ...SELECT2CONFIG, templateResult: template });
 
             // Creates a listener to enable/disable the option when you click the checkbox
             select.on('select2:select', function (e) {
@@ -191,8 +208,8 @@ function loadOptions() {
                 HelperService.postRequest(
                   url,
                   {
-                    identifier: element.attr('id'),
-                    value: element.val(),
+                    value: element.attr('id'),
+                    label: element.attr('label'),
                     envId: matchedEnvironment,
                     infId: matchedInfrastructure,
                     regionId: matchedRegion._id,
@@ -200,11 +217,13 @@ function loadOptions() {
                   },
                   function (res) {
                     const selectedIndex = select.prop('selectedIndex');
-                    console.log(selectedIndex);
                     const option = select.children('option')[selectedIndex];
                     option.setAttribute('disabled', !res);
 
-                    select.select2(SELECT2CONFIG);
+                    select.select2({
+                      ...SELECT2CONFIG,
+                      templateResult: templateResult,
+                    });
                     select.val(null);
                     select.select2('open');
                   },
@@ -218,16 +237,18 @@ function loadOptions() {
                   },
                 );
               }
-              // When the span triggers
-              else console.log('Sigue');
             });
-
+            // else
             //   Creates the modify button if its an addList
             if (type == 'addList') {
               const button = $('<button></button>');
               button.addClass('btn btn-secondary config-button');
               button.html('<i class="fas fa-cog"></i>');
-              button.attr('value', configName);
+              button.attr('label', configName);
+              button.attr(
+                'customField',
+                options.customField ? options.customField : false,
+              );
               button.attr('parentId', parent);
               // If it has a parent, disable the button
               if (parent) {
@@ -248,7 +269,7 @@ function loadOptions() {
             const checkbox = $('<input></input>');
             checkbox.attr('type', 'checkbox');
             checkbox.attr('id', configName);
-            checkbox.attr('value', configName);
+            checkbox.attr('label', title);
             if (options.disabled) checkbox.attr('disabled', true);
 
             element.append(checkbox);
@@ -269,22 +290,6 @@ function loadOptions() {
     },
   );
 
-  const templateResult = (state) => {
-    if (state.text == DEFAULTMESSAGE) {
-      return $(`<span class="d-flex">
-      <span  class="d-flex w-100 align-self-center">${state.text}</span>
-      </span>`);
-    }
-
-    const template = $(
-      `<span class="d-flex">
-      <span  class="d-flex w-100 align-self-center">${state.text}</span>
-      <input type = "checkbox" class="d-flex flex-shrink-1 align-self-center toggleEnable"  id = '${state.id}' value = '${state.text}'>
-        </span>`,
-    );
-    template.children('input').prop('checked', !state.disabled);
-    return template;
-  };
   const addDivider = (container) => {
     const divider = $('<hr></hr>');
     container.append(divider);
@@ -300,7 +305,7 @@ function loadOptions() {
         const object = res.object;
         for (let i = -1; i < object.length; i++) {
           const option = $('<option></option>');
-          const config = i === -1 ? DEFAULTMESSAGE : object[i].value;
+          const config = i === -1 ? DEFAULTMESSAGE : object[i].label;
           option.textContent = config;
           if (i === -1) {
             option.text(config);
@@ -311,7 +316,7 @@ function loadOptions() {
           }
           if (!object[i].isEnabled) option.attr('disabled', true);
           option.text(config);
-          option.val(object[i].identifier);
+          option.val(object[i].value);
           select.append(option);
         }
       },
@@ -364,11 +369,6 @@ function loadOptions() {
                           <table class="table">
                           <thead>
                             <tr>
-                              <th scope="col" hidden>Id</th>
-                              <th scope="col" hidden>Parent</th>	
-                              <th scope="col">Option</th>
-                              <th scope="col">Enabled</th>
-                              <th scope="col">Actions...</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -384,21 +384,44 @@ function loadOptions() {
               </div>
           </div>
       `);
-  $("body").append(modalHTML);
+  $('body').append(modalHTML);
+
+  // Create tables columns
+  const createTableColums = (customField = false) => {
+    const thead = $('#editModal thead tr');
+    thead.html('');
+    thead.append(
+      $('<th hidden>Value</th>'),
+      $('<th hidden>Parent</th>'),
+      $('<th>Label</th>'),
+      $('<th>Enabled</th>'),
+    );
+    if (customField != 'false') {
+      const th = $('<th>' + customField + '</th>');
+      thead.append(th);
+    }
+
+    const thActions = $('<th>Actions...</th>');
+
+    thead.append(thActions);
+  };
+
   // Edit Modal Event
   $(document).on('click', '.config-button', function (event) {
     event.preventDefault();
-    $('#editmodal .modal-footer #saveChanges').attr('value', this.value);
+    const customField = $(this).attr('customField');
+    createTableColums(customField);
+    $('#editmodal .modal-footer #saveChanges').attr('label', this.label);
     const button = $(this);
     const select = button.parent().find('select');
     const id = select.attr('id');
     const parentId = select.attr('parentId') || '';
-
     const properties = {
       envId: matchedEnvironment,
       infId: matchedInfrastructure,
       regionId: matchedRegion._id,
       parentId: parentId,
+      customField: customField,
     };
     HelperService.postRequest(
       '/newConfig/getCustomConfigs/' + id + '/' + parentId,
@@ -417,8 +440,9 @@ function loadOptions() {
             continue;
           const tr = createRow(
             parentId,
-            element.identifier,
+            customField,
             element.value,
+            element.label,
             element.isEnabled,
           );
           tbody.append(tr);
@@ -436,6 +460,7 @@ function loadOptions() {
     );
     const createRow = (
       parentId = false,
+      customField = false,
       id = Date.now(),
       name = '',
       isEnabled = false,
@@ -445,21 +470,37 @@ function loadOptions() {
       const tdParent = $('<td hidden></td>');
       const tdOption = $('<td></td>');
       const tdEnabled = $('<td></td>');
+
+      const tdCustomField = $('<td></td>');
+      if (customField != 'false') {
+        const input = $('<select></select>');
+        HelperService.postRequest(
+          '/newConfig/getCustomConfigs/' + customField,
+          {
+            envId: matchedEnvironment,
+            infId: matchedInfrastructure,
+            regionId: matchedRegion._id,
+          },
+          function (res) {
+            loadSelect(input, customField, res.object);
+            tdCustomField.append(input);
+          },
+          function (err) {
+            Swal.fire({
+              title: 'Error',
+              text: 'There was an error getting the options',
+              icon: 'error',
+            });
+          },
+        );
+      }
       const tdActions = $('<td></td>');
 
       const checkbox = $('<input></input>');
       checkbox.attr('type', 'checkbox');
       checkbox.attr('id', id);
-      checkbox.attr('value', id);
+      checkbox.attr('label', id);
       if (isEnabled) checkbox.attr('checked', true);
-
-      // const editButton = document.createElement('button');
-      // editButton.attr('type', 'button');
-      // editButton.attr('class', 'btn btn-primary');
-      // editButton.attr('data-toggle', 'modal');
-      // editButton.attr('data-target', '#editModal');
-      // editButton.attr('data-id', object[i].identifier);
-      // editButton.innerHTML = '<i class="fas fa-edit"></i>';
 
       const deleteButton = $('<button></button>');
       deleteButton.attr('type', 'button');
@@ -475,7 +516,12 @@ function loadOptions() {
       // tdActions.append(editButton);
       tdActions.append(deleteButton);
 
-      tr.append(tdId, tdParent, tdOption, tdEnabled, tdActions);
+      tr.append(tdId, tdParent, tdOption, tdEnabled);
+      if (customField != 'false') {
+        tr.append(tdCustomField);
+      }
+
+      tr.append(tdActions);
 
       return tr;
     };
@@ -512,11 +558,13 @@ function loadOptions() {
     $('#editModal').on('click', '#addOption', (e) => {
       e.preventDefault();
       const tbody = $('#editModal tbody');
-      const tr = createRow(parentId);
+      const parentId = $(this).attr('parentId');
+      const customField = $(this).attr('customField');
+      const tr = createRow(parentId, customField);
       tbody.append(tr);
     });
-
-    $('#saveChanges').attr('value', this.value);
+    $('#saveChanges').attr('label', $(this).attr('label'));
+    $('#addOption').attr('customField', customField);
     $('#addOption').attr('parentId', parentId);
     $('#editModal').modal('show');
   });
@@ -529,9 +577,9 @@ function loadOptions() {
     $('#editModal tbody tr').each(function () {
       const id = $(this).find('td:nth-child(1)').text();
       const parentId = $(this).find('td:nth-child(2)').text();
-      const value = $(this).find('td:nth-child(3)').text().trim();
+      const label = $(this).find('td:nth-child(3)').text().trim();
       const enabled = $(this).find('td:nth-child(4) input').is(':checked');
-      if (value == '') {
+      if (label == '') {
         Swal.fire({
           title: 'Error',
           text: 'Please fill the values correctly',
@@ -542,8 +590,8 @@ function loadOptions() {
       }
 
       const object = {
-        identifier: id,
-        value: value,
+        value: id,
+        label: label,
         isEnabled: enabled,
         envId: matchedEnvironment,
         infId: matchedInfrastructure,
@@ -553,7 +601,7 @@ function loadOptions() {
       data.push(object);
     });
     $.ajax({
-      url: '/newConfig/setCustomConfigs/' + this.value,
+      url: '/newConfig/setCustomConfigs/' + $(this).attr('label'),
       type: 'PUT',
       data: {
         data: JSON.stringify(data),
@@ -570,13 +618,12 @@ function loadOptions() {
           confirmButtonText: 'Ok',
         });
         const data = res.object;
-        const value = res.value;
-        const select = $('select#' + value);
-        console.log(select);
+        const label = res.label;
+        const select = $('select#' + label);
         select.html('');
         for (let i = -1; i < data.length; i++) {
           const option = $('<option></option>');
-          const config = i === -1 ? DEFAULTMESSAGE : data[i].value;
+          const config = i === -1 ? DEFAULTMESSAGE : data[i].label;
 
           option.textContent = config;
           if (i === -1) {
@@ -588,10 +635,10 @@ function loadOptions() {
           }
           if (!data[i].isEnabled) option.attr('disabled', true);
           option.text(config);
-          option.val(data[i].identifier);
+          option.val(data[i].label);
           select.append(option);
         }
-        select.select2(SELECT2CONFIG);
+        select.select2({ ...SELECT2CONFIG, templateResult: addListTemplate });
 
         $('#editModal').modal('hide');
       },
@@ -660,8 +707,50 @@ function loadOptions() {
     return validated;
   }
 
+  const sortArray = (array, property) => {
+    return array.sort((a, b) => {
+      if (a[property]) return -1;
+      if (b[property]) return 1;
+      return 0;
+    });
+  };
+
+  // Normal template
+  const templateResult = (state) => {
+    if (state.text == DEFAULTMESSAGE) {
+      return $(`<span class="d-flex">
+      <span  class="d-flex w-100 align-self-center">${state.text}</span>
+      </span>`);
+    }
+    const template = $(
+      `<span class="d-flex">
+      <span  class="d-flex w-100 align-self-center">${state.text}</span>
+      <input type = "checkbox" class="d-flex flex-shrink-1 align-self-center toggleEnable"  id = '${state.id}' label = '${state.text}'>
+        </span>`,
+    );
+    template.children('input').prop('checked', !state.disabled);
+    return template;
+  };
+
+  const multiListTemplate = (state) => {
+    if (state.text == DEFAULTMESSAGE) {
+      return $(`<span class="d-flex">
+      <span  class="d-flex w-100 align-self-center">${state.text}</span>
+      </span>`);
+    }
+    return $(
+      `<span class="d-flex">
+      ${state.text}${state.title == 'true' ? '*' : ''}
+        </span>`,
+    );
+  };
+  const addListTemplate = (state) => {
+    return $(`<span class="d-flex">
+      <span  class="d-flex w-100 align-self-center">${state.text}</span>
+      </span>`);
+  };
   const SELECT2CONFIG = {
-    templateResult: templateResult,
+    // templateResult: templateResult,
     dropdownAutoWidth: true,
     closeOnSelect: false,
     placeholder: DEFAULTMESSAGE,
