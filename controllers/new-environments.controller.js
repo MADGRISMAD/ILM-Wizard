@@ -101,29 +101,6 @@ async function fetchEnvironmentById(req, res) {
   catch(err){
     res.status(500).json({ code: "ERROR", message: "Environment not retrieved", error: err});
   }
-
-
-
-
-
-
-
-  // const environments = cargarEnvironments();
-  // const envId = req.query._id;
-
-  // let environment = environments.find(e => e._id === envId);
-
-  // if (!environment) {
-  //   environment = {
-  //     _id: envId,
-  //     // Aquí puedes agregar propiedades iniciales para el nuevo entorno
-  //     isEnabled: false
-  //   };
-  //   environments.push(environment);
-  //   guardarEnvironmentsData(environments);
-  // }
-
-  // res.status(200).json({ code: "OK", object: environment, message: "" });
 }
 
 async function loadMainDocumentId(){

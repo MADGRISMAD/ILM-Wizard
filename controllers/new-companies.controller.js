@@ -13,20 +13,65 @@ async function guardarCompanias(companies) {
 }
 
 async function getCompanies(req, res) {
-  const companies = await cargarCompanias();
-  res.status(200).json({ code: "OK", object: companies, message: "" });
+  try{
+    const companies = await loadCompanies();
+    if(companies)
+      res.status(200).json({ code: "OK", object: companies, message: "" });
+    else
+      res.status(404).json({ code: "NOT_FOUND", message: "Couldn't retrieve companies" });
+  }
+  catch (err) {
+    res.status(505).json({message: "ERROR", error: err });
+  }
+}
+
+//Eventually will replace cargarCompanias
+async function loadCompanies(){
+  const rawCompaniesData = await db.collection('_global_companies').find().toArray();
+  const CompaniesFirstIndex = 0;
+  return rawCompaniesData[CompaniesFirstIndex].companies;
 }
 
 async function getCompanyById(req, res) {
-  const companies = await cargarCompanias();
-  const companyId = req.query._id;
-  const company = companies.find(c => c._id === companyId);
-
-  if (company) {
-    res.status(200).json({ code: "OK", object: company, message: "" });
-  } else {
-    res.status(404).json({ code: "NOT_FOUND", message: "Compañía no encontrada" });
+  try{ 
+    const companyId = req.query._id;
+    if(!companyId)
+      res.status(400).json({ code: "ERROR", message: "Mandatory query parameter missing (must have _id)" });
+    else{
+      const mainDocumentId = await loadMainDocumentId();
+      const query = 
+      {
+        _id: mainDocumentId,
+        companies: {
+          $elemMatch: {
+            _id: companyId
+          }
+        }
+      };
+  
+      const projection = {
+        'companies.$': 1 // Include only the matching element in the result
+      };
+    
+      const filteredObject = await db.collection('_global_companies').findOne(query, {projection});
+      if (filteredObject) {
+        const company = filteredObject.companies[0];
+        res.status(200).json({ code: "OK", object: company, message: "Compañia encontrada" });
+      } else {
+        res.status(404).json({ code: "NOT_FOUND", message: "Compañia no encontrada" });
+      }
+    }
+    
   }
+  catch(err){
+    res.status(500).json({ code: "ERROR", message: "Company not retrieved", error: err});
+  }
+}
+
+async function loadMainDocumentId(){
+  const rawCompaniesData = await db.collection('_global_companies').find().toArray();
+  const CompaniesFirstIndex = 0;
+  return rawCompaniesData[CompaniesFirstIndex]._id;
 }
 
 async function saveCompanies(req, res) {
