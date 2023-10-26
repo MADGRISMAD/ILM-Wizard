@@ -71,7 +71,7 @@ $(document).ready(function () {
         </div>
         <div class="modal-body">
             <form id="entityForm">
-                <div class="form-group" hidden>
+                <div class="form-group">
                     <label for="_id">Identifier:</label>
                     <input type="text" class="form-control" id="_idInput" value="${_idValue}" readonly>
                 </div>
@@ -120,6 +120,7 @@ $(document).ready(function () {
         title: 'Information',
         text: 'The code is automatically generated and cannot be modified.',
       });
+      HelperService.confirmationAlert('Information', 'The code is automatically generated and cannot be modified.');
     });
   });
 
@@ -161,6 +162,7 @@ $(document).ready(function () {
         title: 'Incomplete Fields',
         text: 'Please, fill in all the fields.',
       });
+      HelperService.errorAlert('Incomplete Fields', 'Please, fill in all the fields.');
       return;
     }
 
@@ -299,7 +301,7 @@ $(document).ready(function () {
         </div>
         <div class="modal-body">
             <form id="entityForm">
-            <div class="form-group" hidden>
+            <div class="form-group">
             <label for="_id">Identifier:</label>
             <input type="text" class="form-control" id="_idInput" placeholder="Enter _id" value="${
               isEditing ? editEntity._id : ''
