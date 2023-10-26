@@ -11,6 +11,8 @@ routes.post ("/getCustomConfigs/:id/:parentId", newConfigController.getCustomCon
 routes.put ("/setCustomConfigs/:id", newConfigController.setCustomConfigs, newConfigController.getCustomConfigs);
 routes.post("/toggleCustomConfig/:id", newConfigController.toggleCustomConfig)
 
+routes.get("/checkCustomField/:id/:field/:value/:objectId", newConfigController.checkCustomField)
+
 module.exports = routes;
 
 

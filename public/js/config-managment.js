@@ -17,7 +17,12 @@ const VMWareConfigs = [
     'Bridge Domain',
     'list',
     'bridgeDomains',
-    { parent: 'networkTypes', parentValue: 'ACI' },
+    {
+      parent: 'distributions',
+      parent: 'distributions',
+      parentValue: 'ACI',
+      parentCustomField: 'Network Type',
+    },
   ],
   ['Available Deployment', 'checkbox', 'availableDeployment'],
   ['Deployable in ILM', 'checkbox', 'deployableInILM'],
@@ -94,6 +99,7 @@ function loadOptions() {
           const parentValue = options.parentValue || false;
           const text = document.createElement('label');
           const label = resp.object[configName];
+          const customField = options.parentCustomField || "value";
           var template = templateResult;
           text.classList.add('mt-2');
           // Creates a new row if its a checkbox (checkbox section)
@@ -148,9 +154,8 @@ function loadOptions() {
                 continue;
               // Creates options with values of the JSON
               option.val(config.value);
-              option.text(config.label ? config.label : config.companlyAlias);
-
-              if (!config.isEnabled) option.attr('disabled', true);
+              option.text(config.label);
+              option.attr('disabled', !config.isEnabled);
               select.append(option);
             }
 
@@ -163,9 +168,46 @@ function loadOptions() {
               $(document).on('change', '#' + parent, function (e) {
                 e.preventDefault();
                 if (type == 'multiList') select.attr('multiple', true);
-
-                // If it has a parent label to enable, enable it
-                if (!parentValue || $(this).val() == parentValue) {
+                if (parentValue) {
+                  console.log($("#" + parent).val(), select);
+                  HelperService.getRequest(
+                    '/newConfig/checkCustomField/' +
+                      parent +
+                      '/' +
+                      customField +
+                      '/' +
+                      parentValue + '/' + $("#" + parent).val(),
+                    {},
+                    function (res) {
+                      console.log(res);
+                      if (res) {
+                        select.removeAttr('disabled');
+                        const parentSelect = $(e.target);
+                        const parentValue = parentSelect.val() || '';
+                        const properties = {
+                          envId: matchedEnvironment,
+                          infId: matchedInfrastructure,
+                          regionId: matchedRegion._id,
+                          parentId: parentValue,
+                        };
+                        loadSelect(select, configName, properties);
+                        select.attr('parentId', parentValue);
+                        select.select2({
+                          SELECT2CONFIG,
+                          templateResult: template,
+                        });
+                      }
+                    },
+                    function (err) {
+                      Swal.fire({
+                        title: 'Error',
+                        text: 'There was an error updating the options',
+                        icon: 'error',
+                        confirmButtonText: 'Ok',
+                      });
+                    },
+                  );
+                } else {
                   select.removeAttr('disabled');
                   const parentSelect = $(e.target);
                   const parentValue = parentSelect.val() || '';
@@ -182,12 +224,31 @@ function loadOptions() {
                     templateResult: template,
                   });
                 }
+                // // If it has a parent label to enable, enable it
+                // if (!parentValue || $(this).val() == parentValue) {
+                //   select.removeAttr('disabled');
+                //   const parentSelect = $(e.target);
+                //   const parentValue = parentSelect.val() || '';
+                //   const properties = {
+                //     envId: matchedEnvironment,
+                //     infId: matchedInfrastructure,
+                //     regionId: matchedRegion._id,
+                //     parentId: parentValue,
+                //   };
+                //   loadSelect(select, configName, properties);
+                //   select.attr('parentId', parentValue);
+                //   select.select2({
+                //     SELECT2CONFIG,
+                //     templateResult: template,
+                //   });
+                // }
                 if (parentValue && $(this).val() != parentValue) {
                   select.attr('disabled', true);
                   $('#' + configName).val(
                     $('#' + configName + ' option:first').val(),
                   );
                 }
+                select.trigger('change');
               });
             }
             // Appends the element to the container
@@ -200,6 +261,7 @@ function loadOptions() {
               const triggerElement = e.params.originalEvent.target;
               const element = $(triggerElement);
               const select = $(this);
+              const parentId = select.attr('parentId') || '';
               // When the input trigger
               if (element.attr('type') == 'checkbox') {
                 e.preventDefault();
@@ -213,7 +275,7 @@ function loadOptions() {
                     envId: matchedEnvironment,
                     infId: matchedInfrastructure,
                     regionId: matchedRegion._id,
-                    parentId: select.attr('parentId') || '',
+                    parentId: parentId,
                   },
                   function (res) {
                     const selectedIndex = select.prop('selectedIndex');
@@ -295,7 +357,7 @@ function loadOptions() {
     container.append(divider);
   };
 
-  const loadSelect = (select, id, properties) => {
+  const loadSelect = (select, id, properties, customField = false) => {
     select.html('');
     const parentId = properties.parentId || '';
     HelperService.postRequest(
@@ -410,8 +472,10 @@ function loadOptions() {
   $(document).on('click', '.config-button', function (event) {
     event.preventDefault();
     const customField = $(this).attr('customField');
+    const saveChangesBtn = $('#saveChanges');
     createTableColums(customField);
-    $('#editmodal .modal-footer #saveChanges').attr('label', this.label);
+    saveChangesBtn.attr('label', this.label);
+    saveChangesBtn.attr('customField', customField);
     const button = $(this);
     const select = button.parent().find('select');
     const id = select.attr('id');
@@ -459,7 +523,7 @@ function loadOptions() {
       },
     );
     const createRow = (
-      parentId = false,
+      parentId = '',
       customField = false,
       id = Date.now(),
       name = '',
@@ -470,8 +534,9 @@ function loadOptions() {
       const tdParent = $('<td hidden></td>');
       const tdOption = $('<td></td>');
       const tdEnabled = $('<td></td>');
-
       const tdCustomField = $('<td></td>');
+
+      // Loads the custom field
       if (customField != 'false') {
         const input = $('<select></select>');
         HelperService.postRequest(
@@ -482,7 +547,7 @@ function loadOptions() {
             regionId: matchedRegion._id,
           },
           function (res) {
-            loadSelect(input, customField, res.object);
+            loadSelect(input, customField, res.object, customField);
             tdCustomField.append(input);
           },
           function (err) {
@@ -553,12 +618,21 @@ function loadOptions() {
     // When clicking the delete button, it deletes the row
     $('#editModal tbody').on('click', 'td:nth-child(5) button', function () {
       const tr = $(this).parent().parent();
-      tr.remove();
+      deleteRow(tr);
     });
+    $('#editModal tbody').on('click', 'td:nth-child(6) button', function () {
+      const tr = $(this).parent().parent();
+      deleteRow(tr);
+    });
+    const deleteRow = (tr) => {
+      tr.remove();
+    };
     $('#editModal').on('click', '#addOption', (e) => {
       e.preventDefault();
       const tbody = $('#editModal tbody');
-      const parentId = $(this).attr('parentId');
+      const element = $(e.target);
+      const parentId =
+        element.attr('parentId') != 'false' ? element.attr('parentId') : '';
       const customField = $(this).attr('customField');
       const tr = createRow(parentId, customField);
       tbody.append(tr);
@@ -571,7 +645,9 @@ function loadOptions() {
 
   // Save Changes Event
   $('#saveChanges').off('click');
-  $('#saveChanges').on('click', function () {
+  $('#saveChanges').on('click', function (e) {
+    e.preventDefault();
+
     var data = [];
     // For every row in the table, it gets the values and creates a JSON
     $('#editModal tbody tr').each(function () {
@@ -579,6 +655,7 @@ function loadOptions() {
       const parentId = $(this).find('td:nth-child(2)').text();
       const label = $(this).find('td:nth-child(3)').text().trim();
       const enabled = $(this).find('td:nth-child(4) input').is(':checked');
+      const customField = $($(this).find('td:nth-child(5) select')).val();
       if (label == '') {
         Swal.fire({
           title: 'Error',
@@ -598,6 +675,8 @@ function loadOptions() {
         regionId: matchedRegion._id,
         parentId: parentId,
       };
+      if (customField) object[$(e.target).attr('customField')] = customField;
+
       data.push(object);
     });
     $.ajax({
@@ -635,7 +714,7 @@ function loadOptions() {
           }
           if (!data[i].isEnabled) option.attr('disabled', true);
           option.text(config);
-          option.val(data[i].label);
+          option.val(data[i].value);
           select.append(option);
         }
         select.select2({ ...SELECT2CONFIG, templateResult: addListTemplate });
@@ -656,7 +735,6 @@ function loadOptions() {
     e.preventDefault();
 
     const valid = validateInputs();
-    console.log('Entra', valid);
     var data = getValues();
     if (valid) {
     } else {

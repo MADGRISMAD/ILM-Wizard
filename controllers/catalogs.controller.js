@@ -25,8 +25,7 @@ const sortDuplicates = (data, envId, infId, regionId, parentId = '') => {
     const key = keys[i];
     response[key] = [];
     for (let j = 0; j < data[key].length; j++) {
-      const hasDuplicate =
-        idSet.size === idSet.add(data[key][j].value).size;
+      const hasDuplicate = idSet.size === idSet.add(data[key][j].value).size;
       let basicCond =
         data[key][j].envId === envId &&
         data[key][j].infId === infId &&
@@ -37,8 +36,7 @@ const sortDuplicates = (data, envId, infId, regionId, parentId = '') => {
         // Get first duplicate and eliminate it
         for (let k = 0; k < response[key].length; k++) {
           let complexCond =
-            basicCond &&
-            response[key][k].value === data[key][j].value;
+            basicCond && response[key][k].value === data[key][j].value;
           if (complexCond) {
             response[key].splice(k, 1);
             break;
@@ -50,7 +48,6 @@ const sortDuplicates = (data, envId, infId, regionId, parentId = '') => {
       if (basicCond || defaultCond) response[key].push(data[key][j]);
     }
   }
-
   return response;
 };
 
@@ -140,21 +137,33 @@ const toggleCustomConfig = (req, res) => {
   const id = req.params.id;
   const { value, label, envId, infId, regionId } = req.body;
   const parentId = req.body.parentId || '';
+  console.log(parentId);
   const configs = loadCustomConfigs();
   var response = false;
 
-  const jsonData = sortDuplicates(configs, envId, infId, regionId, parentId);
-  for (let i = 0; i < jsonData[id].length; i++) {
-    const envIdJson = jsonData[id][i].envId || false;
-    const infIdJson = jsonData[id][i].infId || false;
-    const regionIdJson = jsonData[id][i].regionId || false;
-    if (jsonData[id][i].value === value && envIdJson === envId && infIdJson === infId && regionIdJson === regionId) {
-      jsonData[id][i].isEnabled = !jsonData[id][i].isEnabled;
-      response = jsonData[id][i].isEnabled;
+  // const configs = sortDuplicates(configs, envId, infId, regionId, parentId);
+  for (let i = 0; i < configs[id].length; i++) {
+    const envIdJson = configs[id][i].envId || false;
+    const infIdJson = configs[id][i].infId || false;
+    const regionIdJson = configs[id][i].regionId || false;
+    var defaultFound = false;
+    if (configs[id][i].value === value && !defaultFound) {
+      defaultFound = true;
+      continue;
+    }
+    if (
+      configs[id][i].value === value &&
+      envIdJson === envId &&
+      infIdJson === infId &&
+      regionIdJson === regionId &&
+      defaultFound
+    ) {
+      configs[id][i].isEnabled = !configs[id][i].isEnabled;
+      response = configs[id][i].isEnabled;
       break;
     }
-    if (i === jsonData[id].length - 1) {
-      jsonData[id].push({
+    if (i === configs[id].length - 1) {
+      configs[id].push({
         value: value,
         label: label,
         isEnabled: false,
@@ -166,10 +175,22 @@ const toggleCustomConfig = (req, res) => {
       break;
     }
   }
-  // console.log(jsonData);
-  saveCustomConfigs(jsonData);
+  saveCustomConfigs(configs);
 
   res.send(response);
+};
+
+const checkCustomField = (req, res) => {
+  const { id, field, value, objectId } = req.params;
+  const configs = loadCustomConfigs();
+  var match = false;
+  for (let i = 0; i < configs[id].length; i++) {
+    if (configs[id][i].value == objectId && configs[id][i][field] == value) {
+      match = true;
+      break;
+    }
+  }
+  res.send(match);
 };
 
 module.exports = {
@@ -177,4 +198,5 @@ module.exports = {
   getCustomConfigs,
   setCustomConfigs,
   toggleCustomConfig,
+  checkCustomField,
 };
