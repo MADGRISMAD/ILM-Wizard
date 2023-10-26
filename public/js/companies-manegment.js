@@ -634,7 +634,7 @@ $(document).ready(function () {
   });
   function performCompanyUpdate(updatedCompany) {
     $.ajax({
-      url: '/newcompanies/edit-companies',
+      url: `/newcompanies/edit-companies/${updateCompany._id}`,
       type: 'PUT',
       data: updatedCompany,
       success: function (response) {

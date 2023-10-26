@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const {db} = require("../services/mongodb.service");
+const { Console } = require('console');
 // Función para cargar compañías del archivo
 async function cargarCompanias(req, res, next) {
   const rawData = await db.collection('_global_companies').find().toArray();
@@ -80,29 +81,29 @@ async function getCompanyById(req, res) {
   }
 }
 
-
+async function bodyValid(body){
+  const requiredFields = [
+    "parent_id",
+    "entity_id",
+    "_id",
+    "Company",
+    "Hostname_prefix",
+    "Region_or_client_code",
+    "Delivery",
+    "VDC",
+    "CMDB_company",
+    "isEnabled",
+    "short_name",
+    "nicName",
+    "region"
+  ];
+  const missingFields = requiredFields.filter(field => !(field in body));
+  return missingFields.length > 0;
+}
 
 async function saveCompanies(req, res) {  
   try {
-    //This constant is used to verify if all the required fields are present
-    const requiredFields = [
-      "parent_id",
-      "entity_id",
-      "_id",
-      "Company",
-      "Hostname_prefix",
-      "Region_or_client_code",
-      "Delivery",
-      "VDC",
-      "CMDB_company",
-      "isEnabled",
-      "short_name",
-      "nicName",
-      "region"
-    ];
-    const missingFields = requiredFields.filter(field => !(field in req.body));
-
-    if (missingFields.length > 0) {
+    if (await bodyValid(req.body)) {
       res.status(400).json({message:"Bad request, body is missing required fields"});
     }
     else{
@@ -119,6 +120,7 @@ async function saveCompanies(req, res) {
       res.status(200).json({message: "Company inserted", company: req.body});
     }    
   } catch (error) {
+    console.log(error);
     res.status(505).json({message:"Could not post company", error: error});
   }
 }
@@ -129,22 +131,25 @@ async function deleteCompany(req, res) {
     const filter = {_id: mainDocumentId};
     const elementIdToDelete = req.params._id;
 
-    const deleteOperation = {
-      $pull: {
-        companies: {_id: elementIdToDelete}
-      }
-    };
-
-    const documentExists = await companyExists(elementIdToDelete, mainDocumentId);
-    if(documentExists)
-    {
-      const result = await db.collection("_global_companies").updateOne(filter, deleteOperation);
-      res.status(200).json({message: "Company deleted"});
-    }
+    if(!elementIdToDelete)
+      res.status(400).json({ code: "ERROR", message: "Mandatory query parameter missing (must have _id)" });
     else
     {
-      res.status(404).json({message: "Company doesn't exist"})
-    }    
+      const deleteOperation = {
+        $pull: {
+          companies: {_id: elementIdToDelete}
+        }
+      };
+  
+      const documentExists = await companyExists(elementIdToDelete, mainDocumentId);
+      if(documentExists)
+      {
+        const result = await db.collection("_global_companies").updateOne(filter, deleteOperation);
+        res.status(200).json({message: "Company deleted"});
+      }
+      else
+        res.status(404).json({message: "Company doesn't exist"});  
+    }
   } catch (error) {
     res.status(505).json({message:"Could not delete company", error: error});    
   }
@@ -153,21 +158,50 @@ async function deleteCompany(req, res) {
 
 
 async function editCompanies(req, res) {
-  const companies = cargarCompanias();
-  const matchedCompanyIndex = companies.findIndex(company => company._id === req.body._id);
+  try {
+    const mainDocumentId = await loadMainDocumentId();
+    const elementIdToUpdate = req.params._id;
+    if(!elementIdToUpdate)
+      res.status(400).json({ code: "NOT_FOUND", message: "Mandatory query parameter missing (must have _id)" });
+    else
+    {
+      const filter = {_id: mainDocumentId, "companies._id": elementIdToUpdate};
+      //Creating the $set object
+      if (typeof req.body.isEnabled === 'string')
+        req.body.isEnabled = req.body.isEnabled.toLowerCase() === "true";
 
-  if (matchedCompanyIndex === -1) {
-    return res.status(404).json({ code: "NOT_FOUND", message: "La compañía no existe." });
+      let setObject = {};
+      for (const key in req.body) {
+        if (req.body.hasOwnProperty(key)) {
+          const value = req.body[key];
+          console.log(key, value);
+          setObject[`companies.$.${key}`] = value;
+        }
+      }
+
+      //Deleting the _id property from the object, since it should not be updated
+      if(setObject.hasOwnProperty("companies.$._id"))
+        delete setObject["companies.$._id"];
+
+      const updateOperation = {
+        $set: setObject
+      };
+      
+      const documentExists = await companyExists(elementIdToUpdate, mainDocumentId);
+      if(documentExists)
+      {
+        const result = await db.collection("_global_companies").updateOne(filter, updateOperation);
+        const companies = await loadCompanies();
+        res.status(200).json({ code: "OK", object: companies, message: "Compañía editada con éxito." });
+      }
+      else
+        res.status(404).json({ code: "NOT_FOUND", message: "La compañía no existe." }); 
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(505).json({code: "NOT_FOUND", message:"Could not delete company", error: error});    
   }
 
-  if (typeof req.body.isEnabled === 'string') {
-    req.body.isEnabled = req.body.isEnabled.toLowerCase() === "true";
-  }
-
-  companies[matchedCompanyIndex] = req.body;
-  guardarCompanias(companies);
-
-  res.status(200).json({ code: "OK", object: companies, message: "Compañía editada con éxito." });
 }
 
 
