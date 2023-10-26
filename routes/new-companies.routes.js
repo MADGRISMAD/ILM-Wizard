@@ -9,7 +9,7 @@ routes.get("/getCompanyById", newCompaniesController.getCompanyById);
 
 routes.post("/saveCompanies" , newCompaniesController.saveCompanies)
 
-routes.put("/edit-companies", newCompaniesController.editCompanies);
+routes.put("/editCompany/:_id", newCompaniesController.editCompanies);
 
 routes.post("/toggleStatus", newCompaniesController.toggleCompanyStatus);
 
