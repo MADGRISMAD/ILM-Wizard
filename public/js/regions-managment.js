@@ -103,7 +103,9 @@ function fetchAndDisplayRegions() {
     url: '/newregions/fetchRegions',
     type: 'GET',
     success: function (data) {
+      console.log(data);
       if (data.code == "OK") {
+        console.log(data);
         // Filtrar las regiones que coinciden con matchedCompany._id
         const filteredRegions = data.object.filter(region => region.parent_id === matchedCompany._id);
 

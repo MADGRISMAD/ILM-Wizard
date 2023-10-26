@@ -633,10 +633,14 @@ $(document).ready(function () {
     else saveCompanies();
   });
   function performCompanyUpdate(updatedCompany) {
+    console.log(typeof updatedCompany);
+    const updatedCompanyJson = JSON.stringify(updatedCompany);
+    console.log(updatedCompanyJson);
     $.ajax({
-      url: '/newcompanies/edit-companies',
+      url: `/newcompanies/editCompany/${updatedCompany._id}`,
       type: 'PUT',
-      data: updatedCompany,
+      contentType: 'application/json',
+      data: updatedCompanyJson,
       success: function (response) {
         if (response.code === 'OK') {
           Swal.fire({
