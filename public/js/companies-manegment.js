@@ -83,7 +83,7 @@ function updateCheckboxStatusComp(checkbox, isEnabled, regionId) {
 
 function updateCompanyStatus(regionId, isEnabled) {
   $.ajax({
-    url: '/newcompanies/toggleStatus',
+    url: `/newcompanies/toggleStatus/${regionId}`,
     type: 'POST',
     contentType: 'application/json',
     data: JSON.stringify({
@@ -633,7 +633,6 @@ $(document).ready(function () {
     else saveCompanies();
   });
   function performCompanyUpdate(updatedCompany) {
-    console.log(typeof updatedCompany);
     const updatedCompanyJson = JSON.stringify(updatedCompany);
     console.log(updatedCompanyJson);
     $.ajax({

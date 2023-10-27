@@ -1,17 +1,41 @@
-const fs = require('fs');
-const path = require('path');
-
 const {db} = require("../services/mongodb.service");
 
-// Función para cargar regiones del archivo 
-function cargarRegiones() {
-  const rawData = fs.readFileSync(path.join(__dirname, 'jsons/_global_regions.json'));
-  return JSON.parse(rawData).regions;
+// Function to fetch all regions from database (eventually will replace cargarRegiones)
+async function loadRegions() {
+  const rawRegionsData = await db.collection('_global_regions').find().toArray();
+  const regionsFirstIndex = 0;
+  return rawRegionsData[regionsFirstIndex].regions;
 }
 
-// Función para guardar regiones en el archivo
-function guardarRegiones(regions) {
-  fs.writeFileSync(path.join(__dirname, 'jsons/_global_regions.json'), JSON.stringify({ regions }));
+async function regionExists(regionId, mainDocumentId) {
+  const query =
+  {
+    _id: mainDocumentId,
+    regions: {
+      $elemMatch: {
+        _id: regionId
+      }
+    }
+  };
+
+  const projection = {
+    'regions.$': 1 // Include only the matching element in the result
+  };
+
+  const filteredObject = await db.collection('_global_regions').findOne(query, {projection});
+  return filteredObject;
+}
+
+async function bodyValid(body){
+  const requiredFields = [
+    "parent_id",
+    "_id",
+    "Region",
+    "isEnabled"
+  ];
+  const missingFields = requiredFields.filter(field => !(field in body));
+  const result = missingFields.length > 0;
+  return result;
 }
 
 async function fetchRegions(req, res) {
@@ -25,20 +49,10 @@ async function fetchRegions(req, res) {
   }
 }
 
-// Function to fetch all regions from database (eventually will replace cargarRegiones)
-async function loadRegions() {
-  const rawRegionsData = await db.collection('_global_regions').find().toArray();
-  const regionsFirstIndex = 0;
-  return rawRegionsData[regionsFirstIndex].regions;
-
-  // const rawData = fs.readFileSync(path.join(__dirname, 'jsons/_global_regions.json'));
-  // return JSON.parse(rawData).regions;
-}
-
 async function fetchRegionById(req, res) {
   try{
     const mainDocumentId = await loadMainDocumentId();
-    const regionId = req.query._id;
+    const regionId = req.params._id;
     console.log(regionId);
     const query = 
     {
@@ -73,75 +87,147 @@ async function loadMainDocumentId(){
   return rawRegionsData[regionsFirstIndex]._id;
 }
 
-function saveRegions(req, res) {
-  const regions = cargarRegiones();
+async function saveRegions(req, res) {
+  try {
+    if (await bodyValid(req.body))
+      res.status(400).json({code: "ERROR",message:"Faltan campos obligatorios"});
+    else{
+      const regionId = req.body._id;
+      const mainDocumentId = await loadMainDocumentId();
+      const regionExistente = await regionExists(regionId, mainDocumentId);
+    
+      if (regionExistente)
+        res.status(409).json({ code: "DUPLICATE", message: "La region con ese identificador ya existe." });
+      else{
+        const newRegion = req.body;
+        if(typeof newRegion._id !== 'string')
+          newRegion._id = newRegion._id.toString();
 
-  const regionExistente = regions.find(region =>
-    region._id && region._id.toLowerCase() === req.body._id.toLowerCase()
-  );
+        newRegion.isEnabled = typeof newRegion.isEnabled === 'string' ? newRegion.isEnabled.toLowerCase() === "true" : newRegion.isEnabled;
+        const filter = {_id: mainDocumentId};
+        const postOperation = {
+          $push: {
+            regions: newRegion
+          }
+        };
 
-  if (regionExistente) {
-    return res.status(409).json({ code: "DUPLICATE", message: "La región con ese identificador ya existe." });
+        const result = await db.collection("_global_regions").updateOne(filter, postOperation);
+        if(result.modifiedCount === 0)
+          res.status(500).json({ code: "ERROR",message: "Error inesperado, Region no se pudo agregar." })  ;
+        else{
+          const regiones = await loadRegions();
+          res.status(200).json({ code: "OK", object: regiones, message: "Region agregada con éxito." })
+        }
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ code: "ERROR", message: "No se pudo agregar la región", error: error });
   }
-  req.body.isEnabled = (req.body.isEnabled === 'true' || req.body.isEnabled === true);
-  regions.push(req.body);
-  guardarRegiones(regions);
-  res.status(200).json({ code: "OK", object: regions, message: "Región agregada con éxito." });
 }
 
-function editRegions(req, res) {
-  const regions = cargarRegiones();
-  const matchedRegionIndex = regions.findIndex(region => region._id === req.body._id);
-  if (matchedRegionIndex === -1) {
-    return res.status(404).json({ code: "NOT_FOUND", message: "La región no existe." });
-  }
+async function editRegions(req, res) {
+  try {
+    const mainDocumentId = await loadMainDocumentId();
+    const regionId = req.body._id;
+    const regionExistente = await regionExists(regionId, mainDocumentId);
+    if(!regionExistente)
+      return res.status(404).json({ code: "NOT_FOUND", message: "La region no existe." });
+    else{
+      const filter = {_id: mainDocumentId, "regions._id": regionId};
+      //Creating the $set object
+      if (typeof req.body.isEnabled === 'string')
+        req.body.isEnabled = (req.body.isEnabled.toLowerCase() === "true" || req.body.isEnabled === true);
+      let setObject = {};
+      for (const key in req.body) {
+        if (req.body.hasOwnProperty(key)) {
+          const value = req.body[key];
+          setObject[`regions.$.${key}`] = value;
+        }
+      }
 
-  if (typeof req.body.isEnabled === 'string') {
-    req.body.isEnabled = req.body.isEnabled.toLowerCase() === "true";
-  }
+      //Deleting the _id property from the object, since it should not be updated
+      if(setObject.hasOwnProperty("regions.$._id"))
+        delete setObject["regions.$._id"];
 
-  regions[matchedRegionIndex] = req.body;
-  guardarRegiones(regions);
-  res.status(200).json({ code: "OK", object: regions, message: "Región editada con éxito." });
+      const updateOperation = {
+        $set: setObject
+      };
+
+      const result = await db.collection("_global_regions").updateOne(filter, updateOperation);
+      if(result.modifiedCount === 0)
+        res.status(500).json({ code: "ERROR", message: "No se pudo editar la region", error: error });
+      else{
+        const regiones = await loadRegions();
+        res.status(200).json({ code: "OK", object: regiones, message: "Region editada con éxito." });
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ code: "ERROR", message: "No se pudo editar la region", error: error });
+  }
 }
 
-function deleteRegion(req, res) {
-  const regions = cargarRegiones();
-  const regionIdentifier = req.params._id;
-  const matchedRegionIndex = regions.findIndex(region => region._id === regionIdentifier);
-  if (matchedRegionIndex === -1) {
-    return res.status(404).json({ code: "NOT_FOUND", message: "La región no existe." });
-  }
+async function deleteRegion(req, res) {
+  try {
+    const mainDocumentId = await loadMainDocumentId();
+    const regionId = req.params._id;
+    const regionExistente = await regionExists(regionId, mainDocumentId);
+    if(!regionExistente )
+      return res.status(404).json({ code: "NOT_FOUND", message: "La region no existe." });
+    else{
+      const filter = {_id: mainDocumentId};
+      const deleteOperation = {
+        $pull: {
+          regions: {_id: regionId}
+        }
+      };
 
-  regions.splice(matchedRegionIndex, 1);
-  guardarRegiones(regions);
-  res.status(200).json({ code: "OK", object: regions, message: "Región eliminada con éxito." });
+      const result = await db.collection("_global_regions").updateOne(filter, deleteOperation);
+      if(result.modifiedCount === 0)
+        res.status(500).json({ code: "ERROR", message: "No se pudo eliminar la region", error: error });
+      else{
+        const regiones = await loadRegions();
+        res.status(200).json({ code: "OK", object: regiones, message: "Region eliminada con éxito." });
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ code: "ERROR", message: "No se pudo eliminar la region", error: error });  
+  }
 }
 
-function toggleRegionStatus(req, res) {
-  const regions = cargarRegiones(); if (typeof req.body !== 'object' || req.body === null) {
-    return res.status(400).json({ code: "BAD_REQUEST", message: "El cuerpo de la petición es inválido." });
+async function toggleRegionStatus(req, res) {
+  try {
+    const mainDocumentId = await loadMainDocumentId();
+    regionId = req.params._id;
+    const regionExistente = await regionExists(regionId, mainDocumentId);
+    if(!regionExistente)
+      return res.status(404).json({ code: "NOT_FOUND", message: "La región no existe." });
+    else{
+      const body = req.body;
+      if (!('isEnabled' in body)) 
+        res.status(400).json({ code: "BAD_REQUEST", message: "La propiedad isEnabled es requerida." });
+      else{
+        //is Enabled could be a string, so me convert it to boolean in that case
+        const isEnabled = typeof body.isEnabled === 'string' ? body.isEnabled.toLowerCase() === "true" : body.isEnabled
+        const filter = {_id: mainDocumentId, "regions._id": regionId};
+        const updateOperation = {
+          $set: {
+            "regions.$.isEnabled": isEnabled
+          }
+        };
+        console.log("llegue");
+        const result = await db.collection("_global_regions").updateOne(filter, updateOperation);
+        const filteredObject = await regionExists(regionId, mainDocumentId);
+        const region = filteredObject.regions[0];
+        res.status(200).json({ code: "OK", object: region, message: "Estado de la region actualizado con éxito." });      
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ code: "NOT_FOUND", message: "Hubo un error inesperado." });
   }
-
-  if (!('isEnabled' in req.body)) {
-    return res.status(400).json({ code: "BAD_REQUEST", message: "La propiedad isEnabled es requerida." });
-  }
-
-  if (!('_id' in req.body)) {
-    return res.status(400).json({ code: "BAD_REQUEST", message: "La propiedad _id es requerida." });
-  }
-
-  const matchedRegionIndex = regions.findIndex(region => region._id === req.body._id);
-
-  if (matchedRegionIndex === -1) {
-    return res.status(404).json({ code: "NOT_FOUND", message: "La región no existe." });
-  }
-
-  const isEnabled = typeof req.body.isEnabled === 'string' ? req.body.isEnabled.toLowerCase() === "true" : req.body.isEnabled;
-  regions[matchedRegionIndex].isEnabled = isEnabled;
-  guardarRegiones(regions);
-
-  res.status(200).json({ code: "OK", object: regions[matchedRegionIndex], message: "Estado de la región actualizado con éxito." });
 }
 
 module.exports = {

@@ -1,17 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const {db} = require("../services/mongodb.service");
-const { Console } = require('console');
-// Función para cargar compañías del archivo
-async function cargarCompanias(req, res, next) {
-  const rawData = await db.collection('_global_companies').find().toArray();
-  return rawData[0].companies;
-}
-
-// Función para guardar compañías en el archivo
-async function guardarCompanias(companies) {
-  fs.writeFileSync(path.join(__dirname, 'jsons/_global_companies.json'), JSON.stringify({ companies }));
-}
 
 async function loadMainDocumentId(){
   const rawCompaniesData = await db.collection('_global_companies').find().toArray();
@@ -104,25 +93,29 @@ async function bodyValid(body){
 async function saveCompanies(req, res) {
   try {
     if (await bodyValid(req.body)) {
-      res.status(400).json({code: "ERROR",message:"Bad request, body is missing required fields"});
+      res.status(400).json({code: "ERROR",message:"Faltan campos obligatorios"});
     }
     else{
       const mainDocumentId = await loadMainDocumentId();
       const newCompany = req.body;
-      newCompany._id = newCompany._id.toString();
-      newCompany.isEnabled = (newCompany.isEnabled.toLowerCase() === 'true' || newCompany.isEnabled === true);
-      const filter = {_id: mainDocumentId};
-      const postOperation = {
-        $push: {
-          companies: newCompany
-        }
-      };
-      const result = await db.collection("_global_companies").updateOne(filter, postOperation);
-      const companies = await loadCompanies();
-      res.status(200).json({ code: "OK", object: companies, message: "Compañía agregada con éxito." })
+      const filteredObject = await companyExists(newCompany._id, mainDocumentId);
+      if(filteredObject)
+        res.status(409).json({ code: "DUPLICATE", message: "La compañia con ese identificador ya existe" });
+      else{
+        newCompany._id = newCompany._id.toString();
+        newCompany.isEnabled = typeof newCompany.isEnabled === 'string' ? newCompany.isEnabled.toLowerCase() === "true" : newCompany.isEnabled;
+        const filter = {_id: mainDocumentId};
+        const postOperation = {
+          $push: {
+            companies: newCompany
+          }
+        };
+        const result = await db.collection("_global_companies").updateOne(filter, postOperation);
+        const companies = await loadCompanies();
+        res.status(200).json({ code: "OK", object: companies, message: "Compañía agregada con éxito." })
+      }
     }
   } catch (error) {
-    console.log(error);
     res.status(505).json({code: "ERROR", message:"Could not post company", error: error});
   }
 }
@@ -171,17 +164,14 @@ async function editCompanies(req, res) {
       if (typeof req.body.isEnabled === 'string')
         req.body.isEnabled = (req.body.isEnabled.toLowerCase() === "true" || req.body.isEnabled === true);
       let setObject = {};
-      console.log(req.body)
       for (const key in req.body) {
         if (req.body.hasOwnProperty(key)) {
           const value = req.body[key];
-          console.log(key, value);
           setObject[`companies.$.${key}`] = value;
         }
       }
 
       //Deleting the _id property from the object, since it should not be updated
-      console.log(setObject);
       if(setObject.hasOwnProperty("companies.$._id"))
         delete setObject["companies.$._id"];
 
@@ -200,40 +190,46 @@ async function editCompanies(req, res) {
         res.status(404).json({ code: "NOT_FOUND", message: "La compañía no existe." });
     }
   } catch (error) {
-    console.log(error);
     res.status(500).json({code: "NOT_FOUND", message:"Could not delete company", error: error});
   }
 
 }
 
 async function toggleCompanyStatus(req, res) {
+  try {
+    const mainDocumentId = await loadMainDocumentId();
+    companieId = req.params._id;
+    const documentExists = await companyExists(companieId, mainDocumentId);
+    if(!documentExists)
+      res.status(404).json({ code: "NOT_FOUND", message: "La compañía no existe." });
+    else{
+      const body = req.body;
+      if (!('isEnabled' in body)) 
+        res.status(400).json({ code: "BAD_REQUEST", message: "La propiedad isEnabled es requerida." });
+      else{
+        //is Enabled could be a string, so me convert it to boolean in that case
+        const isEnabled = typeof body.isEnabled === 'string' ? body.isEnabled.toLowerCase() === "true" : body.isEnabled
+        const filter = {_id: mainDocumentId, "companies._id": companieId};
+        const updateOperation = {
+          $set: {
+            "companies.$.isEnabled": isEnabled
+          }
+        };
+        const result = await db.collection("_global_companies").updateOne(filter, updateOperation);
+        const filteredObject = await companyExists(companieId, mainDocumentId);
+        const company = filteredObject.companies[0];
+        if(result.modifiedCount === 0)
+          res.status(404).json({ code: "NOT_FOUND", message: "Hubo un error inesperado." });
+        else
+          res.status(200).json({ code: "OK", object: company, message: "Estado de la compañía actualizado con éxito." });
+      }
+      
+    }
 
-
-  // const companies = cargarCompanias();
-
-  // if (typeof req.body !== 'object' || req.body === null) {
-  //   return res.status(400).json({ code: "BAD_REQUEST", message: "El cuerpo de la petición es inválido." });
-  // }
-
-  // if (!('isEnabled' in req.body)) {
-  //   return res.status(400).json({ code: "BAD_REQUEST", message: "La propiedad isEnabled es requerida." });
-  // }
-
-  // if (!('_id' in req.body)) {
-  //   return res.status(400).json({ code: "BAD_REQUEST", message: "La propiedad _id es requerida." });
-  // }
-
-  // const matchedCompanyIndex = companies.findIndex(company => company._id === req.body._id);
-
-  // if (matchedCompanyIndex === -1) {
-  //   return res.status(404).json({ code: "NOT_FOUND", message: "La compañía no existe." });
-  // }
-
-  // const isEnabled = typeof req.body.isEnabled === 'string' ? req.body.isEnabled.toLowerCase() === "true" : req.body.isEnabled;
-  // companies[matchedCompanyIndex].isEnabled = isEnabled;
-  // guardarCompanias(companies);
-
-  // res.status(200).json({ code: "OK", object: companies[matchedCompanyIndex], message: "Estado de la compañía actualizado con éxito." });
+  } catch (error) {
+    res.status(404).json({ code: "NOT_FOUND", message: "Hubo un error inesperado." });
+  }
+ 
 }
 
 module.exports = {

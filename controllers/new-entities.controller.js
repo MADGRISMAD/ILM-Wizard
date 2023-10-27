@@ -464,7 +464,8 @@ async function entityExists(entityId) {
 
 async function loadEntities() {
   const rawData = await db.collection('_global_entities').find().toArray();
-  return rawData[0].entidades;
+  // return rawData[0].entidades;
+  return rawData;
 }
 
 async function obtenerEntidades(req, res) {
@@ -558,4 +559,3 @@ module.exports = {
   loadEntities,
   entityExists,
 };
-

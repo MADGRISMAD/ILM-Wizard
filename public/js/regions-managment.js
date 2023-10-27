@@ -195,7 +195,7 @@ function updateCheckboxStatusRegion(checkbox, isEnabled, regionId) {
 // Sends an AJAX request to the backend to update the status of a region
 function updateRegionStatus(regionId, isEnabled) {
   $.ajax({
-    url: '/newregions/toggleStatus',
+    url: `/newregions/toggleStatus/${regionId}`,
     type: 'POST',
     contentType: 'application/json',  // Indica que estás enviando JSON
     data: JSON.stringify({            // Convierte el objeto a JSON string
@@ -244,7 +244,7 @@ function selectRegion(tagId) {
 
   // Step 3: Perform an AJAX request to get data about the region using its _id.
   $.ajax({
-    url: '/newregions/fetchRegionById',  // Endpoint where the region data can be fetched by ID
+    url: `/newregions/fetchRegionById/${regionId}`,  // Endpoint where the region data can be fetched by ID
     type: 'GET',
     data: { _id: regionId },  // The _id is sent as a parameter to the backend
     success: function (data) {
@@ -574,10 +574,12 @@ $(document).ready(function () {
   });
 
   function saveUpdatedRegion(updatedRegion) {
+    const updatedRegionJson = JSON.stringify(updatedRegion);
     $.ajax({
-      url: '/newregions/edit-regions',
+      url: `/newregions/edit-regions/${updatedRegion._id}}`,
       type: 'PUT',
-      data: updatedRegion,
+      contentType: 'application/json',
+      data: updatedRegionJson,
       success: function (response) {
         if (response.code === "OK") {
           Swal.fire({

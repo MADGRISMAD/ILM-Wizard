@@ -5,14 +5,14 @@ const routes = express.Router()
 
 routes.get("/fetchRegions" , newRegionsController.fetchRegions)
 
-routes.get("/fetchRegionById", newRegionsController.fetchRegionById);
+routes.get("/fetchRegionById/:_id", newRegionsController.fetchRegionById);
 
 routes.post("/saveRegions", newRegionsController.saveRegions);
 
 routes.delete("/deleteRegion/:_id", newRegionsController.deleteRegion);
 
-routes.put("/edit-regions", newRegionsController.editRegions);
+routes.put("/edit-regions/:_id", newRegionsController.editRegions);
 
-routes.post("/toggleStatus", newRegionsController.toggleRegionStatus);
+routes.post("/toggleStatus/:_id", newRegionsController.toggleRegionStatus);
 
 module.exports = routes;
