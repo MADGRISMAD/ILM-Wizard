@@ -12,3 +12,16 @@ client.connect();
 const db = client.db(_database, {useUnifiedTopology: true});
 
 module.exports = {db}
+
+
+
+
+
+
+
+
+
+
+
+
+
