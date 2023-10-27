@@ -1,38 +1,23 @@
-const fs = require('fs');
-const path = require('path');
 const {db} = require("../services/mongodb.service");
 
-async function loadMainDocumentId(){
-  const rawCompaniesData = await db.collection('_global_companies').find().toArray();
-  const CompaniesFirstIndex = 0;
-  return rawCompaniesData[CompaniesFirstIndex]._id;
+//Call it to get a company by its id, it's useful to check if a company exists
+async function getCompanyByIdService(companyId){
+  const query = { _id: companyId };
+  const  company = await db.collection('_global_companies').findOne(query);
+  return company;
 }
 
-async function companyExists(companyId, mainDocumentId)
-{
-  const query =
-  {
-    _id: mainDocumentId,
-    companies: {
-      $elemMatch: {
-        _id: companyId
-      }
-    }
-  };
-
-  const projection = {
-    'companies.$': 1 // Include only the matching element in the result
-  };
-
-  const filteredObject = await db.collection('_global_companies').findOne(query, {projection});
-  return filteredObject;
+//Get all companies
+async function loadCompanies(){
+  const rawCompaniesData = await db.collection('_global_companies').find().toArray();
+  return rawCompaniesData;
 }
 
 async function getCompanies(req, res) {
   try{
     const companies = await loadCompanies();
     if(companies)
-      res.status(200).json({ code: "OK", object: companies, message: "" });
+      res.status(200).json({ code: "OK", object: companies, message: "Compañias recuperadas" });
     else
       res.status(404).json({ code: "NOT_FOUND", message: "Couldn't retrieve companies" });
   }
@@ -41,32 +26,18 @@ async function getCompanies(req, res) {
   }
 }
 
-//Eventually will replace cargarCompanias
-async function loadCompanies(){
-  const rawCompaniesData = await db.collection('_global_companies').find().toArray();
-  const CompaniesFirstIndex = 0;
-  return rawCompaniesData[CompaniesFirstIndex].companies;
-}
-
 async function getCompanyById(req, res) {
   try{
-    const companyId = req.query._id;
-    if(!companyId)
-      res.status(400).json({ code: "ERROR", message: "Mandatory query parameter missing (must have _id)" });
-    else{
-      const mainDocumentId = await loadMainDocumentId();
-      const filteredObject = await companyExists(companyId, mainDocumentId);
-      if (filteredObject) {
-        const company = filteredObject.companies[0];
-        res.status(200).json({ code: "OK", object: company, message: "Compañia encontrada" });
-      } else {
-        res.status(404).json({ code: "NOT_FOUND", message: "Compañia no encontrada" });
-      }
-    }
-
+    const companyId = req.params._id;
+    const company = await getCompanyByIdService(companyId);
+    if (!company) 
+      res.status(404).json({ code: "NOT_FOUND", message: "Compañia no encontrada" });
+    else
+      res.status(200).json({ code: "OK", object: company, message: "Compañia encontrada" });
   }
   catch(err){
-    res.status(500).json({ code: "ERROR", message: "Company not retrieved", error: err});
+    console.log(err);
+    res.status(500).json({ code: "ERROR", message: "Compañia no encontrada", error: err});
   }
 }
 
@@ -96,21 +67,14 @@ async function saveCompanies(req, res) {
       res.status(400).json({code: "ERROR",message:"Faltan campos obligatorios"});
     }
     else{
-      const mainDocumentId = await loadMainDocumentId();
       const newCompany = req.body;
-      const filteredObject = await companyExists(newCompany._id, mainDocumentId);
-      if(filteredObject)
+      const companyExistsAlready = await getCompanyByIdService(newCompany._id);
+      if(companyExistsAlready)
         res.status(409).json({ code: "DUPLICATE", message: "La compañia con ese identificador ya existe" });
       else{
         newCompany._id = newCompany._id.toString();
         newCompany.isEnabled = typeof newCompany.isEnabled === 'string' ? newCompany.isEnabled.toLowerCase() === "true" : newCompany.isEnabled;
-        const filter = {_id: mainDocumentId};
-        const postOperation = {
-          $push: {
-            companies: newCompany
-          }
-        };
-        const result = await db.collection("_global_companies").updateOne(filter, postOperation);
+        const result = await db.collection("_global_companies").insertOne(newCompany);
         const companies = await loadCompanies();
         res.status(200).json({ code: "OK", object: companies, message: "Compañía agregada con éxito." })
       }
@@ -122,85 +86,62 @@ async function saveCompanies(req, res) {
 
 async function deleteCompany(req, res) {
   try {
-    const mainDocumentId = await loadMainDocumentId();
-    const filter = {_id: mainDocumentId};
-    const elementIdToDelete = req.params._id;
-
-    if(!elementIdToDelete)
+    const companyToDelete = req.params._id;
+    const deleteCondition = {_id: companyToDelete};
+    const CompanyExists = await getCompanyByIdService(companyToDelete);
+    if(!CompanyExists)
       res.status(404).json({ code: "NOT_FOUND", message: "La compañía no existe." });
-    else
-    {
-      const deleteOperation = {
-        $pull: {
-          companies: {_id: elementIdToDelete}
-        }
-      };
-
-      const documentExists = await companyExists(elementIdToDelete, mainDocumentId);
-      if(documentExists)
-      {
-        const result = await db.collection("_global_companies").updateOne(filter, deleteOperation);
-        const companies = await loadCompanies();
-        res.status(200).json({ code: "OK", object: companies, message: "Compañía eliminada con éxito." });
-      }
-      else
-        res.status(404).json({ code: "NOT_FOUND", message: "La compañía no existe." });
+    else{
+      const result = await db.collection("_global_companies").deleteOne(deleteCondition);
+      const companies = await loadCompanies();
+      res.status(200).json({ code: "OK", object: companies, message: "Compañía eliminada con éxito." });
     }
   } catch (error) {
+    console.log(error);
     res.status(500).json({message:"Could not delete company", error: error});
   }
 }
 
 async function editCompanies(req, res) {
   try {
-    const mainDocumentId = await loadMainDocumentId();
-    const elementIdToUpdate = req.params._id;
-    if(!elementIdToUpdate)
-      res.status(404).json({ code: "NOT_FOUND", message: "La compañía no existe." })
-    else
-    {
-      const filter = {_id: mainDocumentId, "companies._id": elementIdToUpdate};
-      //Creating the $set object
+    const companyIdToUpdate = req.params._id;
+    const companyExists = await getCompanyByIdService(companyIdToUpdate);
+    if(!companyExists)
+      res.status(404).json({ code: "NOT_FOUND", message: "La compañía no existe." });       
+    else{
+     
+      const filter = {_id: companyIdToUpdate};
+
+      //Converting isEnabled to boolean if it's a string
       if (typeof req.body.isEnabled === 'string')
         req.body.isEnabled = (req.body.isEnabled.toLowerCase() === "true" || req.body.isEnabled === true);
-      let setObject = {};
-      for (const key in req.body) {
-        if (req.body.hasOwnProperty(key)) {
-          const value = req.body[key];
-          setObject[`companies.$.${key}`] = value;
-        }
-      }
-
+      
+      //Creating the object for updating
+      let setObject = req.body;
+  
       //Deleting the _id property from the object, since it should not be updated
-      if(setObject.hasOwnProperty("companies.$._id"))
-        delete setObject["companies.$._id"];
-
+      if(setObject.hasOwnProperty("_id"))
+        delete setObject["_id"];
+  
       const updateOperation = {
         $set: setObject
       };
-
-      const documentExists = await companyExists(elementIdToUpdate, mainDocumentId);
-      if(documentExists)
-      {
-        const result = await db.collection("_global_companies").updateOne(filter, updateOperation);
-        const companies = await loadCompanies();
-        res.status(200).json({ code: "OK", object: companies, message: "Compañía editada con éxito." });
-      }
-      else
-        res.status(404).json({ code: "NOT_FOUND", message: "La compañía no existe." });
+  
+      const result = await db.collection("_global_companies").updateOne(filter, updateOperation);
+      const companies = await loadCompanies();
+      res.status(200).json({ code: "OK", object: companies, message: "Compañía editada con éxito." });
     }
   } catch (error) {
+    console.log(error);
     res.status(500).json({code: "NOT_FOUND", message:"Could not delete company", error: error});
   }
-
 }
 
 async function toggleCompanyStatus(req, res) {
   try {
-    const mainDocumentId = await loadMainDocumentId();
-    companieId = req.params._id;
-    const documentExists = await companyExists(companieId, mainDocumentId);
-    if(!documentExists)
+    companyId = req.params._id;
+    const companyIdExists = await getCompanyByIdService(companyId);
+    if(!companyIdExists)
       res.status(404).json({ code: "NOT_FOUND", message: "La compañía no existe." });
     else{
       const body = req.body;
@@ -209,27 +150,21 @@ async function toggleCompanyStatus(req, res) {
       else{
         //is Enabled could be a string, so me convert it to boolean in that case
         const isEnabled = typeof body.isEnabled === 'string' ? body.isEnabled.toLowerCase() === "true" : body.isEnabled
-        const filter = {_id: mainDocumentId, "companies._id": companieId};
+        const filter = {_id: companyId};
         const updateOperation = {
           $set: {
-            "companies.$.isEnabled": isEnabled
+            "isEnabled": isEnabled
           }
         };
         const result = await db.collection("_global_companies").updateOne(filter, updateOperation);
-        const filteredObject = await companyExists(companieId, mainDocumentId);
-        const company = filteredObject.companies[0];
-        if(result.modifiedCount === 0)
-          res.status(404).json({ code: "NOT_FOUND", message: "Hubo un error inesperado." });
-        else
-          res.status(200).json({ code: "OK", object: company, message: "Estado de la compañía actualizado con éxito." });
-      }
-      
+        const companyUpdated = await getCompanyByIdService(companyId);
+        res.status(200).json({ code: "OK", object: companyUpdated, message: "Estado de la compañía actualizado con éxito." });
+      }   
     }
 
   } catch (error) {
-    res.status(404).json({ code: "NOT_FOUND", message: "Hubo un error inesperado." });
+    res.status(500).json({ code: "NOT_FOUND", message: "Hubo un error inesperado." });
   }
- 
 }
 
 module.exports = {

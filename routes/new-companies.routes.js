@@ -5,7 +5,7 @@ const routes = express.Router()
 
 routes.get("/getCompanies" , newCompaniesController.getCompanies)
 
-routes.get("/getCompanyById", newCompaniesController.getCompanyById);
+routes.get("/getCompanyById/:_id", newCompaniesController.getCompanyById);
 
 routes.post("/saveCompanies" , newCompaniesController.saveCompanies)
 
