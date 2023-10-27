@@ -134,7 +134,7 @@ function selectCompany(tagId) {
 
   // 3. Make an AJAX request to get company data by its _id
   $.ajax({
-    url: '/newcompanies/getCompanyById', // Server route where the company is retrieved by ID
+    url: `/newcompanies/getCompanyById/${companyId}`, // Server route where the company is retrieved by ID
     type: 'GET',
     data: { _id: companyId }, // Send the _id as a parameter
     success: function (data) {
