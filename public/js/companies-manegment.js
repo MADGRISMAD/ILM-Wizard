@@ -633,7 +633,6 @@ $(document).ready(function () {
     else saveCompanies();
   });
   function performCompanyUpdate(updatedCompany) {
-    console.log(typeof updatedCompany);
     const updatedCompanyJson = JSON.stringify(updatedCompany);
     console.log(updatedCompanyJson);
     $.ajax({

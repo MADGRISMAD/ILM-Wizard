@@ -93,22 +93,27 @@ async function bodyValid(body){
 async function saveCompanies(req, res) {
   try {
     if (await bodyValid(req.body)) {
-      res.status(400).json({code: "ERROR",message:"Bad request, body is missing required fields"});
+      res.status(400).json({code: "ERROR",message:"Faltan campos obligatorios"});
     }
     else{
       const mainDocumentId = await loadMainDocumentId();
       const newCompany = req.body;
-      newCompany._id = newCompany._id.toString();
-      newCompany.isEnabled = (newCompany.isEnabled.toLowerCase() === 'true' || newCompany.isEnabled === true);
-      const filter = {_id: mainDocumentId};
-      const postOperation = {
-        $push: {
-          companies: newCompany
-        }
-      };
-      const result = await db.collection("_global_companies").updateOne(filter, postOperation);
-      const companies = await loadCompanies();
-      res.status(200).json({ code: "OK", object: companies, message: "Compañía agregada con éxito." })
+      const filteredObject = await companyExists(newCompany._id, mainDocumentId);
+      if(filteredObject)
+        res.status(409).json({ code: "DUPLICATE", message: "La compañia con ese identificador ya existe" });
+      else{
+        newCompany._id = newCompany._id.toString();
+        newCompany.isEnabled = typeof newCompany.isEnabled === 'string' ? newCompany.isEnabled.toLowerCase() === "true" : newCompany.isEnabled;
+        const filter = {_id: mainDocumentId};
+        const postOperation = {
+          $push: {
+            companies: newCompany
+          }
+        };
+        const result = await db.collection("_global_companies").updateOne(filter, postOperation);
+        const companies = await loadCompanies();
+        res.status(200).json({ code: "OK", object: companies, message: "Compañía agregada con éxito." })
+      }
     }
   } catch (error) {
     res.status(505).json({code: "ERROR", message:"Could not post company", error: error});

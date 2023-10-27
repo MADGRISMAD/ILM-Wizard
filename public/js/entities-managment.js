@@ -185,6 +185,7 @@ $(document).ready(function () {
         };
 
         // Send the data to the "controller" using an AJAX request
+        console.log(newEntity);
         $.ajax({
           url: '/newentities/saveEntities',
           type: 'POST',
@@ -421,11 +422,13 @@ $(document).ready(function () {
   });
 
   function updateEntity(updatedEntity) {
+    const updatedEntityJson = JSON.stringify(updatedEntity);
+    console.log(updatedEntityJson);
     $.ajax({
-      url: `/newentities/editEntities`,
+      url: `/newentities/editEntities/${updatedEntity._id}`,
       type: 'PUT',
-      dataType: 'json',
-      data: updatedEntity,
+      contentType: 'application/json',
+      data: updatedEntityJson,
       success: function (response) {
         if (response && response.code === 'OK') {
           Swal.fire({
@@ -492,7 +495,7 @@ $(document).ready(function () {
       entities.splice(index, 1);
 
       $.ajax({
-        url: `/newentities/deleteEntity`,
+        url: `/newentities/deleteEntity/${entity._id}`,
         type: 'DELETE',
         dataType: 'json',
         data: entity,
