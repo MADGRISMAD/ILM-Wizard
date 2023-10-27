@@ -41,7 +41,7 @@ const OHEConfigs = [
     'Availabitity Set',
     'list',
     'availabilitySets',
-    { parent: 'serviceClasses', parentValue: 'Gold'},
+    { parent: 'serviceClasses', parentValue: 'Gold' },
   ],
   ['Cluster Type', 'list', 'clusterTypes', { parent: 'serviceClasses' }],
   ['AZ', 'list', 'availabilityZones', { default: true }],
@@ -213,7 +213,12 @@ function loadOptions() {
               select.attr('disabled', true);
               $(document).on('change', '#' + parent, function (e) {
                 e.preventDefault();
-                if (type == 'multiList') select.attr('multiple', true);
+                if (type == 'addList') template = addListTemplate;
+                else if (type == 'list') template = templateResult;
+                else {
+                  select.attr('multiple', true);
+                  template = multiListTemplate;
+                }
                 if (parentValue) {
                   HelperService.getRequest(
                     '/newConfig/checkCustomField/' +
@@ -238,6 +243,7 @@ function loadOptions() {
                         };
                         loadSelect(select, configName, properties);
                         select.attr('parentId', parentValue);
+
                         select.select2({
                           ...SELECT2CONFIG,
                           templateResult: template,
@@ -277,7 +283,7 @@ function loadOptions() {
                     $('#' + configName + ' option:first').val(),
                   );
                 }
-                select.trigger('change');
+                // select.trigger('change');
               });
             }
             // Appends the element to the container
@@ -286,8 +292,6 @@ function loadOptions() {
 
             // Creates a listener to enable/disable the option when you click the checkbox
 
-            select.on('select2:select', function (e) {});
-            // else
             //   Creates the modify button if its an addList
             if (type == 'addList') {
               const button = $('<button></button>');
@@ -301,7 +305,7 @@ function loadOptions() {
               button.attr('parentId', parent);
               // If it has a parent, disable the button
               if (parent) {
-                button.attr('disabled', false);
+                button.attr('disabled', true);
                 // Creates a listener to enable/disable the button when the parent changes
                 $(document).on('change', '#' + parent, function () {
                   if (!parentValue || $(this).val() == parentValue) {
@@ -700,12 +704,12 @@ function loadOptions() {
             continue;
           }
           if (!data[i].isEnabled) option.attr('disabled', true);
-          option.text(id);
+          option.text(data[i].label);
           option.val(data[i].value);
           select.append(option);
         }
         select.select2({ ...SELECT2CONFIG, templateResult: addListTemplate });
-
+        select.trigger('change');
         $('#editModal').modal('hide');
       },
       error: function (err) {

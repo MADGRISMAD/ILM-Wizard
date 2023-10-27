@@ -25,13 +25,12 @@ const sortDuplicates = (data, envId, infId, regionId, parentId = '') => {
     const key = keys[i];
     response[key] = [];
     for (let j = 0; j < data[key].length; j++) {
-      const hasDuplicate = idSet.size === idSet.add(data[key][j].value).size;
       let basicCond =
-        data[key][j].envId === envId &&
-        data[key][j].infId === infId &&
-        data[key][j].regionId === regionId &&
-        data[key][j].parentId === parentId;
-
+      data[key][j].envId === envId &&
+      data[key][j].infId === infId &&
+      data[key][j].regionId === regionId &&
+      data[key][j].parentId === parentId;
+      const hasDuplicate = idSet.size === idSet.add(data[key][j].value).size;
       if (hasDuplicate) {
         // Get first duplicate and eliminate it
         for (let k = 0; k < response[key].length; k++) {
