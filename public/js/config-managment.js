@@ -33,15 +33,15 @@ const OHEConfigs = [
   ['Other Software', 'multiList', 'otherSoftwareProducts'],
   ['HA', 'list', 'haList'],
   ['Business Service', 'list', 'businessServices'],
-  ['Cluster Class', 'list', 'clusterClasses', { editable: true }],
-  ['Business Type', 'list', 'businessTypes', { editable: true }],
+  ['Cluster Class', 'list', 'clusterClasses'],
+  ['Business Type', 'list', 'businessTypes'],
   ['Network', 'addList', 'network'],
-  ['Service Class', 'list', 'serviceClasses', { editable: true }],
+  ['Service Class', 'list', 'serviceClasses'],
   [
     'Availabitity Set',
     'list',
     'availabilitySets',
-    { parent: 'serviceClasses', parentValue: 'Gold', editable: true },
+    { parent: 'serviceClasses', parentValue: 'Gold'},
   ],
   ['Cluster Type', 'list', 'clusterTypes', { parent: 'serviceClasses' }],
   ['AZ', 'list', 'availabilityZones', { default: true }],
@@ -152,7 +152,6 @@ function loadOptions() {
               option.text(config.label);
               option.attr('disabled', !config.isEnabled);
               select.append(option);
-
               $(document).off(
                 'click',
                 'input#' +
@@ -182,7 +181,7 @@ function loadOptions() {
                       parentId: parentId,
                     },
                     function (res) {
-                      select.val('');
+                      select.val('1');
                       option.attr('disabled', !res);
 
                       select.select2({
@@ -191,7 +190,7 @@ function loadOptions() {
                       });
                       // select.val('');
                       select.trigger('change');
-                      // select.select2('open');
+                      select.select2('open');
                     },
                     function (err) {
                       Swal.fire({
