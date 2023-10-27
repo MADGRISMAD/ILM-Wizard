@@ -15,7 +15,7 @@ const VMWareConfigs = [
   ],
   [
     'Bridge Domain',
-    'list',
+    'addList',
     'bridgeDomains',
     {
       parent: 'distributions',
@@ -44,12 +44,7 @@ const OHEConfigs = [
     { parent: 'serviceClasses', parentValue: 'Gold', editable: true },
   ],
   ['Cluster Type', 'list', 'clusterTypes', { parent: 'serviceClasses' }],
-  [
-    'AZ',
-    'list',
-    'availabilityZones',
-    { parent: 'clusterTypes', default: true },
-  ],
+  ['AZ', 'list', 'availabilityZones', { default: true }],
 
   ['Available Deployment', 'checkbox', 'availableDeployment'],
   ['Deployable in ILM', 'checkbox', 'deployableInILM'],
@@ -99,7 +94,7 @@ function loadOptions() {
           const parentValue = options.parentValue || false;
           const text = document.createElement('label');
           const label = resp.object[configName];
-          const customField = options.parentCustomField || "value";
+          const customField = options.parentCustomField || 'value';
           var template = templateResult;
           text.classList.add('mt-2');
           // Creates a new row if its a checkbox (checkbox section)
@@ -157,6 +152,58 @@ function loadOptions() {
               option.text(config.label);
               option.attr('disabled', !config.isEnabled);
               select.append(option);
+
+              $(document).off(
+                'click',
+                'input#' +
+                  config.value +
+                  '.d-flex.flex-shrink-1.align-self-center.toggleEnable',
+              );
+              // When clicking the checkbox, enable or disable field
+              $(document).on(
+                'click',
+                'input#' +
+                  config.value +
+                  '.d-flex.flex-shrink-1.align-self-center.toggleEnable',
+                function (e) {
+                  const element = $(this);
+                  const parentId = select.attr('parentId') || '';
+                  // When the input trigger
+                  const url =
+                    '/newConfig/toggleCustomConfig/' + select.attr('id');
+                  HelperService.postRequest(
+                    url,
+                    {
+                      value: element.attr('id'),
+                      label: element.attr('label'),
+                      envId: matchedEnvironment,
+                      infId: matchedInfrastructure,
+                      regionId: matchedRegion._id,
+                      parentId: parentId,
+                    },
+                    function (res) {
+                      select.val('');
+                      option.attr('disabled', !res);
+
+                      select.select2({
+                        ...SELECT2CONFIG,
+                        templateResult: templateResult,
+                      });
+                      // select.val('');
+                      select.trigger('change');
+                      // select.select2('open');
+                    },
+                    function (err) {
+                      Swal.fire({
+                        title: 'Error',
+                        text: 'There was an error updating the options',
+                        icon: 'error',
+                        confirmButtonText: 'Ok',
+                      });
+                    },
+                  );
+                },
+              );
             }
 
             // Sets the id
@@ -169,17 +216,17 @@ function loadOptions() {
                 e.preventDefault();
                 if (type == 'multiList') select.attr('multiple', true);
                 if (parentValue) {
-                  console.log($("#" + parent).val(), select);
                   HelperService.getRequest(
                     '/newConfig/checkCustomField/' +
                       parent +
                       '/' +
                       customField +
                       '/' +
-                      parentValue + '/' + $("#" + parent).val(),
+                      parentValue +
+                      '/' +
+                      $('#' + parent).val(),
                     {},
                     function (res) {
-                      console.log(res);
                       if (res) {
                         select.removeAttr('disabled');
                         const parentSelect = $(e.target);
@@ -193,7 +240,7 @@ function loadOptions() {
                         loadSelect(select, configName, properties);
                         select.attr('parentId', parentValue);
                         select.select2({
-                          SELECT2CONFIG,
+                          ...SELECT2CONFIG,
                           templateResult: template,
                         });
                       }
@@ -225,23 +272,6 @@ function loadOptions() {
                   });
                 }
                 // // If it has a parent label to enable, enable it
-                // if (!parentValue || $(this).val() == parentValue) {
-                //   select.removeAttr('disabled');
-                //   const parentSelect = $(e.target);
-                //   const parentValue = parentSelect.val() || '';
-                //   const properties = {
-                //     envId: matchedEnvironment,
-                //     infId: matchedInfrastructure,
-                //     regionId: matchedRegion._id,
-                //     parentId: parentValue,
-                //   };
-                //   loadSelect(select, configName, properties);
-                //   select.attr('parentId', parentValue);
-                //   select.select2({
-                //     SELECT2CONFIG,
-                //     templateResult: template,
-                //   });
-                // }
                 if (parentValue && $(this).val() != parentValue) {
                   select.attr('disabled', true);
                   $('#' + configName).val(
@@ -253,53 +283,11 @@ function loadOptions() {
             }
             // Appends the element to the container
             element.append(select);
-
             select.select2({ ...SELECT2CONFIG, templateResult: template });
 
             // Creates a listener to enable/disable the option when you click the checkbox
-            select.on('select2:select', function (e) {
-              const triggerElement = e.params.originalEvent.target;
-              const element = $(triggerElement);
-              const select = $(this);
-              const parentId = select.attr('parentId') || '';
-              // When the input trigger
-              if (element.attr('type') == 'checkbox') {
-                e.preventDefault();
-                const url =
-                  '/newConfig/toggleCustomConfig/' + select.attr('id');
-                HelperService.postRequest(
-                  url,
-                  {
-                    value: element.attr('id'),
-                    label: element.attr('label'),
-                    envId: matchedEnvironment,
-                    infId: matchedInfrastructure,
-                    regionId: matchedRegion._id,
-                    parentId: parentId,
-                  },
-                  function (res) {
-                    const selectedIndex = select.prop('selectedIndex');
-                    const option = select.children('option')[selectedIndex];
-                    option.setAttribute('disabled', !res);
 
-                    select.select2({
-                      ...SELECT2CONFIG,
-                      templateResult: templateResult,
-                    });
-                    select.val(null);
-                    select.select2('open');
-                  },
-                  function (err) {
-                    Swal.fire({
-                      title: 'Error',
-                      text: 'There was an error updating the options',
-                      icon: 'error',
-                      confirmButtonText: 'Ok',
-                    });
-                  },
-                );
-              }
-            });
+            select.on('select2:select', function (e) {});
             // else
             //   Creates the modify button if its an addList
             if (type == 'addList') {
@@ -357,7 +345,7 @@ function loadOptions() {
     container.append(divider);
   };
 
-  const loadSelect = (select, id, properties, customField = false) => {
+  const loadSelect = (select, id, properties) => {
     select.html('');
     const parentId = properties.parentId || '';
     HelperService.postRequest(
@@ -453,7 +441,7 @@ function loadOptions() {
     const thead = $('#editModal thead tr');
     thead.html('');
     thead.append(
-      $('<th hidden>Value</th>'),
+      $('<th>Value</th>'),
       $('<th hidden>Parent</th>'),
       $('<th>Label</th>'),
       $('<th>Enabled</th>'),
@@ -530,7 +518,7 @@ function loadOptions() {
       isEnabled = false,
     ) => {
       let tr = $('<tr></tr>');
-      const tdId = $('<td hidden></td>');
+      const tdId = $('<td></td>');
       const tdParent = $('<td hidden></td>');
       const tdOption = $('<td></td>');
       const tdEnabled = $('<td></td>');
@@ -573,7 +561,7 @@ function loadOptions() {
       deleteButton.attr('data-id', id);
       deleteButton.html('<i class="fas fa-trash-alt"></i>');
 
-      tdId.attr('hidden', true);
+      // tdId.attr('hidden', true);
       tdId.text(id);
       tdParent.text(parentId);
       tdOption.text(name);
@@ -713,7 +701,7 @@ function loadOptions() {
             continue;
           }
           if (!data[i].isEnabled) option.attr('disabled', true);
-          option.text(config);
+          option.text(id);
           option.val(data[i].value);
           select.append(option);
         }
@@ -806,6 +794,7 @@ function loadOptions() {
       <input type = "checkbox" class="d-flex flex-shrink-1 align-self-center toggleEnable"  id = '${state.id}' label = '${state.text}'>
         </span>`,
     );
+
     template.children('input').prop('checked', !state.disabled);
     return template;
   };

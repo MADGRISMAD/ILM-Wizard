@@ -140,13 +140,13 @@ const toggleCustomConfig = (req, res) => {
   console.log(parentId);
   const configs = loadCustomConfigs();
   var response = false;
+  var defaultFound = false;
 
   // const configs = sortDuplicates(configs, envId, infId, regionId, parentId);
   for (let i = 0; i < configs[id].length; i++) {
     const envIdJson = configs[id][i].envId || false;
     const infIdJson = configs[id][i].infId || false;
     const regionIdJson = configs[id][i].regionId || false;
-    var defaultFound = false;
     if (configs[id][i].value === value && !defaultFound) {
       defaultFound = true;
       continue;
