@@ -54,7 +54,7 @@ async function fetchRegionById(req, res) {
     const mainDocumentId = await loadMainDocumentId();
     const regionId = req.params._id;
     console.log(regionId);
-    const query = 
+    const query =
     {
       _id: mainDocumentId,
       regions: {
@@ -64,7 +64,7 @@ async function fetchRegionById(req, res) {
     const projection = {
       'regions.$': 1 // Include only the matching element in the result
     };
-  
+
     const filteredObject = await db.collection('_global_regions').findOne(query, {projection});
 
     // const region = regions.find(r => r._id === regionId);
@@ -95,7 +95,7 @@ async function saveRegions(req, res) {
       const regionId = req.body._id;
       const mainDocumentId = await loadMainDocumentId();
       const regionExistente = await regionExists(regionId, mainDocumentId);
-    
+
       if (regionExistente)
         res.status(409).json({ code: "DUPLICATE", message: "La region con ese identificador ya existe." });
       else{
@@ -193,7 +193,7 @@ async function deleteRegion(req, res) {
     }
   } catch (error) {
     console.log(error);
-    res.status(500).json({ code: "ERROR", message: "No se pudo eliminar la region", error: error });  
+    res.status(500).json({ code: "ERROR", message: "No se pudo eliminar la region", error: error });
   }
 }
 
@@ -206,7 +206,7 @@ async function toggleRegionStatus(req, res) {
       return res.status(404).json({ code: "NOT_FOUND", message: "La región no existe." });
     else{
       const body = req.body;
-      if (!('isEnabled' in body)) 
+      if (!('isEnabled' in body))
         res.status(400).json({ code: "BAD_REQUEST", message: "La propiedad isEnabled es requerida." });
       else{
         //is Enabled could be a string, so me convert it to boolean in that case
@@ -221,7 +221,7 @@ async function toggleRegionStatus(req, res) {
         const result = await db.collection("_global_regions").updateOne(filter, updateOperation);
         const filteredObject = await regionExists(regionId, mainDocumentId);
         const region = filteredObject.regions[0];
-        res.status(200).json({ code: "OK", object: region, message: "Estado de la region actualizado con éxito." });      
+        res.status(200).json({ code: "OK", object: region, message: "Estado de la region actualizado con éxito." });
       }
     }
   } catch (error) {
