@@ -149,6 +149,36 @@
             "parent_id": "dev",
             "region_id": "698467654492",
             "isEnabled": true
+        },
+        {
+            "_id": "ohe",
+            "parent_id": "dev",
+            "region_id": "698688024967",
+            "isEnabled": true
+        },
+        {
+            "_id": "vmware",
+            "parent_id": "dev",
+            "region_id": "698688024967",
+            "isEnabled": true
+        },
+        {
+            "_id": "ohe",
+            "parent_id": "dev",
+            "region_id": "698705573980",
+            "isEnabled": true
+        },
+        {
+            "_id": "vmware",
+            "parent_id": "pre",
+            "region_id": "698705573980",
+            "isEnabled": true
+        },
+        {
+            "_id": "ohe",
+            "parent_id": "pre",
+            "region_id": "698705573980",
+            "isEnabled": true
         }
     ]
 }
