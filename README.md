@@ -1,333 +1,82 @@
-<!DOCTYPE html>
-<html lang="en">
+# Deployment Configuration Tool README
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css"
-    integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-  <link href="styles.css" rel="stylesheet">
-</head>
+## Project Overview
 
-<body>
-  <div class="row bottom-sticky">
-    <div class="col text-center block border">
-      <ul class="progressBar nav nav-tabs">
-        <li class="nav-item">
-          <a class="nav-link " id="entity-tab" data-toggle="tab" href="#entity" role="tab" aria-controls="entity"
-            aria-selected="true">entity</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" id="company-tab" data-toggle="tab" href="#company" role="tab" aria-controls="company"
-            aria-selected="false">company</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" id="region-tab" data-toggle="tab" href="#region" role="tab" aria-controls="region"
-            aria-selected="false">region</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" id="env-and-infra-tab" data-toggle="tab" href="#env-and-infra" role="tab"
-            aria-controls="env-and-infra" aria-selected="false">env-and-infra</a>
-        </li>
-        <!-- New Tabs: Config and Summary -->
-        <li class="nav-item">
-          <a class="nav-link" id="config-tab" data-toggle="tab" href="#config" role="tab" aria-controls="config"
-            aria-selected="false">Config</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" id="summary-tab" data-toggle="tab" href="#summary" role="tab" aria-controls="summary"
-            aria-selected="false">Summary</a>
-        </li>
-      </ul>
-    </div>
-  </div>
-  <div class="tab-content" id="myTabContent">
-    <!-- ------------entity------------------ -->
-    <div class="tab-pane fade show active" id="entity" role="tabpanel" aria-labelledby="entity-tab">
-      <h3 class="text-start">Entity Selector</h3>
-      <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="#entity">Entity</a></li>
-          <li class="breadcrumb-item active" aria-current="page">Entity Selector</li>
-        </ol>
-      </nav>
-      <!-- button to add entity with icon -->
-      <button type="button" class="btn btn-primary" id="addEntity"><i class="fas fa-plus-circle"></i> Add
-        Entity</button>
-      <!-- Button to edit entity with icon -->
-      <button id="editEntity" class="btn btn-secondary"><i class="fas fa-edit"></i> Edit Entity</button>
-      <!-- Button to delete entity with icon -->
-      <button type="button" class="btn btn-danger" id="deleteEntity"><i class="fas fa-trash-alt"></i> Delete
-        Entity</button>
+The Deployment Configuration Tool is a web application built using Express.js, MongoDB, JavaScript, and Bootstrap. It serves as a user-friendly interface for configuring regions and planning deployments of servers based on various characteristics. The application adopts a tab-based layout, offering distinct sections for managing entities, companies, regions, environments, infrastructure types, and configuration settings.
 
-      <!-- Modal for Add/Edit Entity -->
-      <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <!-- The content of the modal will be filled dynamically with jQuery -->
-          </div>
-        </div>
-      </div>
-      <!-- Modal  -->
+## Getting Started
 
-      <div class="modal fade" id="entityModal" tabindex="-1" role="dialog" aria-labelledby="entityModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <!-- The content of the modal will be generated dynamically from the JavaScript code -->
-          </div>
-        </div>
-      </div>
-      <!-- cards -->
-      <div class="container" id="card-container">
-        <div class="row justify-content-center text-center">
-        </div>
-      </div>
-      <div style="display: flex; justify-content: center; align-items: center; height: 10vh;">
-        <button type="button" class="btn btn-primary" id="confirmSelection">Confirm Selection</button>
-      </div>
-      <!-- //stepper -->
-    </div>
+To run the Deployment Configuration Tool locally, follow these steps:
 
-    <!-- ------------company------------------ -->
-    <div class="tab-pane fade" id="company" role="tabpanel" aria-labelledby="company-tab">
-      <h3 class="text-start">Company Selector </h3>
-      <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item nav-item"><a href="#entity">Entity</a></li>
-          <li class="breadcrumb-item nav-item"><a href="#entity">Entity Selector</a></li>
-          <li class="breadcrumb-item active nav-item" aria-current="page">Company Selector</li>
-        </ol>
-      </nav>
-      <!-- Botón para agregar compañía con ícono -->
-      <button type="button" class="btn btn-primary" id="addCompany"><i class="fas fa-plus-circle"></i> Add
-        Company</button>
-      <!-- Botón para editar compañía con ícono -->
-      <button id="editCompanyBtn" class="btn btn-secondary"><i class="fas fa-edit"></i> Edit Company</button>
-      <!-- Botón para eliminar compañía con ícono -->
-      <button type="button" class="btn btn-danger" id="deleteCompanyBtn"><i class="fas fa-trash-alt"></i> Delete
-        Company</button>
+1. Clone the Repository:
+   git clone <repository-url>
 
-      <!-- Modal para agregar la compañía -->
-      <div class="modal fade" id="companyModal" tabindex="-1" role="dialog" aria-labelledby="companyModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <!-- El contenido del modal se generará dinámicamente con JavaScript/jQuery -->
-          <div class="modal-content"></div>
-        </div>
-      </div>
-      <div class="modal fade" id="companyEditModal" tabindex="-1" role="dialog" aria-labelledby="companyModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <!-- El contenido del modal se generará dinámicamente con JavaScript/jQuery -->
-          <div class="modal-content"></div>
-        </div>
-      </div>
-      <!-- =============  tarjetas ============= -->
-      <div class="container py-5">
-        <div class="row row-cols-1 row-cols-md-2 g-4 py-2">
-          <div class="col">
-            <div class="card" style="width: 15rem;">
-              <!-- La imagen inicial se va a cambiar mediante JavaScript -->
-              <img src="" class="card-img-top current-company" alt="Imagen de compañía">
-              <div class="card-body">
-                <!-- El título inicial se va a cambiar mediante JavaScript -->
-                <h3 class="card-title text-center" id="company-name"></h3>
-              </div>
-              <div class="mb-5 d-flex justify-content-around"></div>
-            </div>
-          </div>
-          <!----------- Company list ------------>
-          <div class="col">
-            <div class="card" style="width: 25rem;">
-              <h5 class="card-title text-center">Select Company</h5>
-              <ul class="list-group" id="company-list">
-                <!-- Here the list elements will be dynamically added -->
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div class="mb-5 d-flex justify-content-center">
-          <button class="btn btn-primary" id="confirmCompanyBtn">Confirm Selection</button>
-        </div>
-      </div>
-    </div>
-    <!-- ------------region------------------ -->
-    <div class="tab-pane fade" id="region" role="tabpanel" aria-labelledby="region-tab">
-      <h3 class="text-start">Region Selector</h3>
-      <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="#entity">Entity</a></li>
-          <li class="breadcrumb-item"><a href="#company">Company Selector</a></li>
-          <li class="breadcrumb-item active" aria-current="page">Region Selector</li>
-        </ol>
-      </nav>
-      <!-- Botón para agregar región con ícono -->
-      <button type="button" class="btn btn-primary" id="addRegion"><i class="fas fa-plus-circle"></i> Add
-        Region</button>
-      <!-- Botón para editar región con ícono -->
-      <button id="editRegion" class="btn btn-secondary"><i class="fas fa-edit"></i> Edit Region</button>
-      <!-- Botón para eliminar región con ícono -->
-      <button type="button" class="btn btn-danger" id="deleteRegion"><i class="fas fa-trash-alt"></i> Delete
-        Region</button>
+2. Install Dependencies:
+   npm install
 
-      <!-- Modal para agregar la compañía -->
-      <div class="modal fade" id="RegionModalAdd" tabindex="-1" role="dialog" aria-labelledby="RegionModalAdd"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <!-- El contenido del modal se generará dinámicamente con JavaScript/jQuery -->
-          <div class="modal-content"></div>
-        </div>
-      </div>
-      <!-- modal para editar la compañía -->
-      <div class="modal fade" id="RegionModalEdit" tabindex="-1" role="dialog" aria-labelledby="RegionModalEdit"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <!-- El contenido del modal se generará dinámicamente con JavaScript/jQuery -->
-          <div class="modal-content"></div>
-        </div>
-      </div>
-      <!-- =============  cards ============= -->
-      <div class="container py-5">
-        <div class="row row-cols-1 row-cols-md-2 g-4 py-2">
-          <div class="col">
-            <div class="card" style="width: 15rem;">
-              <!-- The initial image will be changed by JavaScript -->
-              <img src="" class="card-img-top current-company" alt="Company image" id="regionIMG">
-              <div class="card-body">
-                <!-- The initial title (entity name) will be changed by JavaScript -->
-                <h3 class="card-title text-center" id="region-nameofentity"></h3>
-                <!-- Company name will be added below the entity name -->
-                <h5 class="card-title text-center" id="company-nameR"></h5>
-              </div>
-              <div class="mb-5 d-flex justify-content-around"></div>
-            </div>
-          </div>
-          <!----------- Region list ------------>
-          <div class="col">
-            <div class="card" style="width: 25rem;">
-              <h5 class="card-title text-center">Select region</h5>
-              <ul class="list-group" id="Region-list">
-                <!-- Here the list elements will be dynamically added -->
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div class="mb-5 d-flex justify-content-center">
-          <button class="btn btn-primary" id="confirmRegionBtn">Select</button>
-        </div>
-      </div>
-    </div>
-    <!-- ------------env and infra------------------ -->
-    <div class="tab-pane fade" id="env-and-infra" role="tabpanel" aria-labelledby="env-and-infra-tab">
-      <h3 class="text-start">env-and-infra</h3>
-      <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="#entity">Entity</a></li>
-          <li class="breadcrumb-item"><a href="#company">Company Selector</a></li>
-          <li class="breadcrumb-item active" aria-current="page">Region Selector</li>
-        </ol>
-      </nav>
-      <!-- cards -->
-      <div class="container py-5">
-        <div class="row py-5">
-          <!-- Selected entity card -->
-          <div class="col-md-4">
-            <div class="card">
-              <img src="" class="card-img-top selected-entity" alt="Entity image" id="infraIMG">
-              <div class="card-body">
-                <h3 class="card-title text-center" id="selectedEntityName"></h3>
-                <h5 class="card-title text-center" id="company-nameEI"></h5>
-                <h5 class="card-title text-center" id="regionName"></h5>
+3. Start the Server:
+   npm start
 
-              </div>
-            </div>
-          </div>
-          <!-- Environment list -->
-          <div class="col-md-4">
-            <div class="card h-90 d-flex flex-column">
-              <h5 class="card-title text-center">Environments</h5>
-              <ul class="list-group flex-grow-1" id="environment-list">
-                <!-- Los ítems serán agregados aquí dinámicamente -->
-              </ul>
+4. Access the Application:
+   Open your browser and navigate to http://localhost:3000.
 
-            </div>
-          </div>
-          <!-- Infrastructure type list -->
-          <div class="col-md-4">
-            <div class="card h-90 d-flex flex-column">
-              <h5 class="card-title text-center">Infra Type</h5>
-              <ul class="list-group flex-grow-1" id="infrastructure-list">
-                <!-- Los ítems serán agregados aquí dinámicamente -->
-              </ul>
-              <div class="card-footer text-center p-0">
+## Functionality
 
-              </div>
-            </div>
+### Entity Management
 
-          </div>
+- Add, edit, and delete entities representing deployment entities.
+- List of entities with management options.
+- Modal for adding/editing entities.
+- Confirm Selection button to proceed to the next step.
 
-        </div>
-        <div class="mb-5 d-flex justify-content-center">
-          <button class="btn btn-primary" id="confirmInfraAndEnvnBtn">Confirm</button>
-        </div>
-      </div>
+### Company Management
 
-      <!-- //stepper -->
-    </div>
+- Add, edit, and delete companies associated with entities.
+- List of companies with management options.
+- Modals for adding/editing companies.
+- Confirm Selection button to proceed to the next step.
 
-    <div class="tab-pane fade" id="env-and-infra" role="tabpanel" aria-labelledby="env-and-infra-tab">
-      <!-- Content for env-and-infra -->
+### Region Configuration
 
+- Add, edit, and delete regions associated with companies.
+- List of regions with management options.
+- Modals for adding/editing regions.
+- Confirm Selection button to proceed to the next step.
 
+### Environment and Infrastructure Selection
 
+- Display selected entity, company, and region.
+- Select environments and infrastructure types.
+- Confirm button to finalize the selection.
 
+### Configuration Settings (New Content)
 
-    </div>
+- Configure additional settings for deployment.
+- Dropdowns for various configuration options.
+- Confirm button to finalize the configuration.
 
+## Dependencies
 
-    <!-- New Content Sections: Config and Summary -->
-    <div class="tab-pane fade" id="config" role="tabpanel" aria-labelledby="config-tab">
-      <h3 class="text-start">Config</h3>
-      <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="#entity">Env and Infra</a></li>
-          <li class="breadcrumb-item active" aria-current="page">Config</li>
-        </ol>
-      </nav>
+- Bootstrap: Front-end styling and components.
+- Select2: Enhances dropdowns with search functionality.
+- Font Awesome: Icons for buttons and UI elements.
+- jQuery: JavaScript library for DOM manipulation.
+- SweetAlert2: Customizable popup boxes for user interactions.
 
-      <!-- Container for the dropdowns -->
-      <div class="container" id="configDropdownContainer">
-        <!-- Dropdowns will be added here dynamically -->
-      </div>
+## Project Structure
 
-      <div class="row">
-        <div class="col text-center">
-          <button class="btn btn-primary mt-4" id="confirmConfig">Confirm</button>
-        </div>
-      </div>
-    </div>
+- public: Static assets including stylesheets and images.
+- views: HTML templates for different sections.
+- assets/js: External JavaScript libraries.
+- js: Custom JavaScript files for managing entities, regions, etc.
+- routes: Express routes for handling different endpoints.
+- models: MongoDB models for entities, companies, regions, etc.
+- helpers: Helper functions and services.
 
+## Contributing
 
-</body>
-<script src="assets/js/jquery-3.3.1.min.js"></script>
-<script src="assets/js/popper.min.js"></script>
-<script src="assets/js/bootstrap.min.js"></script>
-<script src="assets/js/underscore-min.js"></script>
-<script src="assets/js/select2.min.js"></script>
-<script src="assets/js/sweetalert2@11.js"></script>
-<script src="js/new-entities.js"></script>
-<script src="js/entities-managment.js"></script>
-<script src="js/companies-manegment.js"></script>
-<script src="js/new-companies.js"></script>
-<script src="js/regions-managment.js"></script>
-<script src="js/envandinfra-management.js"> </script>
-<script src="js/config-managment.js"></script>
-<script src="assets/js/helper-service.js"></script>
-</body>
+Contributions are welcome! Feel free to open issues or submit pull requests following the project's coding conventions and guidelines.
 
-</html>
+## License
+
+This project is licensed under the MIT License.
